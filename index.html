@@ -74,6 +74,7 @@
               <option value="">— Chọn người —</option>
             </select>
             <button id="f1-search" class="px-4 py-2 rounded-lg text-white font-semibold bg-primary-blue hover:brightness-105">Tra cứu</button>
+            <button id="f1-unassigned" class="px-4 py-2 rounded-lg border border-gray-300 text-gray-700 bg-white hover:bg-gray-50">Chưa phân công</button>
           </div>
           <p class="text-gray-500 text-xs mt-1">Chọn tên và nhấn Tra cứu để gửi yêu cầu và hiển thị tác vụ</p>
         </div>
@@ -461,10 +462,14 @@
       slice.forEach(tr => body.appendChild(tr));
     }
 
+    let F1_UNASSIGNED_MODE = false;
+
     async function renderForm1(){
-      const name = (document.getElementById('f1-name').value || '').trim();
+      const unassigned = F1_UNASSIGNED_MODE === true;
+      const nameSelected = (document.getElementById('f1-name').value || '').trim();
+      const personParam = unassigned ? '' : nameSelected;
       const body = document.getElementById('f1-body');
-      if(!name){ body.innerHTML = '<tr><td class="px-3 py-3 text-center text-gray-500" colspan="12">Vui lòng chọn tên</td></tr>'; return; }
+      if(!unassigned && !nameSelected){ body.innerHTML = '<tr><td class="px-3 py-3 text-center text-gray-500" colspan="12">Vui lòng chọn tên</td></tr>'; return; }
       body.innerHTML = "<tr><td colspan='12' class='px-3 py-3 text-center text-gray-500'><span class='spinner mr-2'></span>Đang tải...</td></tr>";
       try{
           const headerMapF1 = {
@@ -499,7 +504,7 @@
         const params = new URLSearchParams({
           ...headerMapF1,
           action: 'form1_lookup',
-          person_name: name,
+          person_name: personParam,
           timestamp: new Date().toISOString()
         });
         const testUrl = `${WEBHOOK_URL}?${params.toString()}`;
@@ -545,13 +550,16 @@
           }catch(_){ }
           return [];
         }
-        const rows = pickRows(data);
+        let rows = pickRows(data);
         if(!rows.length){ body.innerHTML = "<tr><td colspan='14' class='px-3 py-3 text-center text-gray-500'>Không có tác vụ</td></tr>"; return; }
         const getV = (obj, keys)=>{
           const lower = Object.keys(obj||{}).reduce((acc,k)=>{ acc[k.toLowerCase()] = obj[k]; return acc; },{});
           for(const k of keys){ const v = lower[k.toLowerCase()]; if(v!==undefined) return v; }
           return '';
         };
+        // Lọc bỏ các dòng không có Tên tác vụ (tránh rỗng thông tin)
+        rows = rows.filter(item=> String(getV(item,['taskname','ten_tac_vu','ten','name','title','tên tác vụ'])||'').trim() !== '');
+        if(!rows.length){ body.innerHTML = "<tr><td colspan='14' class='px-3 py-3 text-center text-gray-500'>Không có tác vụ</td></tr>"; return; }
         F1_ALL_ROWS = [];
         rows.forEach(item=>{
           const tr=document.createElement('tr');
@@ -588,7 +596,7 @@
               labelBtn.disabled = true;
               labelBtn.classList.add('opacity-50','pointer-events-none');
               lastOpenTrigger = labelBtn;
-              openUploadModal({ form: 'Form 1', name, code, taskName: tname });
+              openUploadModal({ form: 'Form 1', name: nameSelected, code, taskName: tname });
             };
           }
           // Với cách mở modal, không cần input file ẩn cho Form 1 nữa
@@ -639,11 +647,31 @@
         f1SearchBtn.disabled = true;
         const prev = f1SearchBtn.textContent;
         f1SearchBtn.innerHTML = "<span class='spinner mr-2'></span>Đang tải...";
-        try { await renderForm1(); }
+        try { F1_UNASSIGNED_MODE = false; await renderForm1(); }
         finally {
           f1Busy = false;
           f1SearchBtn.disabled = false;
           f1SearchBtn.textContent = prev;
+        }
+      };
+    }
+    // Nút lọc các tác vụ chưa được phân công (tên trống)
+    const f1UnassignedBtn = document.getElementById('f1-unassigned');
+    if (f1UnassignedBtn) {
+      let f1UBusy = false;
+      f1UnassignedBtn.onclick = async (e)=>{
+        e.preventDefault();
+        if (f1UBusy) return;
+        f1UBusy = true;
+        F1_UNASSIGNED_MODE = true;
+        f1UnassignedBtn.disabled = true;
+        const prev = f1UnassignedBtn.textContent;
+        f1UnassignedBtn.innerHTML = "<span class='spinner mr-2'></span>Đang tải...";
+        try { await renderForm1(); }
+        finally {
+          f1UBusy = false;
+          f1UnassignedBtn.disabled = false;
+          f1UnassignedBtn.textContent = prev;
         }
       };
     }
