@@ -78,6 +78,16 @@
           </div>
           <p class="text-gray-500 text-xs mt-1">Chọn tên và nhấn Tra cứu để gửi yêu cầu và hiển thị tác vụ</p>
         </div>
+        <div class="md:col-span-2">
+          <div class="flex items-center gap-3">
+            <label class="text-sm font-medium text-gray-700 whitespace-nowrap">Lọc theo tháng:</label>
+            <select id="f1-month" class="w-40 border border-red-300 rounded-lg bg-slate-100 p-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-red-200 focus:bg-white">
+              <option value="">— Tất cả tháng —</option>
+            </select>
+            <button id="f1-clear-filter" class="px-3 py-1.5 text-sm rounded-lg border border-gray-300 text-gray-700 bg-white hover:bg-gray-50">Xóa lọc</button>
+          </div>
+          <p class="text-gray-500 text-xs mt-1">Các tác vụ Doing sẽ luôn hiện lên đầu và không bị lọc theo tháng</p>
+        </div>
       </div>
       <div class="mt-4 overflow-auto max-h-[60vh] border border-gray-200 rounded-lg">
         <table class="min-w-[1600px] w-full text-sm">
@@ -207,6 +217,11 @@
           <input id="upload-file" type="file" class="block w-full text-sm file:mr-2 file:py-1 file:px-3 file:rounded-full file:border-0 file:bg-primary-blue file:text-white"/>
           <p class="text-xs text-gray-500 mt-1">Tệp sẽ gửi kèm timestamp tại thời điểm gửi.</p>
         </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">Ghi chú (tùy chọn)</label>
+          <textarea id="upload-note" rows="3" placeholder="Nhập ghi chú về báo cáo..." class="w-full border border-red-300 rounded-lg bg-slate-100 p-2 focus:outline-none focus:ring-2 focus:ring-red-200 focus:bg-white"></textarea>
+          <p class="text-xs text-gray-500 mt-1">Ghi chú sẽ được gửi kèm với báo cáo.</p>
+        </div>
         <div id="bps-option" class="flex items-center gap-2" style="display:none">
           <input id="upload-bps" type="checkbox" class="h-4 w-4">
           <label for="upload-bps" class="text-sm text-gray-700 select-none">Trả báo cáo BPS</label>
@@ -296,10 +311,28 @@
 
   <script>
     // Constants
-    const WEBHOOK_URL = "https://xcqiyibqs.tino.page/webhook-test/44ea331c-73a7-49bb-8929-af80dcbe2be0";
-    const FORM1_UPLOAD_URL = "https://xcqiyibqs.tino.page/webhook/0cbfe158-5db1-4da8-a973-5e7f8d8b7603";
+    const WEBHOOK_URL = "https://xcqiyibqs.tino.page/webhook/tracuutacvuNCTN2";
+    const FORM1_UPLOAD_URL = "https://xcqiyibqs.tino.page/webhook/TrabaocaoNTCN2";
+    // Form 5 URLs - chuyển sang n8n webhooks
+    const FORM5_SUBMIT_URL = "https://xcqiyibqs.tino.page/webhook-test/form5-submit";
+    const FORM5_LIST_URL = "https://xcqiyibqs.tino.page/webhook-test/form5-list";
     let F4_CHART = null;
     let F5_LAST_COUNT = 0;
+
+    // Hàm format timestamp theo định dạng DD HH:mm GMT+7
+    function formatTimestampGMT7() {
+      const now = new Date();
+      // Chuyển đổi sang GMT+7 (UTC+7)
+      const gmt7 = new Date(now.getTime() + (7 * 60 * 60 * 1000));
+      
+      const year = gmt7.getUTCFullYear();
+      const month = String(gmt7.getUTCMonth() + 1).padStart(2, '0');
+      const day = String(gmt7.getUTCDate()).padStart(2, '0');
+      const hours = String(gmt7.getUTCHours()).padStart(2, '0');
+      const minutes = String(gmt7.getUTCMinutes()).padStart(2, '0');
+      
+      return `${year}-${month}-${day} ${hours}:${minutes}`;
+    }
 
     // Sidebar navigation
     const navBtns = document.querySelectorAll('.nav-btn');
@@ -342,6 +375,33 @@
     const f4PeopleSel = document.getElementById('f4-people');
     if (f4PeopleSel) fillSelect(f4PeopleSel, FORM1_NAMES);
 
+    // Fill month dropdown
+    function fillMonthSelect(){
+      const monthSelect = document.getElementById('f1-month');
+      if (!monthSelect) return;
+      
+      const months = [];
+      const now = new Date();
+      
+      // Tạo danh sách 12 tháng gần nhất (bao gồm tháng hiện tại)
+      for (let i = 0; i < 12; i++) {
+        const date = new Date(now.getFullYear(), now.getMonth() - i, 1);
+        const year = date.getFullYear();
+        const month = String(date.getMonth() + 1).padStart(2, '0');
+        const monthName = date.toLocaleDateString('vi-VN', { month: 'long', year: 'numeric' });
+        const value = `${year}-${month}`;
+        months.push({ value, text: monthName });
+      }
+      
+      months.forEach(m => {
+        const option = document.createElement('option');
+        option.value = m.value;
+        option.textContent = m.text;
+        monthSelect.appendChild(option);
+      });
+    }
+    fillMonthSelect();
+
     // Toast
     const toastEl = document.getElementById('toast');
     function showToast(msg,type='info'){
@@ -375,6 +435,8 @@
         if (bpsCheckbox) bpsCheckbox.checked = false;
       } catch(_) {}
       fileInput.value = '';
+      const noteInput = document.getElementById('upload-note');
+      if (noteInput) noteInput.value = '';
       modal.classList.add('open');
       modal.setAttribute('aria-hidden','false');
     }
@@ -409,13 +471,17 @@
       const fd = new FormData();
       fd.append('file', fileInput.files[0]);
       fd.append('file_name', fileInput.files[0].name || '');
-      fd.append('timestamp', new Date().toISOString());
+      fd.append('timestamp', formatTimestampGMT7());
       if(uploadContext){
         fd.append('nguoi_nop', uploadContext.name||'');
         fd.append('ma_tac_vu', uploadContext.code||'');
         fd.append('ten_tac_vu', uploadContext.taskName||'');
         fd.append('form', uploadContext.form||'');
       }
+      const noteInput = document.getElementById('upload-note');
+      const noteValue = noteInput ? (noteInput.value || '').trim() : '';
+      fd.append('note', noteValue);
+      fd.append('ghi_chu', noteValue);
       const bpsCheckbox = document.getElementById('upload-bps');
       fd.append('is_bps', '0');
       const targetUpload = FORM1_UPLOAD_URL;
@@ -466,6 +532,175 @@
     }
 
     let F1_UNASSIGNED_MODE = false;
+    let F1_MONTH_FILTER = '';
+    let F1_ALL_DATA = []; // Lưu tất cả dữ liệu gốc để lọc cục bộ
+
+    // Hàm lọc cục bộ theo tháng
+    function applyLocalMonthFilter() {
+      if (!F1_ALL_DATA.length) return;
+      
+      const getV = (obj, keys) => {
+        const lower = Object.keys(obj || {}).reduce((acc, k) => { acc[k.toLowerCase()] = obj[k]; return acc; }, {});
+        for (const k of keys) { const v = lower[k.toLowerCase()]; if (v !== undefined) return v; }
+        return '';
+      };
+
+      let filteredData = [...F1_ALL_DATA];
+
+      // Lọc theo tháng nếu có bộ lọc
+      if (F1_MONTH_FILTER) {
+        filteredData = filteredData.filter(item => {
+          const statusText = String(getV(item, ['status', 'trangthai', 'trang_thai', 'trạng thái']) || '').toLowerCase();
+          const isDoing = statusText.includes('doing') || statusText.includes('đang');
+          
+          // Tác vụ Doing luôn hiển thị (không bị lọc theo tháng)
+          // Nhưng vẫn phải tuân theo lọc tên (đã được lọc từ server)
+          if (isDoing) return true;
+          
+          // Các tác vụ khác lọc theo tháng
+          const requestDate = getV(item, ['requestdate', 'ngayyeucau', 'ngay_yeu_cau', 'submissiondate', 'ngaygui', 'ngày yêu cầu']);
+          if (!requestDate) return false;
+          
+          const date = new Date(requestDate);
+          if (isNaN(date.getTime())) return false;
+          
+          const itemYear = date.getFullYear();
+          const itemMonth = String(date.getMonth() + 1).padStart(2, '0');
+          const itemMonthStr = `${itemYear}-${itemMonth}`;
+          
+          return itemMonthStr === F1_MONTH_FILTER;
+        });
+      }
+
+      // Sắp xếp: Doing trước, sau đó theo thời gian từ gần đến xa
+      filteredData.sort((a, b) => {
+        const statusA = String(getV(a, ['status', 'trangthai', 'trang_thai', 'trạng thái']) || '').toLowerCase();
+        const statusB = String(getV(b, ['status', 'trangthai', 'trang_thai', 'trạng thái']) || '').toLowerCase();
+        
+        const isDoingA = statusA.includes('doing') || statusA.includes('đang');
+        const isDoingB = statusB.includes('doing') || statusB.includes('đang');
+        
+        // Ưu tiên Doing trước
+        if (isDoingA && !isDoingB) return -1;
+        if (!isDoingA && isDoingB) return 1;
+        
+        // Nếu cùng trạng thái, sắp xếp theo thời gian từ gần đến xa
+        const getRequestDate = (item) => {
+          const requestDate = getV(item, ['requestdate', 'ngayyeucau', 'ngay_yeu_cau', 'submissiondate', 'ngaygui', 'ngày yêu cầu']);
+          if (!requestDate) return new Date(0); // Nếu không có ngày, đặt ở cuối
+          
+          const date = new Date(requestDate);
+          return isNaN(date.getTime()) ? new Date(0) : date;
+        };
+        
+        const dateA = getRequestDate(a);
+        const dateB = getRequestDate(b);
+        
+        // Sắp xếp từ gần đến xa (mới nhất lên đầu)
+        return dateB.getTime() - dateA.getTime();
+      });
+
+      // Render lại bảng với dữ liệu đã lọc
+      renderFilteredData(filteredData);
+    }
+
+    // Hàm render dữ liệu đã lọc
+    function renderFilteredData(data) {
+      const body = document.getElementById('f1-body');
+      const pager = document.getElementById('f1-pager');
+      
+      if (!data.length) {
+        body.innerHTML = '<tr><td class="px-3 py-3 text-center text-gray-500" colspan="14">Không có tác vụ</td></tr>';
+        pager.style.display = 'none';
+        return;
+      }
+
+      const getV = (obj, keys) => {
+        const lower = Object.keys(obj || {}).reduce((acc, k) => { acc[k.toLowerCase()] = obj[k]; return acc; }, {});
+        for (const k of keys) { const v = lower[k.toLowerCase()]; if (v !== undefined) return v; }
+        return '';
+      };
+
+      const nameSelected = (document.getElementById('f1-name').value || '').trim();
+
+      F1_ALL_ROWS = [];
+      data.forEach(item => {
+        const tr = document.createElement('tr');
+        const tdBtn = document.createElement('td'); 
+        tdBtn.className = 'px-3 py-2';
+        
+        const code = getV(item, ['code', 'ma', 'taskcode', 'mã']);
+        const tname = getV(item, ['taskname', 'ten_tac_vu', 'ten', 'name', 'title', 'tên tác vụ']);
+        
+        // Tạo nút Trả báo cáo - chỉ cho phép khi trạng thái Doing
+        const statusText = getV(item, ['status', 'trangthai', 'trang_thai', 'trạng thái']);
+        const statusLower = (statusText || '').toLowerCase();
+        const isDoing = statusLower.includes('doing') || statusLower.includes('đang');
+        const isDone = statusLower.includes('hoàn') || statusLower.includes('done');
+        const isCancelled = statusLower.includes('cancel') || statusLower.includes('hủy') || statusLower.includes('huỷ');
+        const isEmptyStatus = statusLower.trim() === '';
+        const isLocked = !isDoing; // Chỉ cho phép khi Doing
+
+        const labelBtn = document.createElement('label');
+        if (isLocked) {
+          labelBtn.className = 'px-3 py-1 inline-block rounded-lg bg-gray-300 text-gray-500 cursor-not-allowed opacity-60 pointer-events-none';
+          if (isCancelled) {
+            labelBtn.textContent = 'Đã hủy';
+          } else if (isDone) {
+            labelBtn.textContent = 'Đã hoàn thành';
+          } else if (isEmptyStatus) {
+            labelBtn.textContent = 'Trạng thái trống';
+          } else {
+            labelBtn.textContent = 'Chỉ Doing mới được gửi';
+          }
+        } else {
+          labelBtn.className = 'px-3 py-1 inline-block rounded-lg text-white bg-primary-blue hover:brightness-105 cursor-pointer';
+          labelBtn.textContent = 'Trả báo cáo';
+          labelBtn.onclick = (e) => {
+            e.preventDefault();
+            if (labelBtn.disabled) return;
+            labelBtn.disabled = true;
+            labelBtn.classList.add('opacity-50', 'pointer-events-none');
+            lastOpenTrigger = labelBtn;
+            openUploadModal({ form: 'Form 1', name: nameSelected, code, taskName: tname });
+          };
+        }
+        
+        tdBtn.appendChild(labelBtn);
+        tr.appendChild(tdBtn);
+
+        // Các cột khác
+        const tdStatus = document.createElement('td'); 
+        tdStatus.className = 'px-3 py-2';
+        const s = (statusText || '').toLowerCase();
+        const badge = document.createElement('span'); 
+        badge.className = 'px-2 py-1 rounded text-xs ' + (s.includes('hoàn') || s.includes('done')
+          ? 'bg-green-100 text-green-800'
+          : (s.includes('cancel') || s.includes('hủy') || s.includes('huỷ') || s.includes('chờ') || s.includes('pending'))
+            ? 'bg-yellow-100 text-yellow-800'
+            : 'bg-blue-100 text-blue-800');
+        badge.textContent = statusText || ''; 
+        tdStatus.appendChild(badge); 
+        tr.appendChild(tdStatus);
+
+        addTd(tr, code);
+        addTd(tr, tname);
+        addTd(tr, getV(item, ['requester', 'nguoiyeucau', 'nguoi_yeu_cau', 'assigner', 'người yêu cầu']));
+        addTd(tr, getV(item, ['manhour', 'man_hour', 'congchuan', 'cong_chuan', 'workload', 'sogio', 'sogiocong', 'công chuẩn']));
+        addTd(tr, getV(item, ['requestdate', 'ngayyeucau', 'ngay_yeu_cau', 'submissiondate', 'ngaygui', 'ngày yêu cầu']));
+        addTd(tr, getV(item, ['wishdue', 'hanmongmuon', 'han_mong_muon', 'desireddue', 'hạn mong muốn']));
+        addTd(tr, getV(item, ['actualdue', 'handapung', 'han_dap_ung', 'completiondate', 'hạn đáp ứng']));
+        addTd(tr, getV(item, ['purpose', 'mucdich', 'muc_dich', 'mục đích đánh giá', 'muc dich danh gia', 'mucdichdanhgia']));
+        addTd(tr, getV(item, ['note', 'ghi_chu', 'ghichu']));
+        addTd(tr, getV(item, ['specialtest', 'yeucau_test_dac_biet', 'yeu_cau_test_dac_biet']));
+        addTd(tr, getV(item, ['reportform', 'form_bao_cao', 'form_bao_cao_danh_gia']));
+        addTd(tr, getV(item, ['attachmentfilename', 'file_name', 'filename', 'tenfile', 'ten_file', 'tên file', 'tên file đính kèm', 'attachment', 'file']));
+
+        F1_ALL_ROWS.push(tr);
+      });
+
+      applyForm1Paging();
+    }
 
     async function renderForm1(){
       const unassigned = F1_UNASSIGNED_MODE === true;
@@ -508,7 +743,7 @@
           ...headerMapF1,
           action: 'form1_lookup',
           person_name: personParam,
-          timestamp: new Date().toISOString()
+          timestamp: formatTimestampGMT7()
         });
         const testUrl = `${WEBHOOK_URL}?${params.toString()}`;
         async function fetchJson(url){
@@ -563,78 +798,12 @@
         // Lọc bỏ các dòng không có Tên tác vụ (tránh rỗng thông tin)
         rows = rows.filter(item=> String(getV(item,['taskname','ten_tac_vu','ten','name','title','tên tác vụ'])||'').trim() !== '');
         if(!rows.length){ body.innerHTML = "<tr><td colspan='14' class='px-3 py-3 text-center text-gray-500'>Không có tác vụ</td></tr>"; return; }
-        F1_ALL_ROWS = [];
-        rows.forEach(item=>{
-          const tr=document.createElement('tr');
-          const tdBtn=document.createElement('td'); tdBtn.className='px-3 py-2';
-          const code = getV(item,['code','ma','taskcode','mã']);
-          const tname = getV(item,['taskname','ten_tac_vu','ten','name','title','tên tác vụ']);
-          // Xác định trạng thái để quyết định cho phép gửi báo cáo hay không
-          const statusText = getV(item,['status','trangthai','trang_thai','trạng thái']);
-          const statusLower = (statusText||'').toLowerCase();
-          const isDone = statusLower.includes('hoàn') || statusLower.includes('done');
-          const isCancelled = statusLower.includes('cancel') || statusLower.includes('hủy') || statusLower.includes('huỷ');
-          const isEmptyStatus = statusLower.trim()==='';
-          const isLocked = isDone || isCancelled || isEmptyStatus;
-          // Tạo input file ẩn cho mỗi hàng + nút Trả báo cáo
-          const inputId = `f1-upload-${Math.random().toString(36).slice(2)}`;
-          const fileInput = document.createElement('input');
-          fileInput.type = 'file';
-          fileInput.id = inputId;
-          fileInput.className = 'hidden';
-          const labelBtn = document.createElement('label');
-          labelBtn.htmlFor = inputId;
-          if (isLocked) {
-            fileInput.disabled = true;
-            labelBtn.className = 'px-3 py-1 inline-block rounded-lg bg-gray-300 text-gray-500 cursor-not-allowed opacity-60 pointer-events-none';
-            labelBtn.textContent = isCancelled ? 'Đã hủy' : (isDone ? 'Đã hoàn thành' : 'Không thể gửi');
-            labelBtn.title = isCancelled ? 'Tác vụ đã hủy, không thể gửi báo cáo' : (isDone ? 'Tác vụ đã hoàn thành, không thể gửi báo cáo' : 'Trạng thái trống, không thể gửi báo cáo');
-          } else {
-            labelBtn.className = 'px-3 py-1 inline-block rounded-lg text-white bg-primary-blue hover:brightness-105 cursor-pointer';
-            labelBtn.textContent = 'Trả báo cáo';
-            // Mở modal như Form 2 khi nhấn ở Form 1 (chống double-click)
-            labelBtn.onclick = (e)=>{
-              e.preventDefault();
-              if (labelBtn.disabled) return;
-              labelBtn.disabled = true;
-              labelBtn.classList.add('opacity-50','pointer-events-none');
-              lastOpenTrigger = labelBtn;
-              openUploadModal({ form: 'Form 1', name: nameSelected, code, taskName: tname });
-            };
-          }
-          // Với cách mở modal, không cần input file ẩn cho Form 1 nữa
-          tdBtn.appendChild(labelBtn);
-          tr.appendChild(tdBtn);
-          // Tình trạng, Mã, Tên tác vụ, Người yêu cầu, Ngày yêu cầu, Hạn mong muốn, Hạn đáp ứng, Mục đích đánh giá, Note, Yêu cầu test đặc biệt, Form báo cáo đánh giá
-          const tdStatus=document.createElement('td'); tdStatus.className='px-3 py-2';
-          const s=(statusText||'').toLowerCase();
-          const badge=document.createElement('span'); badge.className='px-2 py-1 rounded text-xs ' + (s.includes('hoàn')||s.includes('done')
-            ? 'bg-green-100 text-green-800'
-            : (s.includes('cancel')||s.includes('hủy')||s.includes('huỷ')||s.includes('chờ')||s.includes('pending'))
-              ? 'bg-yellow-100 text-yellow-800'
-              : 'bg-blue-100 text-blue-800');
-          badge.textContent=statusText||''; tdStatus.appendChild(badge); tr.appendChild(tdStatus);
-          addTd(tr, code);
-          addTd(tr, tname);
-          addTd(tr, getV(item,['requester','nguoiyeucau','nguoi_yeu_cau','assigner','người yêu cầu']));
-          // Công chuẩn (giữa Tên tác vụ và Ngày yêu cầu)
-          addTd(tr, getV(item,[
-            'manhour','man_hour','congchuan','cong_chuan','workload','sogio','sogiocong','công chuẩn'
-          ]));
-          addTd(tr, getV(item,['requestdate','ngayyeucau','ngay_yeu_cau','submissiondate','ngaygui','ngày yêu cầu']));
-          addTd(tr, getV(item,['wishdue','hanmongmuon','han_mong_muon','desireddue','hạn mong muốn']));
-          addTd(tr, getV(item,['actualdue','handapung','han_dap_ung','completiondate','hạn đáp ứng']));
-          addTd(tr, getV(item,['purpose','mucdich','muc_dich','mục đích đánh giá','muc dich danh gia','mucdichdanhgia']));
-          addTd(tr, getV(item,['note','ghi_chu','ghichu']));
-          addTd(tr, getV(item,['specialtest','yeucau_test_dac_biet','yeu_cau_test_dac_biet']));
-          addTd(tr, getV(item,['reportform','form_bao_cao','form_bao_cao_danh_gia']));
-          // Tên file đính kèm (nếu backend cung cấp)
-          addTd(tr, getV(item,[
-            'attachmentfilename','file_name','filename','tenfile','ten_file','tên file','tên file đính kèm','attachment','file'
-          ]));
-          F1_ALL_ROWS.push(tr);
-        });
-        applyForm1Paging();
+        
+        // Lưu dữ liệu gốc để lọc cục bộ
+        F1_ALL_DATA = [...rows];
+        
+        // Áp dụng lọc cục bộ
+        applyLocalMonthFilter();
       }catch(err){
         body.innerHTML = `<tr><td colspan='12' class='px-3 py-3 text-center text-red-600'>Lỗi tải dữ liệu: ${String(err.message||err)}</td></tr>`;
       }
@@ -686,6 +855,28 @@
     if (f1Next) f1Next.onclick = (e)=>{ e.preventDefault(); F1_PAGE++; applyForm1Paging(); };
     if (f1Size) f1Size.onchange = (e)=>{ F1_SIZE = parseInt(e.target.value||'10',10)||10; F1_PAGE=1; applyForm1Paging(); };
 
+    // Month filter events - chỉ lọc cục bộ, không gọi server
+    const f1Month = document.getElementById('f1-month');
+    const f1ClearFilter = document.getElementById('f1-clear-filter');
+    
+    if (f1Month) {
+      f1Month.addEventListener('change', (e) => {
+        F1_MONTH_FILTER = e.target.value || '';
+        F1_PAGE = 1; // Reset về trang đầu khi thay đổi bộ lọc
+        applyLocalMonthFilter(); // Chỉ lọc cục bộ
+      });
+    }
+    
+    if (f1ClearFilter) {
+      f1ClearFilter.addEventListener('click', (e) => {
+        e.preventDefault();
+        F1_MONTH_FILTER = '';
+        if (f1Month) f1Month.value = '';
+        F1_PAGE = 1; // Reset về trang đầu khi xóa bộ lọc
+        applyLocalMonthFilter(); // Chỉ lọc cục bộ
+      });
+    }
+
     // Default Form 4 month = current month
     (function setDefaultF4Month(){
       const m = document.getElementById('f4-month');
@@ -719,119 +910,9 @@
       el.value = `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
     }
 
-    // Form 3: upload to Google Drive via Apps Script (as in index.html)
-    (function setupForm3Upload(){
-      const fileInput = document.getElementById('attach');
-      const list = document.getElementById('f3-upload-list');
-      if (!fileInput || !list) return;
-      list.innerHTML = '';
-      fileInput.addEventListener('change', async function(){
-        if (!this.files || this.files.length === 0) return;
-        const file = this.files[0];
-        const row = document.createElement('div');
-        row.className = "flex items-center justify-between p-2 bg-blue-50 rounded";
-        row.innerHTML = `<span>📄<span class="ml-2">${file.name}</span></span><span class="spinner"></span>`;
-        list.innerHTML = '';
-        list.appendChild(row);
-        try{
-          const url = await new Promise((resolve, reject)=>{
-            const reader = new FileReader();
-            reader.onload = async ()=>{
-              try{
-                const base64 = reader.result.split(',')[1];
-                const form = new URLSearchParams();
-                form.append('filedata', base64);
-                form.append('filename', file.name);
-                form.append('mimetype', file.type);
-                const resp = await fetch(UPLOAD_SCRIPT_URL, {
-                  method: 'POST',
-                  headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-                  body: form.toString()
-                });
-                if(!resp.ok) throw new Error('Upload failed');
-                const raw = await resp.text();
-                let parsedUrl = '';
-                try{
-                  const j = JSON.parse(raw);
-                  parsedUrl = j.url || j.fileUrl || j.public_url || j.link || (j.data && j.data[0] && j.data[0].url) || '';
-                }catch(_){
-                  const match = (raw || '').match(/https?:\/\/[^\s"']+/);
-                  parsedUrl = match ? match[0] : '';
-                }
-                resolve(parsedUrl || '#');
-              }catch(err){ reject(err); }
-            };
-            reader.onerror = ()=>reject(new Error('File read error'));
-            reader.readAsDataURL(file);
-          });
-          row.innerHTML = `
-            <span>📄<span class="ml-2">${file.name}</span></span>
-            <span class="flex items-center gap-3">
-              <span class="text-green-700 bg-green-100 px-2 py-0.5 rounded text-xs">Đã tải lên</span>
-              <a href="${url}" target="_blank" class="text-primary-blue underline">Xem</a>
-            </span>
-          `;
-        }catch(err){
-          const spinnerEl = row.querySelector('.spinner');
-          if (spinnerEl) spinnerEl.outerHTML = `<span class="text-red-600">Thất bại</span>`;
-          setTimeout(()=>{ try{ list.removeChild(row);}catch(_){} }, 2000);
-        }
-        this.value = '';
-      });
-    })();
+    // Form 3: Removed - Google Drive upload functionality disabled
 
-    // Submit Form 3 to SheetDB with required mapping
-    document.getElementById('assign-form').onsubmit = async (e)=>{
-      e.preventDefault();
-      const requester = document.getElementById('rq-by').value.trim();
-      const taskName = (document.getElementById('task-name')?.value || '').trim();
-      const rqTime = document.getElementById('rq-time').value;
-      const manHourRaw = document.getElementById('man-hour').value;
-      const output = document.getElementById('output').value.trim();
-      const assignee = (document.getElementById('f3-assignee').value || '').trim();
-      const deadline = document.getElementById('deadline').value;
-      const odooJira = document.getElementById('odoo-jira').value.trim();
-
-      if(!requester || !taskName || !output || !manHourRaw || !assignee){ showToast('Vui lòng điền đủ trường bắt buộc.','error'); return; }
-      if(!/^\d+(\.\d{1,2})?$/.test(manHourRaw)){ showToast('Công chuẩn tối đa 2 chữ số thập phân.','error'); return; }
-
-      const btn = e.target.querySelector('button[type="submit"]');
-      const prev = btn ? btn.textContent : '';
-      if (btn) { btn.disabled = true; btn.innerHTML = "<span class='spinner mr-2'></span>Đang gửi..."; }
-
-      const mapped = {
-        requesterName: requester,
-        requestDate: (rqTime || '').slice(0, 10),
-        itemName: taskName,
-        Score: String(manHourRaw || '').trim(),
-        changeReq: output,
-        Assignee: assignee,
-        desiredDate: String(deadline || '').trim(),
-        Odoojira: odooJira,
-        deptRequest: 'NCTN 2'
-      };
-      const body = { data: [mapped] };
-
-      try{
-        const resp = await fetch(SHEETDB_API_URL, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
-          body: JSON.stringify(body)
-        });
-        if (!resp.ok) {
-          const t = await resp.text();
-          throw new Error(t || `HTTP ${resp.status}`);
-        }
-        showToast('Đã giao việc và gửi dữ liệu.','success');
-        e.target.reset();
-        setRqTime();
-      }catch(err){
-        console.error(err);
-        showToast('Gửi thất bại.','error');
-      }finally{
-        if (btn) { btn.disabled = false; btn.textContent = prev || 'Giao việc'; }
-      }
-    };
+    // Form 3: Removed - SheetDB submit functionality disabled
 
     // ===== Form 4: filter popover & selection =====
     let F4_SELECTED_NAMES = new Set();
@@ -902,7 +983,7 @@
         ...headerMapF1,
         action: 'form1_lookup',
         person_name: name,
-        timestamp: new Date().toISOString()
+        timestamp: formatTimestampGMT7()
       });
       if (fromVal) params.append('from', fromVal);
       if (toVal) params.append('to', toVal);
@@ -977,7 +1058,7 @@
         if (fromVal) params.append('from', fromVal);
         if (toVal) params.append('to', toVal);
         // Timestamp to bypass caches
-        params.append('_ts', Date.now().toString());
+        params.append('_ts', formatTimestampGMT7());
         // Debug: log the exact URL being requested
         try { console.log('Form4 GET (test):', `${urlTest}?${params.toString()}`); } catch(_) {}
 
@@ -1202,7 +1283,7 @@
         ...headerMapF1,
         action: 'form1_lookup',
         person_name: name,
-        timestamp: new Date().toISOString()
+        timestamp: formatTimestampGMT7()
       });
       if (from) params.append('from', from);
       if (to) params.append('to', to);
@@ -1501,7 +1582,7 @@
           title,
           problem: prob,
           solution: sol,
-          _ts: Date.now().toString()
+          _ts: formatTimestampGMT7()
         });
         async function tryPost(url){
           try{
