@@ -90,11 +90,12 @@
         </div>
       </div>
       <div class="mt-4 overflow-auto max-h-[60vh] border border-gray-200 rounded-lg">
-        <table class="min-w-[1600px] w-full text-sm">
+        <table class="min-w-[1760px] w-full text-sm">
           <thead class="bg-gradient-to-r from-red-100 to-red-50 sticky top-0">
             <tr class="text-left text-gray-700">
               <th class="px-3 py-2 min-w-[160px]">Trả báo cáo</th>
               <th class="px-3 py-2 min-w-[140px]">Tình trạng</th>
+              <th class="px-3 py-2 min-w-[160px]">Ngày hoàn thành thực tế</th>
               <th class="px-3 py-2 min-w-[140px]">Mã</th>
               <th class="px-3 py-2 min-w-[260px]">Tên tác vụ</th>
               <th class="px-3 py-2 min-w-[160px]">Người yêu cầu</th>
@@ -110,7 +111,7 @@
             </tr>
           </thead>
           <tbody id="f1-body" class="divide-y divide-gray-100">
-            <tr><td class="px-3 py-3 text-center text-gray-500" colspan="14">Chưa có dữ liệu</td></tr>
+            <tr><td class="px-3 py-3 text-center text-gray-500" colspan="15">Chưa có dữ liệu</td></tr>
           </tbody>
         </table>
       </div>
@@ -311,8 +312,8 @@
 
   <script>
     // Constants
-    const WEBHOOK_URL = "https://xcqiyibqs.tino.page/webhook/tracuutacvuNCTN2";
-    const FORM1_UPLOAD_URL = "https://xcqiyibqs.tino.page/webhook/TrabaocaoNTCN2";
+    const WEBHOOK_URL = "https://xcqiyibqs.tino.page/webhook-test/tracuutacvuNCTN2";
+    const FORM1_UPLOAD_URL = "https://xcqiyibqs.tino.page/webhook-test/TrabaocaoNTCN2";
     // Form 5 URLs - chuyển sang n8n webhooks
     const FORM5_SUBMIT_URL = "https://xcqiyibqs.tino.page/webhook-test/form5-submit";
     const FORM5_LIST_URL = "https://xcqiyibqs.tino.page/webhook-test/form5-list";
@@ -610,7 +611,7 @@
       const pager = document.getElementById('f1-pager');
       
       if (!data.length) {
-        body.innerHTML = '<tr><td class="px-3 py-3 text-center text-gray-500" colspan="14">Không có tác vụ</td></tr>';
+        body.innerHTML = '<tr><td class="px-3 py-3 text-center text-gray-500" colspan="15">Không có tác vụ</td></tr>';
         pager.style.display = 'none';
         return;
       }
@@ -629,11 +630,11 @@
         const tdBtn = document.createElement('td'); 
         tdBtn.className = 'px-3 py-2';
         
-        const code = getV(item, ['code', 'ma', 'taskcode', 'mã']);
-        const tname = getV(item, ['taskname', 'ten_tac_vu', 'ten', 'name', 'title', 'tên tác vụ']);
+        const code = getV(item, ['Mã tác vụ', 'code', 'ma', 'taskcode', 'mã']);
+        const tname = getV(item, ['Task Name', 'taskname', 'ten_tac_vu', 'ten', 'name', 'title', 'tên tác vụ']);
         
         // Tạo nút Trả báo cáo - chỉ cho phép khi trạng thái Doing
-        const statusText = getV(item, ['status', 'trangthai', 'trang_thai', 'trạng thái']);
+        const statusText = getV(item, ['⁉️ Kết quả', 'Hiện trạng', 'status', 'trangthai', 'trang_thai', 'trạng thái']);
         const statusLower = (statusText || '').toLowerCase();
         const isDoing = statusLower.includes('doing') || statusLower.includes('đang');
         const isDone = statusLower.includes('hoàn') || statusLower.includes('done');
@@ -683,14 +684,17 @@
         tdStatus.appendChild(badge); 
         tr.appendChild(tdStatus);
 
+        // Thêm cột Ngày hoàn thành thực tế
+        addTd(tr, getV(item, ['Ngày hoàn thành thực tế', 'completiondate', 'completeddate', 'ngayhoanthanh', 'ngay_hoan_thanh', 'completion', 'done_date', 'ngày hoàn thành']));
+
         addTd(tr, code);
         addTd(tr, tname);
-        addTd(tr, getV(item, ['requester', 'nguoiyeucau', 'nguoi_yeu_cau', 'assigner', 'người yêu cầu']));
-        addTd(tr, getV(item, ['manhour', 'man_hour', 'congchuan', 'cong_chuan', 'workload', 'sogio', 'sogiocong', 'công chuẩn']));
-        addTd(tr, getV(item, ['requestdate', 'ngayyeucau', 'ngay_yeu_cau', 'submissiondate', 'ngaygui', 'ngày yêu cầu']));
-        addTd(tr, getV(item, ['wishdue', 'hanmongmuon', 'han_mong_muon', 'desireddue', 'hạn mong muốn']));
+        addTd(tr, getV(item, ['🖊️ Tên NCC ', 'requester', 'nguoiyeucau', 'nguoi_yeu_cau', 'assigner', 'người yêu cầu']));
+        addTd(tr, getV(item, ['Công chuẩn công việc nhận tuần 22', 'manhour', 'man_hour', 'congchuan', 'cong_chuan', 'workload', 'sogio', 'sogiocong', 'công chuẩn']));
+        addTd(tr, getV(item, ['📆 Ngày yêu cầu ', 'requestdate', 'ngayyeucau', 'ngay_yeu_cau', 'submissiondate', 'ngaygui', 'ngày yêu cầu']));
+        addTd(tr, getV(item, ['Hạn mong muốn ', 'wishdue', 'hanmongmuon', 'han_mong_muon', 'desireddue', 'hạn mong muốn']));
         addTd(tr, getV(item, ['actualdue', 'handapung', 'han_dap_ung', 'completiondate', 'hạn đáp ứng']));
-        addTd(tr, getV(item, ['purpose', 'mucdich', 'muc_dich', 'mục đích đánh giá', 'muc dich danh gia', 'mucdichdanhgia']));
+        addTd(tr, getV(item, ['❓ Mục đích đánh giá ', 'purpose', 'mucdich', 'muc_dich', 'mục đích đánh giá', 'muc dich danh gia', 'mucdichdanhgia']));
         addTd(tr, getV(item, ['note', 'ghi_chu', 'ghichu']));
         addTd(tr, getV(item, ['specialtest', 'yeucau_test_dac_biet', 'yeu_cau_test_dac_biet']));
         addTd(tr, getV(item, ['reportform', 'form_bao_cao', 'form_bao_cao_danh_gia']));
@@ -707,8 +711,8 @@
       const nameSelected = (document.getElementById('f1-name').value || '').trim();
       const personParam = unassigned ? '' : nameSelected;
       const body = document.getElementById('f1-body');
-      if(!unassigned && !nameSelected){ body.innerHTML = '<tr><td class="px-3 py-3 text-center text-gray-500" colspan="12">Vui lòng chọn tên</td></tr>'; return; }
-      body.innerHTML = "<tr><td colspan='12' class='px-3 py-3 text-center text-gray-500'><span class='spinner mr-2'></span>Đang tải...</td></tr>";
+      if(!unassigned && !nameSelected){ body.innerHTML = '<tr><td class="px-3 py-3 text-center text-gray-500" colspan="15">Vui lòng chọn tên</td></tr>'; return; }
+      body.innerHTML = "<tr><td colspan='15' class='px-3 py-3 text-center text-gray-500'><span class='spinner mr-2'></span>Đang tải...</td></tr>";
       try{
           const headerMapF1 = {
           header_btn: 'Nút nhập gửi báo cáo',
@@ -724,6 +728,7 @@
           header_specialTest: 'Yêu cầu test đặc biệt',
           header_reportForm: 'Form báo cáo đánh giá',
           header_status: 'Trạng thái',
+          header_completionDate: 'Ngày hoàn thành thực tế',
           header_attachmentFileName: 'Tên file đính kèm',
           field_requester: 'requester',
           field_requestDate: 'requestDate',
@@ -737,6 +742,7 @@
           field_specialTest: 'specialTest',
           field_reportForm: 'reportForm',
           field_status: 'status',
+          field_completionDate: 'completionDate',
           field_attachmentFileName: 'attachmentFileName'
         };
         const params = new URLSearchParams({
@@ -789,7 +795,7 @@
           return [];
         }
         let rows = pickRows(data);
-        if(!rows.length){ body.innerHTML = "<tr><td colspan='14' class='px-3 py-3 text-center text-gray-500'>Không có tác vụ</td></tr>"; return; }
+        if(!rows.length){ body.innerHTML = "<tr><td colspan='15' class='px-3 py-3 text-center text-gray-500'>Không có tác vụ</td></tr>"; return; }
         const getV = (obj, keys)=>{
           const lower = Object.keys(obj||{}).reduce((acc,k)=>{ acc[k.toLowerCase()] = obj[k]; return acc; },{});
           for(const k of keys){ const v = lower[k.toLowerCase()]; if(v!==undefined) return v; }
@@ -797,7 +803,7 @@
         };
         // Lọc bỏ các dòng không có Tên tác vụ (tránh rỗng thông tin)
         rows = rows.filter(item=> String(getV(item,['taskname','ten_tac_vu','ten','name','title','tên tác vụ'])||'').trim() !== '');
-        if(!rows.length){ body.innerHTML = "<tr><td colspan='14' class='px-3 py-3 text-center text-gray-500'>Không có tác vụ</td></tr>"; return; }
+        if(!rows.length){ body.innerHTML = "<tr><td colspan='15' class='px-3 py-3 text-center text-gray-500'>Không có tác vụ</td></tr>"; return; }
         
         // Lưu dữ liệu gốc để lọc cục bộ
         F1_ALL_DATA = [...rows];
@@ -805,7 +811,7 @@
         // Áp dụng lọc cục bộ
         applyLocalMonthFilter();
       }catch(err){
-        body.innerHTML = `<tr><td colspan='12' class='px-3 py-3 text-center text-red-600'>Lỗi tải dữ liệu: ${String(err.message||err)}</td></tr>`;
+        body.innerHTML = `<tr><td colspan='15' class='px-3 py-3 text-center text-red-600'>Lỗi tải dữ liệu: ${String(err.message||err)}</td></tr>`;
       }
     }
     document.getElementById('f1-name').onchange = ()=>{};
