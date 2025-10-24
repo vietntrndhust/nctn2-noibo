@@ -37,6 +37,14 @@
     .modal.open{display:flex}
     .toast{position:fixed;right:16px;bottom:16px;background:#0b1324;color:#fff;padding:10px 12px;border-radius:10px;box-shadow:0 8px 24px rgba(0,0,0,.15);opacity:0;transform:translateY(10px);transition:.2s}
     .toast.show{opacity:1;transform:translateY(0)}
+    /* Form 2: Tab styling */
+    .f2-panel{transition:all .2s ease}
+    .f2-panel.hidden{display:none}
+    /* Form 2: Table styling */
+    .table-zebra tbody tr:nth-child(even){ background-color:#f8fafc; }
+    .cell-div{ border-left:1px solid #e5e7eb; }
+    .table-vdiv{ border-collapse: separate; border-spacing: 0; }
+    .table-vdiv th+th, .table-vdiv td+td{ border-left:1px solid #e5e7eb; }
   </style>
 </head>
 <body class="bg-muted min-h-screen flex text-gray-800" style="font-family: 'Inter', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol'">
@@ -45,6 +53,7 @@
     <h1 class="text-xl font-bold tracking-wide pb-6 border-b border-red-200 mb-4">Cổng Tác Vụ NCTN 2</h1>
     <nav class="flex flex-col gap-2 mt-2">
       <button class="nav-btn py-2 px-4 rounded transition hover:bg-sidebar-hover text-left text-base" data-target="form1">Form 1 · Tra cứu tác vụ</button>
+      <button class="nav-btn py-2 px-4 rounded transition hover:bg-sidebar-hover text-left text-base" data-target="form2">Form 2 · Tất cả tác vụ</button>
       <!-- <button class="nav-btn py-2 px-4 rounded transition hover:bg-sidebar-hover text-left text-base" data-target="form4">Form 4 · Bảng theo dõi </button> -->
     </nav>
   </aside>
@@ -141,63 +150,55 @@
       </div>
     </section>
 
-
-    <!-- Form 4 - TEMPORARILY HIDDEN -->
-    <!-- <section id="form4" class="w-full max-w-none bg-white p-6 rounded-lg shadow-md hidden">
+    <!-- Form 2 · Tất cả tác vụ -->
+    <section id="form2" class="w-full max-w-none bg-white p-6 rounded-lg shadow-md hidden">
       <div class="flex items-center justify-between mb-4">
-        <div class="section-title">
-          <h2 class="text-xl font-semibold text-red-800">Form 4 · Bảng theo dõi</h2>
-        </div>
+        <h2 class="text-xl font-semibold text-red-800">Form 2 · Tất cả tác vụ</h2>
         <div class="flex items-center gap-2">
-          <label class="text-sm text-gray-700">Trạng thái</label>
-          <select id="f4-status" class="border border-red-300 rounded-lg bg-slate-100 p-2 focus:outline-none focus:ring-2 focus:ring-red-200 focus:bg-white">
-            <option value="Doing" selected>Doing</option>
-            <option value="All">Tất cả tác vụ</option>
-          </select>
-          <label class="text-sm text-gray-700">Từ ngày</label>
-          <input id="f4-from" type="date" class="border border-red-300 rounded-lg bg-slate-100 p-2 focus:outline-none focus:ring-2 focus:ring-red-200 focus:bg-white"/>
-          <label class="text-sm text-gray-700">Đến ngày</label>
-          <input id="f4-to" type="date" class="border border-red-300 rounded-lg bg-slate-100 p-2 focus:outline-none focus:ring-2 focus:ring-red-200 focus:bg-white"/>
-          <button id="f4-search" class="submit-btn px-4 py-2 text-white font-semibold transition">Tra cứu</button>
+          <button id="f2-export" class="px-3 py-1 rounded-lg border border-red-300 text-primary-blue bg-red-50 hover:bg-red-100">Xuất server</button>
+          <button id="f2-export-xlsx" class="px-3 py-1 rounded-lg border border-red-300 text-primary-blue bg-red-50 hover:bg-red-100">Xuất XLSX</button>
         </div>
       </div>
-      <div class="mt-4 overflow-auto max-h-[60vh] border border-gray-200 rounded-lg">
-        <table class="min-w-[480px] w-full text-sm">
+      <div class="mt-4">
+        <div class="flex items-center gap-2 p-2">
+          <label class="text-sm text-gray-700">Tháng</label>
+          <input id="f2-month" type="month" class="border border-red-300 rounded-lg bg-slate-100 p-2 focus:outline-none focus:ring-2 focus:ring-red-200 focus:bg-white"/>
+        </div>
+        <!-- P1 Header -->
+        <div class="mt-2 flex items-center gap-2 border-b border-gray-200">
+          <div class="px-4 py-2 font-semibold text-red-800 bg-red-50 rounded-t-lg border-b-2 border-red-200">Thống kê tiến độ</div>
+        </div>
+        <!-- Thẻ P1: Thống kê tiến độ -->
+        <div id="f2-panel-p1" class="f2-panel bg-white border border-gray-200 rounded-lg shadow-sm mt-2">
+          <div class="px-3 py-2 border-b border-gray-200 bg-gradient-to-r from-red-50 to-white flex items-center justify-center">
+            <span class="font-semibold text-red-800 mr-4">Thẻ P1 - Thống kê tiến độ</span>
+            <button id="f2-search-p1" class="submit-btn px-3 py-1.5 text-white text-sm font-semibold transition">Tra cứu P1</button>
+          </div>
+          <div class="overflow-auto max-h-[60vh] p-2">
+          <table class="min-w-[1200px] w-full text-sm table-zebra table-vdiv">
           <thead class="bg-gradient-to-r from-red-100 to-red-50 sticky top-0">
             <tr class="text-left text-gray-700">
-              <th class="px-3 py-2 relative">
-                <button id="f4-filter-toggle" class="inline-flex items-center gap-1 hover:text-primary-blue">
-                  Nhân viên <span class="text-xs">▾</span>
-                </button>
-                <div id="f4-filter-pop" class="absolute z-20 mt-2 left-0 w-72 bg-white border border-gray-200 rounded-lg shadow-lg p-3 hidden">
-                  <div class="flex items-center gap-2 mb-2">
-                    <input id="f4-filter-search" type="text" placeholder="Tìm người..." class="flex-1 border border-red-300 rounded bg-slate-100 p-2 focus:outline-none focus:ring-2 focus:ring-red-200 focus:bg-white"/>
-                  </div>
-                  <div class="flex items-center justify-between text-xs text-gray-600 mb-2">
-                    <div class="flex items-center gap-3">
-                      <button id="f4-filter-select-all" class="underline">Chọn tất cả</button>
-                      <button id="f4-filter-clear" class="underline">Bỏ chọn</button>
-                    </div>
-                    <button id="f4-filter-apply" class="px-2 py-1 rounded bg-primary-blue text-white text-xs">Lọc</button>
-                  </div>
-                  <div id="f4-filter-list" class="max-h-60 overflow-auto space-y-1 text-sm">
-                    <label class="flex items-center gap-2" data-name="(Chỗ trống)"><input type="checkbox" value="(Chỗ trống)" class="f4-filter-item h-4 w-4"/><span>(Chỗ trống)</span></label>
-                  </div>
-                </div>
-              </th>
-              <th class="px-3 py-2">Công chuẩn hiện tại</th>
-              <th class="px-3 py-2">Số tác vụ</th>
+              <th class="px-3 py-2">Nhân viên</th>
+              <th class="px-3 py-2">Tổng tác vụ đang thực hiện</th>
+              <th class="px-3 py-2">Số Done trong tháng</th>
+              <th class="px-3 py-2">Vượt tiến độ</th>
+              <th class="px-3 py-2">Đúng tiến độ</th>
+              <th class="px-3 py-2">Chậm tiến độ</th>
+              <th class="px-3 py-2">Số N/A</th>
+              <th class="px-3 py-2">Tỷ lệ vượt (%)</th>
+              <th class="px-3 py-2">Tỷ lệ đúng (%)</th>
+              <th class="px-3 py-2">Tỷ lệ chậm (%)</th>
+              <th class="px-3 py-2">%N/A</th>
             </tr>
           </thead>
-          <tbody id="f4-body" class="divide-y divide-gray-100">
-            <tr><td class="px-3 py-3 text-center text-gray-500" colspan="3">Chưa có dữ liệu</td></tr>
+            <tbody id="f2-body-p1" class="divide-y divide-gray-100">
+              <tr><td class="px-3 py-3 text-center text-gray-500" colspan="11">Chưa có dữ liệu</td></tr>
           </tbody>
         </table>
+          </div>
+        </div>
       </div>
-      <div id="f4-chart-container" class="mt-4 h-80" style="display:none">
-        <canvas id="f4-chart"></canvas>
-      </div>
-    </section> -->
+    </section>
 
   </main>
 
@@ -235,6 +236,37 @@
     </div>
   </div>
 
+  <!-- Modal: Chi tiết tác vụ theo nhân viên (Form 2 P1) -->
+  <div id="f2-p1-detail-modal" class="modal" aria-hidden="true" role="dialog" aria-labelledby="f2-p1-detail-title">
+    <div class="w-full max-w-[95vw] bg-white rounded-xl border border-gray-200 shadow-xl overflow-hidden" style="width:95vw">
+      <div class="px-4 py-3 bg-gradient-to-b from-red-50 to-white border-b border-gray-200 flex items-center justify-between">
+        <h3 id="f2-p1-detail-title" class="text-base font-semibold text-gray-800">Chi tiết tác vụ của <span id="f2-p1-detail-name" class="text-primary-blue"></span></h3>
+        <button id="f2-p1-detail-close" class="px-3 py-1 rounded-lg bg-slate-100 text-gray-800">Đóng</button>
+      </div>
+      <div class="p-4">
+        <div class="overflow-auto border border-gray-200 rounded-lg" style="max-height:60vh">
+          <table class="min-w-[1200px] w-full text-sm">
+            <thead class="bg-gradient-to-r from-red-100 to-red-50 sticky top-0">
+              <tr class="text-left text-gray-700">
+                <th class="px-3 py-2 min-w-[140px]">Tình trạng</th>
+                <th class="px-3 py-2 min-w-[160px]">Ngày hoàn thành thực tế</th>
+                <th class="px-3 py-2 min-w-[140px]">Mã</th>
+                <th class="px-3 py-2 min-w-[260px]">Tên tác vụ</th>
+                <th class="px-3 py-2 min-w-[160px]">Người yêu cầu</th>
+                <th class="px-3 py-2 min-w-[140px]">Ngày yêu cầu</th>
+                <th class="px-3 py-2 min-w-[140px]">Hạn mong muốn</th>
+                <th class="px-3 py-2 min-w-[240px]">Note</th>
+              </tr>
+            </thead>
+            <tbody id="f2-p1-detail-body" class="divide-y divide-gray-100">
+              <tr><td class="px-3 py-3 text-center text-gray-500" colspan="8">Chưa có dữ liệu</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <div id="detail-modal" class="modal" aria-hidden="true" role="dialog" aria-labelledby="detail-title">
     <div class="w-full max-w-5xl bg-white rounded-xl border border-gray-200 shadow-xl overflow-hidden">
       <div class="px-4 py-3 bg-gradient-to-b from-red-50 to-white border-b border-gray-200 flex items-center justify-between">
@@ -266,59 +298,15 @@
     </div>
   </div>
 
-  <!-- Form 5 Submit Modal -->
-  <div id="f5-modal" class="modal" aria-hidden="true" role="dialog" aria-labelledby="f5-modal-title">
-    <div class="w-full max-w-3xl bg-white rounded-xl border border-gray-200 shadow-xl overflow-hidden">
-      <div class="px-4 py-3 bg-gradient-to-b from-red-50 to-white border-b border-gray-200">
-        <h3 id="f5-modal-title" class="text-base font-semibold text-gray-800">Nộp ý tưởng cải tiến</h3>
-      </div>
-      <div class="p-4 space-y-4">
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">Ngày</label>
-            <input id="f5-date" type="date" readonly class="w-full border border-red-300 rounded-lg bg-gray-200 p-2 text-gray-600"/>
-            <p class="text-gray-500 text-xs mt-1">Cố định theo ngày nhập</p>
-          </div>
-          <div class="md:col-span-2">
-            <label class="block text-sm font-medium text-gray-700 mb-1">Nhân viên</label>
-            <select id="f5-employee" class="w-full border border-red-300 rounded-lg bg-slate-100 p-2 focus:outline-none focus:ring-2 focus:ring-red-200 focus:bg-white">
-              <option value="">— Chọn người —</option>
-            </select>
-          </div>
-        </div>
-        <div class="grid grid-cols-1 gap-4">
-          <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">Tiêu đề ý tưởng</label>
-            <input id="f5-title" type="text" placeholder="Nhập tiêu đề" class="w-full border border-red-300 rounded-lg bg-slate-100 p-2 focus:outline-none focus:ring-2 focus:ring-red-200 focus:bg-white"/>
-          </div>
-          <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">Vấn đề nhận diện</label>
-            <textarea id="f5-problem" rows="3" placeholder="Mô tả vấn đề" class="w-full border border-red-300 rounded-lg bg-slate-100 p-2 focus:outline-none focus:ring-2 focus:ring-red-200 focus:bg-white"></textarea>
-          </div>
-          <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">Giải pháp</label>
-            <textarea id="f5-solution" rows="3" placeholder="Mô tả giải pháp" class="w-full border border-red-300 rounded-lg bg-slate-100 p-2 focus:outline-none focus:ring-2 focus:ring-red-200 focus:bg-white"></textarea>
-          </div>
-        </div>
-      </div>
-      <div class="px-4 py-3 border-t border-gray-200 flex justify-end gap-2">
-        <button id="f5-btn-cancel" class="px-4 py-2 rounded-lg bg-slate-100 text-gray-800">Huỷ</button>
-        <button id="f5-btn-send" class="px-4 py-2 rounded-lg text-white font-semibold bg-primary-blue hover:brightness-105">Gửi ý tưởng</button>
-      </div>
-    </div>
-  </div>
 
   <div id="toast" class="toast"></div>
 
   <script>
     // Constants
     const WEBHOOK_URL = "https://xcqiyibqs.tino.page/webhook/tracuutacvuNCTN2";
+    const FORM2_WEBHOOK_URL = "https://xcqiyibqs.tino.page/webhook/Tracuutongtacvu";
     const FORM1_UPLOAD_URL = "https://xcqiyibqs.tino.page/webhook/TrabaocaoNTCN2";
-    // Form 5 URLs - chuyển sang n8n webhooks
-    const FORM5_SUBMIT_URL = "https://xcqiyibqs.tino.page/webhook/form5-submit";
-    const FORM5_LIST_URL = "https://xcqiyibqs.tino.page/webhook/form5-list";
     let F4_CHART = null;
-    let F5_LAST_COUNT = 0;
 
     // Hàm format timestamp theo định dạng DD HH:mm GMT+7
     function formatTimestampGMT7() {
@@ -337,7 +325,7 @@
 
     // Sidebar navigation
     const navBtns = document.querySelectorAll('.nav-btn');
-    const sections = ['form1'].map(id=>document.getElementById(id));
+    const sections = ['form1', 'form2'].map(id=>document.getElementById(id));
     function showSection(id){ sections.forEach(s=>s.classList.toggle('hidden', s.id!==id)); }
     navBtns.forEach((btn)=>{
       btn.onclick=()=>{
@@ -352,10 +340,23 @@
     navBtns[0].classList.add('bg-primary-blue','font-bold');
     showSection(navBtns[0].getAttribute('data-target'));
 
-    // Names
+    // Names - Form 1
     const FORM1_NAMES = [
       "Trần Văn Hoàng",
       "Nguyễn Kim Cương",
+      "Trịnh Xuân Hạnh",
+      "Đỗ Xuân Huy",
+      "Giang Văn Toàn",
+      "Vũ Ngọc Diệp",
+      "Bùi Ngọc Hùng",
+      "Nhân Viên Mới 1",
+      "Nhân Viên Mới 2",
+    ];
+
+    // Names - Form 2 (NCTN 2) - Danh sách riêng biệt
+    const FORM2_NAMES = [
+      "Trần Văn Hoàng",
+      "Nguyễn Kim Cương", 
       "Trịnh Xuân Hạnh",
       "Đỗ Xuân Huy",
       "Giang Văn Toàn",
@@ -373,8 +374,6 @@
     // Fill selects
     function fillSelect(sel, arr){ arr.forEach(n=>{ const o=document.createElement('option'); o.value=n; o.textContent=n; sel.appendChild(o); }); }
     fillSelect(document.getElementById('f1-name'), FORM1_NAMES);
-    const f4PeopleSel = document.getElementById('f4-people');
-    if (f4PeopleSel) fillSelect(f4PeopleSel, FORM1_NAMES);
 
     // Fill month dropdown
     function fillMonthSelect(){
@@ -487,7 +486,7 @@
       fd.append('is_bps', '0');
       const targetUpload = FORM1_UPLOAD_URL;
       try{
-        await fetch(targetUpload,{method:'POST',body:fd, mode: 'no-cors'});
+        await fetch(targetUpload,{method:'POST',body:fd});
         showToast('Đã gửi báo cáo.','success');
         closeUploadModal();
       }
@@ -700,10 +699,37 @@
         addTd(tr, getV(item, ['reportform', 'form_bao_cao', 'form_bao_cao_danh_gia']));
         addTd(tr, getV(item, ['attachmentfilename', 'file_name', 'filename', 'tenfile', 'ten_file', 'tên file', 'tên file đính kèm', 'attachment', 'file']));
 
+        // Highlight theo hạn mong muốn cho tác vụ Doing
+        try {
+          const wishDueStr = getV(item, ['Hạn mong muốn ', 'wishdue', 'hanmongmuon', 'han_mong_muon', 'desireddue', 'hạn mong muốn']);
+          if (isDoing && wishDueStr) {
+            const dueDate = parseDateFlexible(wishDueStr);
+            if (!isNaN(dueDate.getTime())) {
+              const ymd = (d)=>`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+              const today = new Date();
+              const dueYmd = ymd(dueDate);
+              const todayYmd = ymd(today);
+              if (dueYmd < todayYmd) {
+                tr.style.backgroundColor = '#FEE2E2'; // đỏ nhạt
+              } else if (dueYmd === todayYmd) {
+                tr.style.backgroundColor = '#FEF3C7'; // vàng nhạt
+              }
+            }
+          }
+        } catch(_) {}
+
         F1_ALL_ROWS.push(tr);
       });
 
       applyForm1Paging();
+    }
+
+    function fetchWithTimeout(resource, options = {}){
+      const { timeout = 120000 } = options;
+      const controller = new AbortController();
+      const id = setTimeout(()=>controller.abort(), timeout);
+      return fetch(resource, { ...options, signal: controller.signal })
+        .finally(()=>clearTimeout(id));
     }
 
     async function renderForm1(){
@@ -753,11 +779,34 @@
         });
         const testUrl = `${WEBHOOK_URL}?${params.toString()}`;
         async function fetchJson(url){
-          const r = await fetch(url, { method: 'GET' });
-          const text = await r.text();
-          if(!r.ok) throw new Error(text || `HTTP ${r.status}`);
-          let parsed = null; try{ parsed = JSON.parse(text); }catch{ parsed = null; }
-          return { parsed, raw: text };
+          // Retry nhẹ: tối đa 2 lần khi lỗi mạng/timeout
+          const maxAttempts = 2;
+          let lastErr = null;
+          for (let attempt = 1; attempt <= maxAttempts; attempt++){
+            try{
+              const r = await fetchWithTimeout(url, { 
+                method: 'GET', 
+                timeout: 120000,
+                mode: 'cors',
+                headers: {
+                  'Accept': 'application/json, text/plain, */*',
+                  'Content-Type': 'application/json'
+                }
+              });
+              const text = await r.text();
+              if(!r.ok) throw new Error(text || `HTTP ${r.status}`);
+              let parsed = null; try{ parsed = JSON.parse(text); }catch{ parsed = null; }
+              return { parsed, raw: text };
+            }catch(e){
+              lastErr = e;
+              if (attempt < maxAttempts) {
+                // chờ ngắn trước lần thử tiếp
+                await new Promise(res=>setTimeout(res, 1000));
+                continue;
+              }
+              throw lastErr;
+            }
+          }
         }
         let data = null; let firstErr = null;
         try{
@@ -770,8 +819,35 @@
           firstErr = e;
           // Fallback sang production webhook khi test webhook chưa bật lắng nghe
           const prodUrl = testUrl.replace('/webhook-test/', '/webhook/');
-          const { parsed, raw } = await fetchJson(prodUrl);
-          data = parsed ?? raw;
+          try {
+            const { parsed, raw } = await fetchJson(prodUrl);
+            data = parsed ?? raw;
+          } catch (e2) {
+            // Nếu cả hai đều fail, thử với proxy CORS
+            console.log('[Form1 Debug] Direct fetch failed, trying CORS proxy');
+            const proxyUrls = [
+              `https://api.allorigins.win/raw?url=${encodeURIComponent(prodUrl)}`,
+              `https://cors.isomorphic-git.org/${prodUrl}`,
+              `https://cors-anywhere.herokuapp.com/${prodUrl}`,
+              `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(prodUrl)}`
+            ];
+            
+            for (const proxyUrl of proxyUrls) {
+              try {
+                console.log('[Form1 Debug] Trying proxy:', proxyUrl);
+                const { parsed, raw } = await fetchJson(proxyUrl);
+                data = parsed ?? raw;
+                break;
+              } catch (e3) {
+                console.log('[Form1 Debug] Proxy failed:', e3.message);
+                continue;
+              }
+            }
+            
+            if (!data) {
+              throw e2; // Throw original error if all proxies fail
+            }
+          }
         }
         function pickRows(json){
           if (!json) return [];
@@ -811,7 +887,11 @@
         // Áp dụng lọc cục bộ
         applyLocalMonthFilter();
       }catch(err){
-        body.innerHTML = `<tr><td colspan='15' class='px-3 py-3 text-center text-red-600'>Lỗi tải dữ liệu: ${String(err.message||err)}</td></tr>`;
+        const isCors = /Failed to fetch|CORS|No 'Access-Control-Allow-Origin'|NetworkError|TypeError/.test(String(err && (err.message || err)));
+        const msg = isCors
+          ? 'Bị chặn bởi CORS. Đã thử nhiều proxy nhưng vẫn không thể kết nối. Vui lòng mở file qua web server (vd: Live Server) hoặc kiểm tra kết nối mạng.'
+          : (String(err && err.name)==='AbortError') ? 'Quá thời gian chờ (120s). Vui lòng thử lại.' : `Lỗi tải dữ liệu: ${String(err.message||err)}`;
+        body.innerHTML = `<tr><td colspan='15' class='px-3 py-3 text-center text-red-600'>${msg}</td></tr>`;
       }
     }
     document.getElementById('f1-name').onchange = ()=>{};
@@ -883,515 +963,8 @@
       });
     }
 
-    // Default Form 4 month = current month
-    (function setDefaultF4Month(){
-      const m = document.getElementById('f4-month');
-      if (!m) return;
-      const d = new Date();
-      const yy = d.getFullYear();
-      const mm = String(d.getMonth()+1).padStart(2,'0');
-      if (!m.value) m.value = `${yy}-${mm}`;
-    })();
-    // Default Form 4 date range = first day to last day of current month
-    (function setDefaultF4Range(){
-      const fromInput = document.getElementById('f4-from');
-      const toInput = document.getElementById('f4-to');
-      if (!fromInput && !toInput) return;
-      const now = new Date();
-      const year = now.getFullYear();
-      const monthIndex = now.getMonth(); // 0-11
-      const pad = (n)=> String(n).padStart(2, '0');
-      const firstDay = `${year}-${pad(monthIndex+1)}-01`;
-      const lastDate = new Date(year, monthIndex + 1, 0).getDate();
-      const lastDay = `${year}-${pad(monthIndex+1)}-${pad(lastDate)}`;
-      if (fromInput && !fromInput.value) fromInput.value = firstDay;
-      if (toInput && !toInput.value) toInput.value = lastDay;
-    })();
-    // Helper: set default date for Form 5 inputs
-    function setF5DateDefault(){
-      const el = document.getElementById('f5-date');
-      if (!el) return;
-      const d = new Date();
-      const pad = n=>String(n).padStart(2,'0');
-      el.value = `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
-    }
 
-    // Form 3: Removed - Google Drive upload functionality disabled
 
-    // Form 3: Removed - SheetDB submit functionality disabled
-
-    // ===== Form 4: filter popover & selection =====
-    let F4_SELECTED_NAMES = new Set();
-    let F4_ALL_NAMES = [];
-
-    function f4BuildFilterList(names){
-      const list = document.getElementById('f4-filter-list');
-      if (!list) return;
-      list.innerHTML = '';
-      const uniq = Array.from(new Set(names)).sort((a,b)=> a.localeCompare(b,'vi'));
-      uniq.forEach(n=>{
-        const safe = n.replace(/"/g,'&quot;');
-        const checked = (F4_SELECTED_NAMES.size===0) || F4_SELECTED_NAMES.has(n);
-        const row = document.createElement('label');
-        row.className = 'flex items-center gap-2';
-        row.setAttribute('data-name', n);
-        row.innerHTML = `<input type="checkbox" value="${safe}" class="f4-filter-item h-4 w-4" ${checked?'checked':''}/><span>${safe}</span>`;
-        list.appendChild(row);
-      });
-    }
-    function f4SyncSelectionFromUI(){
-      const list = document.getElementById('f4-filter-list');
-      if (!list) return;
-      const boxes = list.querySelectorAll('input.f4-filter-item');
-      const picked = [];
-      boxes.forEach(b=>{ if (b.checked) picked.push(b.value); });
-      if (picked.length === boxes.length || picked.length === 0) {
-        F4_SELECTED_NAMES.clear();
-      } else {
-        F4_SELECTED_NAMES = new Set(picked);
-      }
-    }
-    (function f4InitFilterPopover(){
-      const btn = document.getElementById('f4-filter-toggle');
-      const pop = document.getElementById('f4-filter-pop');
-      const list = document.getElementById('f4-filter-list');
-      const search = document.getElementById('f4-filter-search');
-      const selAll = document.getElementById('f4-filter-select-all');
-      const clear = document.getElementById('f4-filter-clear');
-      const applyBtn = document.getElementById('f4-filter-apply');
-      if (!btn || !pop) return;
-      btn.addEventListener('click', (e)=>{ e.preventDefault(); pop.classList.toggle('hidden'); if(!pop.classList.contains('hidden')){ try{ search&&search.focus(); }catch(_){} }});
-      document.addEventListener('click', (e)=>{ if (!pop || pop.classList.contains('hidden')) return; if (btn.contains(e.target) || pop.contains(e.target)) return; pop.classList.add('hidden'); });
-      if (list) list.addEventListener('change', (e)=>{ /* không auto render khi tick */ });
-      if (search) search.addEventListener('input', (e)=>{
-        const q = (e.target.value||'').toLowerCase().trim();
-        pop.querySelectorAll('label[data-name]').forEach(el=>{
-          const nm = (el.getAttribute('data-name')||'').toLowerCase();
-          el.style.display = nm.includes(q) ? '' : 'none';
-        });
-      });
-      if (selAll) selAll.addEventListener('click',(e)=>{ e.preventDefault(); pop.querySelectorAll('input.f4-filter-item').forEach(cb=> cb.checked=true); });
-      if (clear) clear.addEventListener('click',(e)=>{ e.preventDefault(); pop.querySelectorAll('input.f4-filter-item').forEach(cb=> cb.checked=false); });
-      if (applyBtn) applyBtn.addEventListener('click',(e)=>{ e.preventDefault(); f4SyncSelectionFromUI(); pop.classList.add('hidden'); renderForm4(); });
-    })();
-
-    // Helper: đếm số tác vụ theo người với filter trạng thái
-    async function f4FetchTaskCount(name, statusVal, fromVal, toVal){
-      const headerMapF1 = {
-        header_code: 'Mã',
-        header_taskName: 'Tên tác vụ',
-        header_status: 'Trạng thái',
-        field_code: 'code',
-        field_taskName: 'taskName',
-        field_status: 'status'
-      };
-      const params = new URLSearchParams({
-        ...headerMapF1,
-        action: 'form1_lookup',
-        person_name: name,
-        timestamp: formatTimestampGMT7()
-      });
-      if (fromVal) params.append('from', fromVal);
-      if (toVal) params.append('to', toVal);
-      async function fetchJson(url){
-        const r = await fetch(url, { method: 'GET' });
-        const text = await r.text();
-        let parsed = null; try{ parsed = JSON.parse(text); }catch{ parsed = null; }
-        return { ok: r.ok, parsed, raw: text, status: r.status };
-      }
-      function pickRows(json){
-        if (!json) return [];
-        if (Array.isArray(json)) return json;
-        const candidates = ['data','rows','result','records','items','list'];
-        for (const k of candidates){ if (Array.isArray(json?.[k])) return json[k]; }
-        try{
-          const queue=[json]; const seen=new Set();
-          while(queue.length){
-            const cur=queue.shift(); if(!cur||typeof cur!=='object'||seen.has(cur)) continue; seen.add(cur);
-            for (const v of Object.values(cur)){
-              if (Array.isArray(v) && v.length && typeof v[0]==='object') return v;
-              if (v && typeof v==='object') queue.push(v);
-            }
-          }
-        }catch(_){}
-        return [];
-      }
-      function getV(obj, keys){
-        const lower = Object.keys(obj||{}).reduce((acc,k)=>{ acc[k.toLowerCase()] = obj[k]; return acc; },{});
-        for(const k of keys){ const v = lower[k.toLowerCase()]; if(v!==undefined) return v; }
-        return '';
-      }
-      try{
-        const testUrl = `${WEBHOOK_URL}?${params.toString()}`;
-        let first = await fetchJson(testUrl);
-        if (!first.ok || (first.parsed && first.parsed.code === 0 && /could not be started/i.test(String(first.parsed.message||'')))){
-          const prodUrl = testUrl.replace('/webhook-test/', '/webhook/');
-          first = await fetchJson(prodUrl);
-        }
-        if (!first.ok) return 0;
-        let rows = pickRows(first.parsed ?? (first.raw ? JSON.parse(first.raw) : null));
-        if (statusVal === 'Doing'){
-          rows = rows.filter(item=>{
-            const s = String(getV(item,['status','trangthai','trang_thai','trạng thái'])||'').toLowerCase();
-            return s.includes('doing') || s.includes('đang');
-          });
-        }
-        return rows.length;
-      }catch(_){ return 0; }
-    }
-
-    // Form 4 logic: GET Doing data and render two columns
-    async function renderForm4(){
-      const body = document.getElementById('f4-body');
-      const chartWrap = document.getElementById('f4-chart-container');
-      if (chartWrap) chartWrap.style.display = 'none';
-      if (F4_CHART) { try { F4_CHART.destroy(); } catch(_) {} F4_CHART = null; }
-      body.innerHTML = "<tr><td colspan='3' class='px-3 py-3 text-center text-gray-500'><span class='spinner mr-2'></span>Đang tải...</td></tr>";
-      try{
-        const urlBase = 'https://xcqiyibqs.tino.page/webhook/917f595d-ea6f-422c-920e-c7079f90881b';
-        // Try test endpoint first to avoid CORS, then fallback to prod
-        const urlTest = urlBase.includes('/webhook/') ? urlBase.replace('/webhook/','/webhook-test/') : urlBase;
-        const urlProd = urlBase.includes('/webhook-test/') ? urlBase.replace('/webhook-test/','/webhook/') : urlBase;
-        const params = new URLSearchParams();
-        const statusSel = document.getElementById('f4-status');
-        const statusVal = (statusSel && statusSel.value) ? statusSel.value : 'Doing';
-        params.append('status', statusVal);
-        // Date range filter
-        const fromInput = document.getElementById('f4-from');
-        const toInput = document.getElementById('f4-to');
-        const fromVal = (fromInput && fromInput.value) ? fromInput.value : '';
-        const toVal = (toInput && toInput.value) ? toInput.value : '';
-        if (fromVal) params.append('from', fromVal);
-        if (toVal) params.append('to', toVal);
-        // Timestamp to bypass caches
-        params.append('_ts', formatTimestampGMT7());
-        // Debug: log the exact URL being requested
-        try { console.log('Form4 GET (test):', `${urlTest}?${params.toString()}`); } catch(_) {}
-
-        async function fetchJson(url){
-          try{
-            const r = await fetch(url, { method: 'GET' });
-            const text = await r.text();
-            let parsed = null;
-            try { parsed = JSON.parse(text); } catch { parsed = null; }
-            console.log('🔍 Form4 Response:', { url, status: r.status, ok: r.ok, contentType: r.headers.get('content-type'), textLength: text.length, parsedType: typeof parsed, text: text.substring(0, 500) });
-            return { ok: r.ok, ct: r.headers.get('content-type')||'', parsed, raw: text, status: r.status };
-          }catch(err){
-            console.error('🚨 Form4 Fetch Error:', err);
-            return { ok:false, ct:'', parsed:null, raw:String(err||''), status:0 };
-          }
-        }
-
-        let first = await fetchJson(`${urlTest}?${params.toString()}`);
-        // Fallback to production webhook if test not active or server error like n8n "Can't determine which item to use"
-        if (!first.ok || /could not be started/i.test(String(first.parsed?.message||'')) || /Can't determine which item to use|Can't determine which item to use/i.test(first.raw||'')){
-          try { console.warn('Form4 GET fallback -> prod'); } catch(_){ }
-          first = await fetchJson(`${urlProd}?${params.toString()}`);
-        }
-        if(!first.ok){
-          console.error('🚨 Form4 Final Error:', first);
-          throw new Error(first.raw || `HTTP ${first.status}`);
-        }
-        let data = first.parsed;
-        if (!data){
-          try { data = JSON.parse(first.raw||''); } catch { data = null; }
-        }
-        function pickRowsDeep(json){
-          if (!json) return [];
-          if (Array.isArray(json) && json.length && typeof json[0] === 'object') return json;
-          const candidates = ['data','rows','result','records','items','list'];
-          for (const k of candidates){ if (Array.isArray(json?.[k]) && json[k].length && typeof json[k][0] === 'object') return json[k]; }
-          try{
-            const queue=[json]; const seen=new Set();
-            while(queue.length){
-              const cur = queue.shift();
-              if (!cur || typeof cur !== 'object' || seen.has(cur)) continue;
-              seen.add(cur);
-              for (const v of Object.values(cur)){
-                if (Array.isArray(v) && v.length && typeof v[0] === 'object') return v;
-                if (v && typeof v === 'object') queue.push(v);
-              }
-            }
-          }catch(_){ }
-          // If response is CSV-like, split lines and map to objects with minimal fields
-          try {
-            if (typeof json === 'string'){
-              const lines = json.trim().split(/\r?\n/).filter(Boolean);
-              if (lines.length >= 2){
-                const header = lines[0].split(',').map(s=>s.trim());
-                const rows = lines.slice(1).map(line=>{
-                  const cols = line.split(',');
-                  const obj = {};
-                  header.forEach((h,i)=> obj[h] = (cols[i]||'').trim());
-                  return obj;
-                });
-                return rows;
-              }
-            }
-          }catch(_){ }
-          return [];
-        }
-        const rows = pickRowsDeep(data);
-        console.log('🔍 Form4 Parsed Data:', { dataType: typeof data, isArray: Array.isArray(data), data, rowsFound: rows.length, firstRow: rows[0] });
-        if(!rows.length){ 
-          console.warn('⚠️ Form4: Không tìm thấy rows trong response');
-          body.innerHTML = "<tr><td colspan='3' class='px-3 py-3 text-center text-gray-500'>Không có dữ liệu</td></tr>"; 
-          if(chartWrap) chartWrap.style.display='none'; 
-          return; 
-        }
-        const getV = (obj, keys)=>{
-          const lower = Object.keys(obj||{}).reduce((acc,k)=>{ acc[k.toLowerCase()] = obj[k]; return acc; },{});
-          for(const k of keys){ const v = lower[k.toLowerCase()]; if(v!==undefined) return v; }
-          return '';
-        };
-        const normalized = rows.map(r=>{
-          const name = getV(r,['employee','nhanvien','nhan_vien','user','name','nhân viên','Nhân viên']).toString().trim();
-          const manRaw = getV(r,['manhour','current_manhour','congchuan','cong_chuan','hours','công chuẩn hiện tại','Công chuẩn hiện tại']);
-          const man = Number(manRaw);
-          const countRaw = getV(r,['taskcount','task_count','count','sotacvu','so_tac_vu','số tác vụ','Số tác vụ']);
-          const count = Number(countRaw);
-          const result = { name: name || '-', manhour: isNaN(man) ? 0 : man, count: isNaN(count) ? null : count };
-          console.log('🔍 Form4 Row Mapping:', { original: r, mapped: result, nameFound: name, manHourFound: manRaw, countFound: countRaw });
-          return result;
-        }).filter(x=>x.name && x.name !== '-');
-        console.log('🔍 Form4 Final Normalized:', normalized);
-        // Cập nhật danh sách người trong popover
-        F4_ALL_NAMES = Array.from(new Set(normalized.map(x=>x.name)));
-        f4BuildFilterList(F4_ALL_NAMES);
-        // Lọc theo các tên đã chọn (Set rỗng = tất cả)
-        const selectedNames = Array.from(F4_SELECTED_NAMES);
-        const filtered = selectedNames.length ? normalized.filter(x => F4_SELECTED_NAMES.has(x.name)) : normalized;
-        if (!filtered.length) { body.innerHTML = "<tr><td colspan='3' class='px-3 py-3 text-center text-gray-500'>Không có dữ liệu</td></tr>"; if(chartWrap) chartWrap.style.display='none'; return; }
-        const normalizedSorted = filtered.slice().sort((a,b)=> b.manhour - a.manhour);
-        const html = normalizedSorted.map(x=>
-          `<tr>
-             <td class="px-3 py-2">
-               <button class="text-primary-blue hover:underline" data-emp="${x.name}">${x.name}</button>
-             </td>
-             <td class="px-3 py-2">${x.manhour.toFixed(2)}</td>
-             <td class="px-3 py-2"><span class="emp-count" data-emp-count="${x.name}">${(x.count==null)?'<span class="spinner"></span>':String(x.count)}</span></td>
-           </tr>`
-        ).join('');
-        body.innerHTML = html;
-        // Điền số tác vụ bất đồng bộ theo trạng thái hiện tại
-        const statusForCount = statusVal;
-        const names = normalizedSorted.filter(x=> x.count == null).map(x=>x.name);
-        const findCountEl = (n)=>{
-          const all = body.querySelectorAll('.emp-count');
-          for (const el of all){ if ((el.getAttribute('data-emp-count')||'') === n) return el; }
-          return null;
-        };
-        const promises = names.map(async n=>{
-          const c = await f4FetchTaskCount(n, statusForCount, fromVal, toVal);
-          const el = findCountEl(n);
-          if (el) {
-            el.textContent = String(c);
-            try { const tr = el.closest('tr'); if (tr) tr.setAttribute('data-task-count', String(c)); } catch(_) {}
-          }
-        });
-        Promise.allSettled(promises).then(()=>{ try { f4ApplyCountFilter(); } catch(_) {} }).catch(()=>{});
-        // Render bar chart
-        const labels = normalizedSorted.map(x=> x.name);
-        const values = normalizedSorted.map(x=> x.manhour);
-        if (chartWrap) chartWrap.style.display = '';
-        const canvas = document.getElementById('f4-chart');
-        if (canvas && typeof Chart !== 'undefined'){
-          const ctx = canvas.getContext('2d');
-          if (F4_CHART) { try { F4_CHART.destroy(); } catch(_) {} }
-          F4_CHART = new Chart(ctx, {
-            type: 'bar',
-            data: {
-              labels,
-              datasets: [{
-                label: 'Công chuẩn nhận',
-                data: values,
-                backgroundColor: 'rgba(90, 169, 255, 0.6)',
-                borderColor: '#5aa9ff',
-                borderWidth: 1,
-                hoverBackgroundColor: 'rgba(59, 130, 246, 0.7)'
-              }]
-            },
-            options: {
-              responsive: true,
-              maintainAspectRatio: false,
-              scales: {
-                y: {
-                  beginAtZero: true,
-                  title: { display: true, text: 'Công chuẩn nhận' }
-                },
-                x: {
-                  title: { display: true, text: 'Nhân viên' },
-                  ticks: { autoSkip: false, maxRotation: 45, minRotation: 0 }
-                }
-              },
-              plugins: {
-                legend: { display: false },
-                tooltip: {
-                  callbacks: {
-                    label: (ctx)=> ` ${Number(ctx.raw).toFixed(2)}`
-                  }
-                }
-              }
-            }
-          });
-        }
-      }catch(err){
-        body.innerHTML = `<tr><td colspan='3' class='px-3 py-3 text-center text-red-600'>Lỗi tải dữ liệu: ${String(err.message || err)}</td></tr>`;
-        if (chartWrap) chartWrap.style.display = 'none';
-        if (F4_CHART) { try { F4_CHART.destroy(); } catch(_) {} F4_CHART = null; }
-      }
-    }
-    // ===== Form 4: Modal chi tiết theo nhân viên =====
-    const detailModal = document.getElementById('detail-modal');
-    const detailBody = document.getElementById('detail-body');
-    const detailNameEl = document.getElementById('detail-name');
-    const detailNote = document.getElementById('detail-note');
-    const detailClose = document.getElementById('detail-close');
-
-    function openDetailModal(empName, filter, from, to){
-      if (!detailModal) return;
-      detailNameEl.textContent = empName || '';
-      detailBody.innerHTML = `<tr><td colspan="8" class="px-3 py-3 text-center text-gray-500"><span class="spinner mr-2"></span>Đang tải...</td></tr>`;
-      detailNote.textContent = filter === 'Doing' ? 'Chỉ hiển thị tác vụ đang Doing.' : 'Hiển thị tất cả tác vụ.';
-      detailModal.classList.add('open');
-      detailModal.setAttribute('aria-hidden','false');
-      renderDetailTasks(empName, filter, from, to).catch(()=>{});
-    }
-    function closeDetailModal(){
-      if (!detailModal) return;
-      detailModal.classList.remove('open');
-      detailModal.setAttribute('aria-hidden','true');
-    }
-    if (detailClose) detailClose.onclick = closeDetailModal;
-    if (detailModal) detailModal.addEventListener('click', (e)=>{ if(e.target===detailModal) closeDetailModal(); });
-    document.addEventListener('keydown', (e)=>{ if(e.key==='Escape' && detailModal && detailModal.classList.contains('open')) closeDetailModal(); });
-
-    async function renderDetailTasks(name, filter, from, to){
-      const headerMapF1 = {
-        header_requester: 'Người yêu cầu',
-        header_requestDate: 'Ngày yêu cầu',
-        header_wishDue: 'Hạn mong muốn',
-        header_actualDue: 'Hạn đáp ứng',
-        header_code: 'Mã',
-        header_taskName: 'Tên tác vụ',
-        header_manHour: 'Công chuẩn',
-        header_status: 'Trạng thái',
-        field_requester: 'requester',
-        field_requestDate: 'requestDate',
-        field_wishDue: 'wishDue',
-        field_actualDue: 'actualDue',
-        field_code: 'code',
-        field_taskName: 'taskName',
-        field_manHour: 'manHour',
-        field_status: 'status'
-      };
-      const params = new URLSearchParams({
-        ...headerMapF1,
-        action: 'form1_lookup',
-        person_name: name,
-        timestamp: formatTimestampGMT7()
-      });
-      if (from) params.append('from', from);
-      if (to) params.append('to', to);
-      function getV(obj, keys){
-        const lower = Object.keys(obj||{}).reduce((acc,k)=>{ acc[k.toLowerCase()] = obj[k]; return acc; },{});
-        for(const k of keys){ const v = lower[k.toLowerCase()]; if(v!==undefined) return v; }
-        return '';
-      }
-      async function fetchJson(url){
-        const r = await fetch(url, { method: 'GET' });
-        const text = await r.text();
-        let parsed = null; try{ parsed = JSON.parse(text); }catch{ parsed = null; }
-        return { ok: r.ok, parsed, raw: text, status: r.status };
-      }
-      try{
-        const testUrl = `${WEBHOOK_URL}?${params.toString()}`;
-        let first = await fetchJson(testUrl);
-        if (!first.ok || (first.parsed && first.parsed.code === 0 && /could not be started/i.test(String(first.parsed.message||'')))){
-          const prodUrl = testUrl.replace('/webhook-test/', '/webhook/');
-          first = await fetchJson(prodUrl);
-        }
-        if (!first.ok) throw new Error(first.raw || `HTTP ${first.status}`);
-        const data = first.parsed ?? (first.raw ? JSON.parse(first.raw) : null);
-        function pickRows(json){
-          if (!json) return [];
-          if (Array.isArray(json)) return json;
-          const candidates = ['data','rows','result','records','items','list'];
-          for (const k of candidates){ if (Array.isArray(json?.[k])) return json[k]; }
-          try{
-            const queue=[json]; const seen=new Set();
-            while(queue.length){
-              const cur=queue.shift(); if(!cur||typeof cur!=='object'||seen.has(cur)) continue; seen.add(cur);
-              for (const v of Object.values(cur)){
-                if (Array.isArray(v) && v.length && typeof v[0]==='object') return v;
-                if (v && typeof v==='object') queue.push(v);
-              }
-            }
-          }catch(_){}
-          return [];
-        }
-        let rows = pickRows(data);
-        if (filter === 'Doing'){
-          rows = rows.filter(item=>{
-            const statusText = String(getV(item,['status','trangthai','trang_thai','trạng thái'])||'');
-            const s = statusText.toLowerCase();
-            const isDoing = s.includes('doing') || s.includes('đang');
-            return isDoing;
-          });
-        }
-        if (!rows.length){
-          detailBody.innerHTML = `<tr><td class="px-3 py-3 text-center text-gray-500" colspan="8">Không có tác vụ${filter==='Doing'?' Doing':''}.</td></tr>`;
-          return;
-        }
-        // Helper parse date (hỗ trợ YYYY-MM-DD, DD/MM/YYYY, DD-MM-YYYY, YYYY/MM/DD, có/không giờ)
-        function toDate(v){
-          if(!v) return null;
-          const s = String(v).trim();
-          let m = s.match(/^(\d{1,2})[\/\-\.](\d{1,2})[\/\-\.](\d{2,4})/);
-          if (m) {
-            const d = +m[1], mo = +m[2], y = m[3].length===2 ? +('20'+m[3]) : +m[3];
-            const dt = new Date(y, mo-1, d); return isNaN(dt) ? null : dt;
-          }
-          m = s.match(/^(\d{4})[\/\-\.](\d{1,2})[\/\-\.](\d{1,2})/);
-          if (m) {
-            const dt = new Date(+m[1], +m[2]-1, +m[3]); return isNaN(dt) ? null : dt;
-          }
-          const dt = new Date(s);
-          return isNaN(dt) ? null : dt;
-        }
-
-        const html = rows.map(item=>{
-          const code = getV(item,['code','ma','taskcode','mã']);
-          const tname = getV(item,['taskname','ten_tac_vu','ten','name','title','tên tác vụ']);
-          const status = getV(item,['status','trangthai','trang_thai','trạng thái']);
-          const man = getV(item,['manhour','man_hour','congchuan','cong_chuan','workload','sogio','sogiocong','công chuẩn']);
-          const rq = getV(item,['requestdate','ngayyeucau','ngay_yeu_cau','submissiondate','ngaygui','ngày yêu cầu']);
-          const wish = getV(item,['wishdue','hanmongmuon','han_mong_muon','desireddue','hạn mong muốn']);
-          const act = getV(item,['actualdue','handapung','han_dap_ung','completiondate','hạn đáp ứng']);
-          const done = getV(item,['completiondate','completeddate','ngayhoanthanh','ngay_hoan_thanh','completion','done_date','ngày hoàn thành']);
-
-          const dueForCompare = act || wish || '';
-          const isLate = (()=>{ const d1 = toDate(done), d2 = toDate(dueForCompare); return d1 && d2 ? (d1.getTime() > d2.getTime()) : false; })();
-          const trClass = isLate ? 'bg-yellow-100' : '';
-
-          return `
-            <tr class="${trClass}">
-              <td class="px-3 py-2">${code}</td>
-              <td class="px-3 py-2">${tname}</td>
-              <td class="px-3 py-2">${status}</td>
-              <td class="px-3 py-2">${man}</td>
-              <td class="px-3 py-2">${rq}</td>
-              <td class="px-3 py-2">${wish}</td>
-              <td class="px-3 py-2">${act}</td>
-              <td class="px-3 py-2">${done}</td>
-            </tr>
-          `;
-        }).join('');
-        detailBody.innerHTML = html;
-      }catch(err){
-        detailBody.innerHTML = `<tr><td class="px-3 py-3 text-center text-red-600" colspan="8">Lỗi tải dữ liệu: ${String(err.message||err)}</td></tr>`;
-      }
-    }
 
     // Copy on click and open link for storage (Form 1)
     const f1StorageLink = document.getElementById('f1-storage-link');
@@ -1402,245 +975,926 @@
         catch(_) { /* ignore copy error to not block open */ }
       });
     }
-    // Trigger fetch only when nhấn Tra cứu ở Form 4
-    const f4Btn = document.getElementById('f4-search');
-    if (f4Btn) {
-      f4Btn.addEventListener('click', (e)=>{ e.preventDefault(); renderForm4(); });
-    }
-    // Trigger fetch only when nhấn Tra cứu ở Form 5
-    const f5Btn = document.getElementById('f5-search');
-    if (f5Btn) {
-      f5Btn.addEventListener('click', async (e)=>{
-        e.preventDefault();
-        if (f5Btn.disabled) return;
-        const prev = f5Btn.textContent;
-        f5Btn.disabled = true;
-        f5Btn.innerHTML = "<span class='spinner mr-2'></span>Đang tải...";
-        try { await renderForm5List(); }
-        finally {
-          f5Btn.disabled = false;
-          f5Btn.textContent = prev || 'Tra cứu';
-        }
-      });
-    }
-    // Tự động render khi đổi trạng thái
-    const f4StatusSel = document.getElementById('f4-status');
-    if (f4StatusSel) f4StatusSel.addEventListener('change', ()=> renderForm4());
-    const f4FromInput = document.getElementById('f4-from');
-    const f4ToInput = document.getElementById('f4-to');
-    if (f4FromInput) f4FromInput.addEventListener('change', ()=> renderForm4());
-    if (f4ToInput) f4ToInput.addEventListener('change', ()=> renderForm4());
-    const f4CountFilterInput = document.getElementById('f4-count-filter');
-    if (f4CountFilterInput) f4CountFilterInput.addEventListener('input', ()=> f4ApplyCountFilter());
-    const f4PeopleSel2 = document.getElementById('f4-people');
-    if (f4PeopleSel2) f4PeopleSel2.addEventListener('change', ()=> renderForm4());
-    // Click tên nhân viên để xem chi tiết
-    const f4Body = document.getElementById('f4-body');
-    if (f4Body) {
-      f4Body.addEventListener('click', (e)=>{
-        const btn = e.target.closest('[data-emp]');
-        if (!btn) return;
-        const name = btn.getAttribute('data-emp') || '';
-        const filter = (document.getElementById('f4-status')?.value === 'Doing') ? 'Doing' : 'All';
-        const fromVal = (document.getElementById('f4-from')?.value || '');
-        const toVal = (document.getElementById('f4-to')?.value || '');
-        if (name) openDetailModal(name, filter, fromVal, toVal);
-      });
-    }
 
-    // Form 4: filter rows by "số tác vụ" (>= input)
-    function f4ApplyCountFilter(){
-      const input = document.getElementById('f4-count-filter');
-      const body = document.getElementById('f4-body');
-      if (!input || !body) return;
-      const raw = (input.value || '').trim();
-      const threshold = raw === '' ? NaN : parseInt(raw, 10);
-      const rows = body.querySelectorAll('tr');
-      rows.forEach(tr=>{
-        const cEl = tr.querySelector('.emp-count');
-        if (!cEl) return;
-        const val = parseInt((cEl.textContent || '').trim(), 10);
-        if (isNaN(threshold)) {
-          tr.style.display = '';
-        } else if (isNaN(val)) {
-          tr.style.display = '';
+    // ===== Form 2: Tất cả tác vụ =====
+    let F2_ALL_DATA = [];
+    let F2_MONTH_FILTER = '';
+    let F2_EMPLOYEE_STATS = {}; // Lưu thống kê theo nhân viên
+
+    // Form 2: Month filter
+    const f2Month = document.getElementById('f2-month');
+    if (f2Month) {
+      // Set default month to current month
+      const now = new Date();
+      const year = now.getFullYear();
+      const month = String(now.getMonth() + 1).padStart(2, '0');
+      f2Month.value = `${year}-${month}`;
+      F2_MONTH_FILTER = f2Month.value;
+
+      f2Month.addEventListener('change', (e) => {
+        F2_MONTH_FILTER = e.target.value || '';
+        console.log('[Form2 Debug] Month changed to:', F2_MONTH_FILTER);
+        console.log('[Form2 Debug] F2_ALL_DATA length:', F2_ALL_DATA.length);
+        // Dùng dữ liệu hiện có, không gọi lại server
+        if (F2_ALL_DATA.length > 0) {
+          calculateEmployeeStats(F2_ALL_DATA);
+          renderForm2Stats();
+          console.log('[Form2 Debug] Stats recalculated and rendered');
         } else {
-          tr.style.display = (val >= threshold) ? '' : 'none';
+          console.log('[Form2 Debug] No data available for recalculation');
         }
       });
     }
 
-    // ===== Form 5: submit and list ideas =====
-    async function renderForm5List(){
-      const body = document.getElementById('f5-body');
+    // Form 2: Fetch data from same source as Form 1
+    async function fetchForm2Data() {
+      const body = document.getElementById('f2-body-p1');
       if (!body) return;
-      body.innerHTML = "<tr><td colspan='6' class='px-3 py-3 text-center text-gray-500'><span class='spinner mr-2'></span>Đang tải...</td></tr>";
-      const headerMapF5 = {
-        header_submitDate: 'Ngày nộp',
-        header_employee: 'Nhân viên',
-        header_title: 'Tiêu đề ý tưởng',
-        header_problem: 'Vấn đề nhận diện',
-        header_solution: 'Giải pháp',
-        field_submitDate: 'submitDate',
-        field_employee: 'employee',
-        field_title: 'title',
-        field_problem: 'problem',
-        field_solution: 'solution'
-      };
-      const params = new URLSearchParams({ ...headerMapF5, action: 'form5_list', _ts: Date.now().toString() });
-      async function fetchJson(url){
-        const r = await fetch(url, { method: 'GET' });
-        const t = await r.text();
-        let parsed=null; try{ parsed=JSON.parse(t);}catch{}
-        return { ok:r.ok, parsed, raw:t, status:r.status };
-      }
-      function pickRows(json){
-        if (!json) return [];
-        if (Array.isArray(json)) return json;
-        const cands=['data','rows','result','records','items','list'];
-        for (const k of cands){ if (Array.isArray(json?.[k])) return json[k]; }
-        try{
-          const q=[json], seen=new Set();
-          while(q.length){
-            const cur=q.shift(); if(!cur||typeof cur!=='object'||seen.has(cur)) continue; seen.add(cur);
-            for (const v of Object.values(cur)){ if (Array.isArray(v) && v.length && typeof v[0]==='object') return v; if (v && typeof v==='object') q.push(v); }
+
+      body.innerHTML = "<tr><td colspan='10' class='px-3 py-3 text-center text-gray-500'><span class='spinner mr-2'></span>Đang tải...</td></tr>";
+
+      try {
+        const headerMapF2 = {
+          // Headers cho modal (15 cột)
+          header_btn: 'Nút nhập gửi báo cáo',
+          header_status: 'Tình trạng',
+          header_completionDate: 'Ngày hoàn thành thực tế',
+          header_code: 'Mã',
+          header_taskName: 'Tên tác vụ',
+          header_requester: 'Người yêu cầu',
+          header_manHour: 'Công chuẩn',
+          header_requestDate: 'Ngày yêu cầu',
+          header_wishDue: 'Hạn mong muốn',
+          header_actualDue: 'Hạn đáp ứng',
+          header_purpose: 'Mục đích đánh giá',
+          header_note: 'Note',
+          header_specialTest: 'Yêu cầu test đặc biệt',
+          header_reportForm: 'Form báo cáo đánh giá',
+          header_attachmentFileName: 'Tên file đính kèm',
+          
+          // Field mappings cho modal
+          field_requester: 'requester',
+          field_requestDate: 'requestDate',
+          field_wishDue: 'wishDue',
+          field_actualDue: 'actualDue',
+          field_code: 'code',
+          field_taskName: 'taskName',
+          field_manHour: 'manHour',
+          field_purpose: 'purpose',
+          field_note: 'note',
+          field_specialTest: 'specialTest',
+          field_reportForm: 'reportForm',
+          field_status: 'status',
+          field_completionDate: 'completionDate',
+          field_attachmentFileName: 'attachmentFileName',
+          
+          // Additional fields for comprehensive data
+          field_assignee: 'assignee',
+          field_progress: 'progress',
+          field_priority: 'priority',
+          field_category: 'category',
+          field_department: 'department',
+          field_project: 'project',
+          field_estimatedHours: 'estimatedHours',
+          field_actualHours: 'actualHours',
+          field_createdDate: 'createdDate',
+          field_updatedDate: 'updatedDate',
+          field_createdBy: 'createdBy',
+          field_updatedBy: 'updatedBy',
+          field_tags: 'tags',
+          field_comments: 'comments',
+          field_attachments: 'attachments',
+          field_relatedTasks: 'relatedTasks',
+          field_dependencies: 'dependencies',
+          field_riskLevel: 'riskLevel',
+          field_complexity: 'complexity',
+          field_qualityScore: 'qualityScore',
+          field_feedback: 'feedback',
+          field_lessonsLearned: 'lessonsLearned',
+          field_nextSteps: 'nextSteps',
+          field_resources: 'resources',
+          field_tools: 'tools',
+          field_methodology: 'methodology',
+          field_standards: 'standards',
+          field_compliance: 'compliance',
+          field_approvalStatus: 'approvalStatus',
+          field_approver: 'approver',
+          field_approvalDate: 'approvalDate',
+          field_reviewStatus: 'reviewStatus',
+          field_reviewer: 'reviewer',
+          field_reviewDate: 'reviewDate',
+          field_testStatus: 'testStatus',
+          field_tester: 'tester',
+          field_testDate: 'testDate',
+          field_deploymentStatus: 'deploymentStatus',
+          field_deploymentDate: 'deploymentDate',
+          field_performance: 'performance',
+          field_metrics: 'metrics',
+          field_kpis: 'kpis',
+          field_sla: 'sla',
+          field_budget: 'budget',
+          field_cost: 'cost',
+          field_roi: 'roi',
+          field_impact: 'impact',
+          field_benefits: 'benefits',
+          field_challenges: 'challenges',
+          field_solutions: 'solutions',
+          field_recommendations: 'recommendations'
+        };
+
+        // Lấy tên người hiện tại (có thể từ Form 1 hoặc mặc định)
+        const currentPersonName = (document.getElementById('f1-name')?.value || '').trim() || 'Tất cả';
+        
+        const params = new URLSearchParams({
+          ...headerMapF2,
+          action: 'form2_all_tasks', // Action riêng cho Form 2
+          person_name: currentPersonName, // Thêm tên người vào query
+          month: F2_MONTH_FILTER || '',
+          timestamp: formatTimestampGMT7()
+        });
+
+        const baseUrl = `${FORM2_WEBHOOK_URL}?${params.toString()}`;
+
+        async function fetchJsonWithProxyChain(base) {
+        // Thử JSONP trước (hoạt động với file://)
+        const jsonpPromise = new Promise((resolve, reject) => {
+          const callbackName = 'jsonp_callback_' + Math.round(100000 * Math.random());
+          const script = document.createElement('script');
+          const url = base + (base.includes('?') ? '&' : '?') + 'callback=' + callbackName;
+          
+          window[callbackName] = function(data) {
+            document.head.removeChild(script);
+            delete window[callbackName];
+            resolve({ parsed: data, source: 'jsonp' });
+          };
+          
+          script.onerror = function() {
+            document.head.removeChild(script);
+            delete window[callbackName];
+            reject(new Error('JSONP_FAILED'));
+          };
+          
+          script.src = url;
+          document.head.appendChild(script);
+          
+          // Timeout sau 30 giây
+          setTimeout(() => {
+            if (document.head.contains(script)) {
+              document.head.removeChild(script);
+              delete window[callbackName];
+              reject(new Error('JSONP_TIMEOUT'));
+            }
+          }, 30000);
+        });
+
+        try {
+          console.log('[Form2 Debug] Trying JSONP:', base);
+          const result = await jsonpPromise;
+          if (result.parsed && hasMeaningfulRows(result.parsed)) {
+            return result;
           }
-        }catch(_){}
-        return [];
+        } catch (e) {
+          console.log('[Form2 Debug] JSONP failed:', e.message);
+        }
+
+        // Fallback: Thử fetch trực tiếp như Form 5
+        const urlProd = base.includes('/webhook/') ? base : base.replace('/webhook-test/', '/webhook/');
+        const urlTest = base.includes('/webhook-test/') ? base : base.replace('/webhook/', '/webhook-test/');
+        const urls = [urlTest, urlProd];
+        
+        let lastErr = null;
+        const hasMeaningfulRows = (obj)=>{
+          if (Array.isArray(obj)) return obj.length > 0 && typeof obj[0] === 'object';
+          if (!obj || typeof obj !== 'object') return false;
+          const keys = ['data','rows','result','records','items','list'];
+          for (const k of keys) {
+            const v = obj[k];
+            if (Array.isArray(v) && v.length && typeof v[0] === 'object') return true;
+          }
+          try {
+            for (const v of Object.values(obj)) {
+              if (Array.isArray(v) && v.length && typeof v[0] === 'object') return true;
+            }
+          } catch(_){}
+          return false;
+        };
+
+        for (const url of urls) {
+          try {
+            console.log('[Form2 Debug] Fetching:', url);
+            const r = await fetch(url, { 
+              method: 'GET',
+              headers: {
+                'Accept': 'application/json, text/plain, */*',
+                'Content-Type': 'application/json'
+              }
+            });
+            const text = await r.text();
+            if (!r.ok) throw new Error(`HTTP ${r.status}: ${text}`);
+            if (!text || text.trim().length === 0) throw new Error('EMPTY_RESPONSE');
+            
+            let parsed = null;
+            try { parsed = JSON.parse(text); } catch { parsed = null; }
+            
+            if (parsed && parsed.code === 0 && /could not be started/i.test(String(parsed.message||''))) {
+              throw new Error('WEBHOOK_TEST_INACTIVE');
+            }
+            if (!parsed) throw new Error('INVALID_JSON');
+            if (!hasMeaningfulRows(parsed)) throw new Error('NO_ROWS_FOUND');
+            return { parsed, source: url };
+          } catch (e) {
+            lastErr = e;
+            console.log('[Form2 Debug] Fetch failed:', e.message);
+            continue;
+          }
+        }
+        throw lastErr || new Error('FETCH_FAILED');
+        }
+
+        let data = null; let sourceUsed = '';
+        try {
+          const result = await fetchJsonWithProxyChain(baseUrl);
+          data = result.parsed; sourceUsed = result.source;
+        } catch (e) {
+          throw e;
+        }
+
+        function pickRows(json) {
+          if (!json) return [];
+          if (Array.isArray(json)) return json;
+          const candidates = ['data', 'rows', 'result', 'records', 'items', 'list'];
+          for (const k of candidates) { if (Array.isArray(json?.[k])) return json[k]; }
+          try {
+            const queue = [json];
+            const seen = new Set();
+            while (queue.length) {
+              const cur = queue.shift();
+              if (!cur || typeof cur !== 'object' || seen.has(cur)) continue;
+              seen.add(cur);
+              for (const v of Object.values(cur)) {
+                if (Array.isArray(v) && v.length && typeof v[0] === 'object') return v;
+                if (v && typeof v === 'object') queue.push(v);
+              }
+            }
+          } catch (_) { }
+          return [];
+        }
+
+        let rows = pickRows(data);
+        console.log('[Form2 Debug] Raw data received:', Array.isArray(data) ? `Array(${data.length})` : (data && typeof data === 'object' ? 'Object' : typeof data), 'from:', sourceUsed || 'unknown');
+        console.log('[Form2 Debug] Extracted rows count:', rows.length);
+        console.log('[Form2 Debug] First few rows:', rows.slice(0, 3));
+        
+        // Khai báo getV function trước khi sử dụng
+        const getV = (obj, keys) => {
+          const lower = Object.keys(obj || {}).reduce((acc, k) => { acc[k.toLowerCase()] = obj[k]; return acc; }, {});
+          for (const k of keys) { const v = lower[k.toLowerCase()]; if (v !== undefined) return v; }
+          return '';
+        };
+        
+        // (Hoãn) Không lưu dữ liệu gốc trước khi filter để tránh sai lệch khi tái tính theo tháng
+        
+        // Debug: Kiểm tra completionDate trong dữ liệu
+        console.log('[Form2 Debug] Sample completionDate values:');
+        let completionDateCount = 0;
+        rows.slice(0, 5).forEach((item, index) => {
+          const completionDate = getV(item, [
+            'Ngày hoàn thành thực tế', 'ngày hoàn thành thực tế',
+            'completionDate', 'completiondate', 'completedDate', 'completeddate',
+            'completion_date', 'completed_date', 'done_date',
+            'ngayhoanthanh', 'ngay_hoan_thanh', 'ngay_hoan_thanh_thuc_te'
+          ]);
+          console.log(`[Form2 Debug] Row ${index}:`, completionDate);
+          if (completionDate) completionDateCount++;
+        });
+        
+        // Đếm tổng số completionDate trong toàn bộ dữ liệu
+        const totalCompletionDates = rows.filter(item => {
+          const completionDate = getV(item, [
+            'Ngày hoàn thành thực tế', 'ngày hoàn thành thực tế',
+            'completionDate', 'completiondate', 'completedDate', 'completeddate',
+            'completion_date', 'completed_date', 'done_date',
+            'ngayhoanthanh', 'ngay_hoan_thanh', 'ngay_hoan_thanh_thuc_te'
+          ]);
+          return completionDate && String(completionDate).trim() !== '';
+        }).length;
+        console.log('[Form2 Debug] Total rows with completionDate:', totalCompletionDates, 'out of', rows.length);
+        
+        if (!rows.length) {
+          console.log('[Form2 Debug] No rows found, showing empty message');
+          body.innerHTML = "<tr><td colspan='11' class='px-3 py-3 text-center text-gray-500'>Không có tác vụ</td></tr>";
+          return;
+        }
+
+        // Lọc bỏ các dòng không có Tên tác vụ (bổ sung 'Task Name')
+        rows = rows.filter(item => String(getV(item, ['Task Name', 'taskname', 'ten_tac_vu', 'ten', 'name', 'title', 'tên tác vụ']) || '').trim() !== '');
+        if (!rows.length) {
+          body.innerHTML = "<tr><td colspan='11' class='px-3 py-3 text-center text-gray-500'>Không có tác vụ</td></tr>";
+          return;
+        }
+
+        // Lưu dữ liệu gốc SAU KHI filter để đồng bộ tái tính khi đổi tháng
+        F2_ALL_DATA = [...rows];
+        console.log('[Form2 Debug] F2_ALL_DATA (filtered) saved with', F2_ALL_DATA.length, 'rows');
+
+        // Tính toán thống kê theo nhân viên
+        calculateEmployeeStats(rows);
+        
+        // Render bảng thống kê
+        renderForm2Stats();
+        
+      } catch (err) {
+        const isCors = /Failed to fetch|CORS|No 'Access-Control-Allow-Origin'|NetworkError|TypeError|JSONP_FAILED|JSONP_TIMEOUT/.test(String(err && (err.message || err)));
+        const msg = isCors
+          ? 'Bị chặn bởi CORS. Đã thử JSONP và fetch trực tiếp nhưng vẫn không thể kết nối. Vui lòng mở file qua web server (vd: Live Server) hoặc kiểm tra kết nối mạng.'
+          : (String(err && err.name) === 'AbortError')
+            ? 'Quá thời gian chờ (120s). Vui lòng thử lại.'
+            : `Lỗi tải dữ liệu: ${String(err.message || err)}`;
+        
+        body.innerHTML = `<tr><td colspan='11' class='px-3 py-3 text-center text-red-600'>${msg}</td></tr>`;
       }
-      let first = await fetchJson(`${FORM5_LIST_URL}?${params.toString()}`);
-      if (!first.ok || (first.parsed && first.parsed.code===0 && /could not be started/i.test(String(first.parsed.message||'')))){
-        first = await fetchJson(`${FORM5_LIST_URL.replace('/webhook-test/','/webhook/')}?${params.toString()}`);
+    }
+
+    // Parser ngày linh hoạt: hỗ trợ YYYY-MM-DD[ HH:mm[:ss]], DD/MM/YYYY, DD-MM-YYYY, DD.MM.YYYY, YYYY/MM/DD
+    function parseDateFlexible(input){
+      const s = String(input || '').trim();
+      if (!s) return new Date('');
+      // ISO-like or YYYY-MM-DD
+      let m = s.match(/^(\d{4})[-/.](\d{1,2})[-/.](\d{1,2})(?:[ T](\d{1,2}):(\d{1,2})(?::(\d{1,2}))?)?$/);
+      if (m) {
+        const y = parseInt(m[1],10), mo = parseInt(m[2],10)-1, d = parseInt(m[3],10);
+        const hh = parseInt(m[4]||'0',10), mm = parseInt(m[5]||'0',10), ss = parseInt(m[6]||'0',10);
+        return new Date(y, mo, d, hh, mm, ss);
       }
-      if (!first.ok){
-        body.innerHTML = `<tr><td colspan='6' class='px-3 py-3 text-center text-red-600'>Lỗi tải: ${String(first.raw||first.status)}</td></tr>`;
-        return;
+      // DD/MM/YYYY or DD-MM-YYYY or DD.MM.YYYY
+      m = s.match(/^(\d{1,2})[\/\-.](\d{1,2})[\/\-.](\d{4})(?:[ T](\d{1,2}):(\d{1,2})(?::(\d{1,2}))?)?$/);
+      if (m) {
+        const d = parseInt(m[1],10), mo = parseInt(m[2],10)-1, y = parseInt(m[3],10);
+        const hh = parseInt(m[4]||'0',10), mm = parseInt(m[5]||'0',10), ss = parseInt(m[6]||'0',10);
+        return new Date(y, mo, d, hh, mm, ss);
       }
-      const rows = pickRows(first.parsed ?? (first.raw ? JSON.parse(first.raw) : null));
-      if (!rows.length){
-        body.innerHTML = '<tr><td class="px-3 py-3 text-center text-gray-500" colspan="6">Chưa có dữ liệu</td></tr>';
-        F5_LAST_COUNT = 0;
-        return;
-      }
-      const getV = (obj, keys)=>{
-        const lower = Object.keys(obj||{}).reduce((a,k)=>{ a[k.toLowerCase()] = obj[k]; return a; },{});
-        for (const k of keys){ const v = lower[k.toLowerCase()]; if(v!==undefined) return v; }
+      // Fallback native
+      const dt = new Date(s);
+      return dt;
+    }
+
+    // Tính toán thống kê theo nhân viên
+    function calculateEmployeeStats(rows) {
+      console.log('[Form2 Debug] calculateEmployeeStats called with F2_MONTH_FILTER:', F2_MONTH_FILTER);
+      F2_EMPLOYEE_STATS = {};
+      
+      const getV = (obj, keys) => {
+        const lower = Object.keys(obj || {}).reduce((acc, k) => { acc[k.toLowerCase()] = obj[k]; return acc; }, {});
+        for (const k of keys) { const v = lower[k.toLowerCase()]; if (v !== undefined) return v; }
         return '';
       };
-      const html = rows.map((item)=>{
-        const date = getV(item,['submitdate','date','submit_date','ngaynop','ngay_nop']);
-        const emp = getV(item,['employee','nhanvien','nhan_vien','nhân viên']);
-        const title = getV(item,['title','tieude','tieu_de','tiêu đề ý tưởng']);
-        const prob = getV(item,['problem','van_de','vande','vấn đề nhận diện']);
-        const sol = getV(item,['solution','giai_phap','giaiphap','giải pháp']);
-        return `<tr>
-          <td class="px-3 py-2">${date}</td>
-          <td class="px-3 py-2">${emp}</td>
-          <td class="px-3 py-2">${title}</td>
-          <td class="px-3 py-2">${prob}</td>
-          <td class="px-3 py-2">${sol}</td>
-        </tr>`;
-      }).join('');
-      body.innerHTML = html;
-      F5_LAST_COUNT = rows.length;
+
+      // Chuẩn hoá chuỗi: bỏ dấu tiếng Việt, loại bỏ khoảng trắng/thanh nối để so khớp mềm
+      const normalize = (s) => (s || '')
+        .toLowerCase()
+        .normalize('NFD')
+        .replace(/\p{Diacritic}/gu, '')
+        .replace(/\s|_/g, '');
+
+      // Tìm field Ngày hoàn thành thực tế theo nhiều biến thể tên cột
+      const getCompletionDateFromItem = (item) => {
+        // 1) Thử các key phổ biến (ưu tiên)
+        const valDirect = getV(item, [
+          'Ngày hoàn thành thực tế', 'ngày hoàn thành thực tế',
+          'Ngày hoàn thành', 'ngày hoàn thành',
+          'completionDate', 'completiondate', 'completedDate', 'completeddate',
+          'completion_date', 'completed_date', 'done_date',
+          'ngayhoanthanh', 'ngay_hoan_thanh', 'ngay hoan thanh',
+          'ngay_hoan_thanh_thuc_te', 'ngay hoan thanh thuc te'
+        ]);
+        if (valDirect) return valDirect;
+
+        // 2) So khớp mềm: key chứa từ khoá "hoanthanh|completed|completion|done" và đồng thời chứa "ngay|date"
+        try {
+          const keys = Object.keys(item || {});
+          for (const k of keys) {
+            const nk = normalize(k);
+            const hasComplete = /(hoanthanh|completed?|completion|done)/.test(nk);
+            const hasDate = /(ngay|date)/.test(nk);
+            if (hasComplete && hasDate) return item[k];
+          }
+        } catch(_) {}
+        return '';
+      };
+
+      // Tìm field Ngày yêu cầu (request date) theo nhiều biến thể tên cột
+      const getRequestDateFromItem = (item) => {
+        const valDirect = getV(item, [
+          '📆 Ngày yêu cầu ', 'Ngày yêu cầu', 'ngày yêu cầu',
+          'requestDate', 'requestdate', 'submissiondate',
+          'ngayyeucau', 'ngay_yeu_cau', 'ngay gui', 'ngaygui'
+        ]);
+        if (valDirect) return valDirect;
+        try {
+          const keys = Object.keys(item || {});
+          for (const k of keys) {
+            const nk = normalize(k);
+            const hasReq = /(yeucau|request|submit|submission)/.test(nk);
+            const hasDate = /(ngay|date)/.test(nk);
+            if (hasReq && hasDate) return item[k];
+          }
+        } catch(_) {}
+        return '';
+      };
+
+      // Tìm field Hạn mong muốn (wish due) theo nhiều biến thể tên cột
+      const getWishDueFromItem = (item) => {
+        const valDirect = getV(item, [
+          'Hạn mong muốn ', 'Hạn mong muốn', 'hạn mong muốn',
+          'wishDue', 'wishdue', 'desireddue',
+          'hanmongmuon', 'han_mong_muon'
+        ]);
+        if (valDirect) return valDirect;
+        try {
+          const keys = Object.keys(item || {});
+          for (const k of keys) {
+            const nk = normalize(k);
+            const hasWish = /(mongmuon|wish|desire)/.test(nk);
+            const hasDue = /(han|due|deadline)/.test(nk);
+            if (hasWish && hasDue) return item[k];
+          }
+        } catch(_) {}
+        return '';
+      };
+
+      // Khởi tạo thống kê cho tất cả nhân viên trong danh sách Form 2
+      FORM2_NAMES.forEach(name => {
+        F2_EMPLOYEE_STATS[name] = {
+          name: name,
+          totalTasks: 0, // Tổng số tác vụ đang thực hiện (Doing)
+          done: 0, // Số Done trong tháng được chọn
+          ahead: 0,
+          ontime: 0,
+          late: 0,
+          na: 0,
+          tasks: []
+        };
+      });
+
+      rows.forEach(item => {
+        // Sử dụng danh sách fallback keys giống Form 5
+        const assignee = getV(item, [
+          'Assignee', 'Assignee Name', 'AssigneeName', 'Assignee name',
+          'Phụ trách', 'Phụ trách chính', 'Người phụ trách', 'Người xử lý', 'Người nhận mẫu', 'Người nhận',
+          'employee', 'nhanvien', 'nhan_vien', 'nhân viên', 'user', 'name', 'receiver', 'recipient', 'pic', 'nguoi_phu_trach', 'người phụ trách',
+          'assignee', 'nguoi_nhan', 'người nhận', 'nguoi_thuc_hien', 'người thực hiện', 'name_1', 'Name 1'
+        ]);
+        
+        if (!assignee || assignee.trim() === '') {
+          return;
+        }
+
+        // Nếu tên không có trong danh sách, tạo mới để không bỏ sót dữ liệu
+        if (!F2_EMPLOYEE_STATS[assignee]) {
+          F2_EMPLOYEE_STATS[assignee] = {
+            name: assignee,
+            totalTasks: 0, // Tổng số tác vụ đang thực hiện (Doing)
+            done: 0, // Số Done trong tháng được chọn
+            ahead: 0,
+            ontime: 0,
+            late: 0,
+            na: 0,
+            tasks: []
+          };
+        }
+
+        // Đếm tổng số tác vụ đang thực hiện (chỉ trạng thái Doing)
+        const status = getV(item, ['⁉️ Kết quả', 'status', 'trangthai', 'trang_thai', 'trạng thái', 'ket_qua', 'result']);
+        const statusLower = (status || '').toLowerCase();
+        const isDoing = statusLower.includes('doing') || statusLower.includes('đang');
+        
+        if (isDoing) {
+          F2_EMPLOYEE_STATS[assignee].totalTasks++;
+        }
+
+        const isDone = statusLower.includes('hoàn') || statusLower.includes('done');
+        
+        // Tính toán tiến độ
+        const requestDate = getRequestDateFromItem(item);
+        const wishDue = getWishDueFromItem(item);
+        const completionDate = getCompletionDateFromItem(item);
+        
+        // Đếm Done trong phạm vi tháng đang lọc (hoặc tất cả nếu không lọc) và chỉ phân loại cho những tác vụ được đếm
+        let isCountedDone = false;
+        if (completionDate) {
+          const compDate = parseDateFlexible(completionDate);
+          if (!isNaN(compDate.getTime())) {
+            if (F2_MONTH_FILTER) {
+              const compYear = compDate.getFullYear();
+              const compMonth = String(compDate.getMonth() + 1).padStart(2, '0');
+              const compMonthStr = `${compYear}-${compMonth}`;
+              if (compMonthStr === F2_MONTH_FILTER) {
+                F2_EMPLOYEE_STATS[assignee].done++;
+                isCountedDone = true;
+              }
+            } else {
+              F2_EMPLOYEE_STATS[assignee].done++;
+              isCountedDone = true;
+            }
+          }
+        }
+
+        // Chỉ tính Vượt/Đúng/Chậm/N/A cho các tác vụ Done đã được tính vào mẫu số (isCountedDone)
+        if (isCountedDone) {
+          if (requestDate && wishDue && completionDate) {
+            const reqDate = parseDateFlexible(requestDate);
+            const wishDate = parseDateFlexible(wishDue);
+            const compDate = parseDateFlexible(completionDate);
+            if (!isNaN(reqDate.getTime()) && !isNaN(wishDate.getTime()) && !isNaN(compDate.getTime())) {
+              const daysDiff = (compDate.getTime() - wishDate.getTime()) / (1000 * 60 * 60 * 24);
+              if (daysDiff < 0) {
+                F2_EMPLOYEE_STATS[assignee].ahead++;
+              } else if (daysDiff <= 1) {
+                F2_EMPLOYEE_STATS[assignee].ontime++;
+              } else {
+                F2_EMPLOYEE_STATS[assignee].late++;
+              }
+            } else {
+              F2_EMPLOYEE_STATS[assignee].na++;
+            }
+          } else {
+            F2_EMPLOYEE_STATS[assignee].na++;
+          }
+        }
+
+        // Lưu thông tin tác vụ đầy đủ cho modal với mapping JSON mới
+        const reqDateStr = getRequestDateFromItem(item);
+        const wishDueStr = getWishDueFromItem(item);
+        const completionDateStr = getCompletionDateFromItem(item);
+        F2_EMPLOYEE_STATS[assignee].tasks.push({
+          // Core fields cho modal (8 cột) - Mapping chính xác theo yêu cầu
+          code: getV(item, ['🆔 Mã Báo cáo', 'Mã tác vụ', 'code', 'ma', 'taskcode', 'mã', 'mã_báo_cáo']),
+          taskName: getV(item, ['Task Name', 'taskname', 'ten_tac_vu', 'ten', 'name', 'title', 'tên tác vụ']),
+          requester: getV(item, ['Người yêu cầu', '🖊️ Tên NCC ', 'requester', 'nguoiyeucau', 'nguoi_yeu_cau', 'assigner', 'người yêu cầu']),
+          requestDate: reqDateStr,
+          wishDue: wishDueStr,
+          note: getV(item, ['Ghi chú', 'note', 'ghi_chu', 'ghichu', 'comments', 'bình_luận']),
+          completionDate: completionDateStr,
+          status: status,
+          progress: calculateProgress(reqDateStr, wishDueStr, completionDateStr),
+          
+          // Additional fields từ JSON mới
+          assigneeField: getV(item, ['Assignee', 'assignee', 'nguoi_nhan', 'người nhận', 'nguoi_thuc_hien', 'người thực hiện']),
+          emailAssigner: getV(item, ['Email Assigner', 'email_assigner', 'email_nguoi_yeu_cau']),
+          emailAssignee: getV(item, ['EmailofAssignee', 'email_assignee', 'email_nguoi_thuc_hien']),
+          telegramMsgId: getV(item, ['TelegramMsgId', 'telegram_msg_id', 'telegram_message_id']),
+          linkCongViec: getV(item, ['Link Công Việc', 'link_cong_viec', 'link_work']),
+          logGuiCongViec: getV(item, ['Log gửi công việc', 'log_gui_cong_viec', 'log_send_work']),
+          ketQua: getV(item, ['⁉️ Kết quả', 'ket_qua', 'result', 'status']),
+          maBaoCao: getV(item, ['🆔 Mã Báo cáo', 'ma_bao_cao', 'report_code', 'report_id']),
+          emailId: getV(item, ['Email ID', 'email_id']),
+          name1: getV(item, ['Name 1', 'name_1', 'nguoi_thuc_hien']),
+          email1: getV(item, ['Email 1', 'email_1']),
+          linkBC: getV(item, ['LinkBC', 'link_bc', 'link_bao_cao']),
+          nhanXetTruongNhom: getV(item, ['Nhận xét trưởng nhóm', 'nhan_xet_truong_nhom', 'team_lead_comment']),
+          ngayBoSung: getV(item, ['Ngày bổ sung', 'ngay_bo_sung', 'supplement_date']),
+          maPheDuyet: getV(item, ['Mã phê duyệt', 'ma_phe_duyet', 'approval_code']),
+          nhanXetTruongPhong: getV(item, ['Nhận xét trưởng phòng', 'nhan_xet_truong_phong', 'department_head_comment']),
+          
+          // Test fields từ JSON
+          ghiChu2a: getV(item, ['Ghi chú 2a', 'ghi_chu_2a']),
+          diemNG3a: getV(item, ['3a Điểm NG ', 'diem_ng_3a', 'point_ng_3a']),
+          ghiChu3a: getV(item, ['Ghi chú 3a', 'ghi_chu_3a']),
+          testBen4a: getV(item, ['4a Test bền ', 'test_ben_4a', 'durability_test_4a']),
+          ghiChu4a: getV(item, ['Ghi chú 4a', 'ghi_chu_4a']),
+          baiTestKhac5a: getV(item, ['5a Bài test khác', 'bai_test_khac_5a', 'other_test_5a']),
+          ghiChu5a: getV(item, ['Ghi chú 5a', 'ghi_chu_5a']),
+          fileAttachment: getV(item, ['File attachment ', 'file_attachment', 'attachment_file']),
+          
+          // Additional comprehensive fields
+          assignee: assignee,
+          priority: getV(item, ['priority', 'độ_ưu_tiên', 'do_uu_tien', 'mức_độ_quan_trọng']),
+          category: getV(item, ['category', 'loại', 'loai', 'phân_loại', 'phan_loai']),
+          department: getV(item, ['department', 'phòng_ban', 'phong_ban', 'bộ_phận', 'bo_phan']),
+          project: getV(item, ['project', 'dự_án', 'du_an', 'dự_án', 'du_an']),
+          estimatedHours: getV(item, ['estimatedHours', 'estimated_hours', 'giờ_ước_tính', 'gio_uoc_tinh']),
+          actualHours: getV(item, ['actualHours', 'actual_hours', 'giờ_thực_tế', 'gio_thuc_te']),
+          createdDate: getV(item, ['createdDate', 'created_date', 'ngày_tạo', 'ngay_tao']),
+          updatedDate: getV(item, ['updatedDate', 'updated_date', 'ngày_cập_nhật', 'ngay_cap_nhat']),
+          createdBy: getV(item, ['createdBy', 'created_by', 'người_tạo', 'nguoi_tao']),
+          updatedBy: getV(item, ['updatedBy', 'updated_by', 'người_cập_nhật', 'nguoi_cap_nhat']),
+          tags: getV(item, ['tags', 'thẻ', 'the', 'nhãn', 'nhan']),
+          comments: getV(item, ['comments', 'bình_luận', 'binh_luan', 'ghi_chú', 'ghi_chu']),
+          attachments: getV(item, ['attachments', 'tệp_đính_kèm', 'tep_dinh_kem', 'file_attachments']),
+          relatedTasks: getV(item, ['relatedTasks', 'related_tasks', 'tác_vụ_liên_quan', 'tac_vu_lien_quan']),
+          dependencies: getV(item, ['dependencies', 'phụ_thuộc', 'phu_thuoc', 'ràng_buộc', 'rang_buoc']),
+          riskLevel: getV(item, ['riskLevel', 'risk_level', 'mức_độ_rủi_ro', 'muc_do_rui_ro']),
+          complexity: getV(item, ['complexity', 'độ_phức_tạp', 'do_phuc_tap', 'mức_độ_phức_tạp']),
+          qualityScore: getV(item, ['qualityScore', 'quality_score', 'điểm_chất_lượng', 'diem_chat_luong']),
+          feedback: getV(item, ['feedback', 'phản_hồi', 'phan_hoi', 'đánh_giá', 'danh_gia']),
+          lessonsLearned: getV(item, ['lessonsLearned', 'lessons_learned', 'bài_học', 'bai_hoc', 'kinh_nghiệm']),
+          nextSteps: getV(item, ['nextSteps', 'next_steps', 'bước_tiếp_theo', 'buoc_tiep_theo']),
+          resources: getV(item, ['resources', 'tài_nguyên', 'tai_nguyen', 'nguồn_lực', 'nguon_luc']),
+          tools: getV(item, ['tools', 'công_cụ', 'cong_cu', 'dụng_cụ', 'dung_cu']),
+          methodology: getV(item, ['methodology', 'phương_pháp', 'phuong_phap', 'quy_trình', 'quy_trinh']),
+          standards: getV(item, ['standards', 'tiêu_chuẩn', 'tieu_chuan', 'chuẩn_mực', 'chuan_muc']),
+          compliance: getV(item, ['compliance', 'tuân_thủ', 'tuan_thu', 'tuân_thủ_quy_định']),
+          approvalStatus: getV(item, ['approvalStatus', 'approval_status', 'trạng_thái_phê_duyệt', 'trang_thai_phe_duyet']),
+          approver: getV(item, ['approver', 'người_phê_duyệt', 'nguoi_phe_duyet', 'người_duyệt']),
+          approvalDate: getV(item, ['approvalDate', 'approval_date', 'ngày_phê_duyệt', 'ngay_phe_duyet']),
+          reviewStatus: getV(item, ['reviewStatus', 'review_status', 'trạng_thái_đánh_giá', 'trang_thai_danh_gia']),
+          reviewer: getV(item, ['reviewer', 'người_đánh_giá', 'nguoi_danh_gia', 'người_review']),
+          reviewDate: getV(item, ['reviewDate', 'review_date', 'ngày_đánh_giá', 'ngay_danh_gia']),
+          testStatus: getV(item, ['testStatus', 'test_status', 'trạng_thái_test', 'trang_thai_test']),
+          tester: getV(item, ['tester', 'người_test', 'nguoi_test', 'người_kiểm_thử']),
+          testDate: getV(item, ['testDate', 'test_date', 'ngày_test', 'ngay_test']),
+          deploymentStatus: getV(item, ['deploymentStatus', 'deployment_status', 'trạng_thái_triển_khai', 'trang_thai_trien_khai']),
+          deploymentDate: getV(item, ['deploymentDate', 'deployment_date', 'ngày_triển_khai', 'ngay_trien_khai']),
+          performance: getV(item, ['performance', 'hiệu_suất', 'hieu_suat', 'hiệu_quả', 'hieu_qua']),
+          metrics: getV(item, ['metrics', 'chỉ_số', 'chi_so', 'metric', 'thước_đo']),
+          kpis: getV(item, ['kpis', 'kpi', 'chỉ_số_kpi', 'chi_so_kpi']),
+          sla: getV(item, ['sla', 'thỏa_thuận_dịch_vụ', 'thoa_thuan_dich_vu']),
+          budget: getV(item, ['budget', 'ngân_sách', 'ngan_sach', 'kinh_phí', 'kinh_phi']),
+          cost: getV(item, ['cost', 'chi_phí', 'chi_phi', 'giá_trị', 'gia_tri']),
+          roi: getV(item, ['roi', 'lợi_nhuận_đầu_tư', 'loi_nhuan_dau_tu', 'hiệu_quả_đầu_tư']),
+          impact: getV(item, ['impact', 'tác_động', 'tac_dong', 'ảnh_hưởng', 'anh_huong']),
+          benefits: getV(item, ['benefits', 'lợi_ích', 'loi_ich', 'lợi_thế', 'loi_the']),
+          challenges: getV(item, ['challenges', 'thách_thức', 'thach_thuc', 'khó_khăn', 'kho_khan']),
+          solutions: getV(item, ['solutions', 'giải_pháp', 'giai_phap', 'cách_giải_quyết']),
+          recommendations: getV(item, ['recommendations', 'khuyến_nghị', 'khuyen_nghi', 'đề_xuất', 'de_xuat']),
+          
+          // Lưu raw data để có thể truy cập đầy đủ
+          rawData: item
+        });
+      });
+
+      // Tính phần trăm cho tất cả nhân viên trong danh sách Form 2
+      FORM2_NAMES.forEach(name => {
+        const stat = F2_EMPLOYEE_STATS[name];
+        if (stat) {
+          const total = stat.done;
+          if (total > 0) {
+            stat.aheadPct = ((stat.ahead / total) * 100).toFixed(1);
+            stat.ontimePct = ((stat.ontime / total) * 100).toFixed(1);
+            stat.latePct = ((stat.late / total) * 100).toFixed(1);
+            stat.naPct = ((stat.na / total) * 100).toFixed(1);
+          } else {
+            stat.aheadPct = "0";
+            stat.ontimePct = "0";
+            stat.latePct = "0";
+            stat.naPct = "0";
+          }
+        }
+      });
+      
+      console.log('[Form2 Debug] Final F2_EMPLOYEE_STATS:', F2_EMPLOYEE_STATS);
     }
 
-    (function setupForm5(){
-      const openBtn = document.getElementById('f5-open-submit');
-      const modal = document.getElementById('f5-modal');
-      const sendBtn = document.getElementById('f5-btn-send');
-      const cancelBtn = document.getElementById('f5-btn-cancel');
-      const countBox = document.getElementById('f5-count');
-
-      function openF5Modal(){
-        try { setF5DateDefault(); } catch(_){}
-        // reset inputs
-        try{ (document.getElementById('f5-title')||{}).value=''; }catch(_){ }
-        try{ (document.getElementById('f5-problem')||{}).value=''; }catch(_){ }
-        try{ (document.getElementById('f5-solution')||{}).value=''; }catch(_){ }
-        if (modal){ modal.classList.add('open'); modal.setAttribute('aria-hidden','false'); }
+    // Tính toán tiến độ
+    function calculateProgress(requestDate, wishDue, completionDate) {
+      if (!requestDate || !wishDue || !completionDate) return 'N/A';
+      
+      // Hỗ trợ cả 2 định dạng: YYYY-MM-DD HH:mm và YYYY-MM-DD
+      let reqDate, wishDate, compDate;
+      
+      // Parse requestDate
+      if (requestDate.includes(' ')) {
+        reqDate = new Date(requestDate);
+      } else {
+        reqDate = new Date(requestDate + ' 00:00:00');
       }
-      function closeF5Modal(){ if (modal){ modal.classList.remove('open'); modal.setAttribute('aria-hidden','true'); } }
-      if (openBtn) openBtn.addEventListener('click', (e)=>{ e.preventDefault(); openF5Modal(); });
-      if (cancelBtn) cancelBtn.addEventListener('click', (e)=>{ e.preventDefault(); closeF5Modal(); });
-      if (modal) modal.addEventListener('click', (e)=>{ if(e.target===modal) closeF5Modal(); });
-      document.addEventListener('keydown', (e)=>{ if(e.key==='Escape' && modal && modal.classList.contains('open')) closeF5Modal(); });
-
-      async function submitF5(){
-        const date = (document.getElementById('f5-date')?.value||'').trim();
-        const emp = (document.getElementById('f5-employee')?.value||'').trim();
-        const title = (document.getElementById('f5-title')?.value||'').trim();
-        const prob = (document.getElementById('f5-problem')?.value||'').trim();
-        const sol = (document.getElementById('f5-solution')?.value||'').trim();
-        if (!date || !emp || !title || !prob || !sol){ showToast('Vui lòng điền đủ tất cả trường.','error'); return; }
-        const prev = sendBtn ? sendBtn.textContent : '';
-        if (sendBtn){ sendBtn.disabled = true; sendBtn.innerHTML = "<span class='spinner mr-2'></span>Đang gửi..."; }
-        // Build payload (send both submitDate and date for compatibility)
-        const toDMY = (v)=>{ try{ const [y,m,d] = String(v||'').split('-'); return `${d}/${m}/${y}`; }catch(_){ return String(v||''); } };
-        const p = new URLSearchParams({
-          submitDate: date,
-          date: date,
-          submit_date: date,
-          ngay_nop: date,
-          ngayNop: date,
-          ngayNopDMY: toDMY(date),
-          employee: emp,
-          title,
-          problem: prob,
-          solution: sol,
-          _ts: formatTimestampGMT7()
-        });
-        async function tryPost(url){
-          try{
-            const r = await fetch(url, { method:'POST', headers:{'Content-Type':'application/x-www-form-urlencoded'}, body: p.toString() });
-            const t = await r.text().catch(()=>"");
-            return { ok: r.ok, raw: t };
-          }catch(err){ return { ok:false, raw: String(err||'') }; }
-        }
-        async function tryPostNoCors(url){
-          try{
-            await fetch(url, { method:'POST', mode:'no-cors', headers:{'Content-Type':'application/x-www-form-urlencoded'}, body: p.toString() });
-            // opaque response cannot be inspected; treat as success if resolved
-            return { ok: true, raw: '' };
-          }catch(err){ return { ok:false, raw: String(err||'') }; }
-        }
-        async function tryGet(url){
-          try{
-            const r = await fetch(`${url}?${p.toString()}`, { method:'GET' });
-            const t = await r.text();
-            return { ok: r.ok, raw: t };
-          }catch(err){ return { ok:false, raw: String(err||'') }; }
-        }
-        try{
-          // 1) POST no-cors to test URL (avoid CORS false negatives)
-          let r = await tryPostNoCors(FORM5_SUBMIT_URL);
-          // 2) If above failed (network), try normal POST test URL
-          if (!r.ok) r = await tryPost(FORM5_SUBMIT_URL);
-          // 3) Fallback GET test URL
-          if (!r.ok || /could not be started/i.test(r.raw||'')) r = await tryGet(FORM5_SUBMIT_URL);
-          // 4) Fallback POST prod URL
-          if (!r.ok || /could not be started/i.test(r.raw||'')) r = await tryPost(FORM5_SUBMIT_URL.replace('/webhook-test/','/webhook/'));
-          // 5) Fallback GET prod URL
-          if (!r.ok || /could not be started/i.test(r.raw||'')) r = await tryGet(FORM5_SUBMIT_URL.replace('/webhook-test/','/webhook/'));
-          if (!r.ok) throw new Error(r.raw||'Gửi thất bại');
-          showToast('Đã gửi ý tưởng.','success');
-          closeF5Modal();
-          // Làm mới bảng sau 3 giây để backend kịp ghi dữ liệu
-          setTimeout(()=>{ try{ renderForm5List(); }catch(_){} }, 3000);
-        }catch(err){
-          showToast('Gửi thất bại.','error');
-        }finally{
-          if (sendBtn){ sendBtn.disabled=false; sendBtn.textContent = prev || 'Gửi ý tưởng'; }
-        }
+      
+      // Parse wishDue
+      if (wishDue.includes(' ')) {
+        wishDate = new Date(wishDue);
+      } else {
+        wishDate = new Date(wishDue + ' 00:00:00');
       }
-      if (sendBtn) sendBtn.addEventListener('click', (e)=>{ e.preventDefault(); submitF5(); });
-
-      if (countBox){
-        countBox.addEventListener('click', ()=>{
-          countBox.innerHTML = `<span>📊</span><span>Số ý tưởng đã nộp: <b>${F5_LAST_COUNT}</b></span>`;
-        });
+      
+      // Parse completionDate
+      if (completionDate.includes(' ')) {
+        compDate = new Date(completionDate);
+      } else {
+        compDate = new Date(completionDate + ' 00:00:00');
       }
-    })();
+      
+      if (isNaN(reqDate.getTime()) || isNaN(wishDate.getTime()) || isNaN(compDate.getTime())) {
+        return 'N/A';
+      }
+      
+      const daysDiff = (compDate.getTime() - wishDate.getTime()) / (1000 * 60 * 60 * 24);
+      
+      if (daysDiff < 0) return 'Vượt tiến độ';
+      if (daysDiff <= 1) return 'Đúng tiến độ';
+      return 'Chậm tiến độ';
+    }
+
+    // Render bảng thống kê
+    function renderForm2Stats() {
+      const body = document.getElementById('f2-body-p1');
+      if (!body) return;
+
+      // Hiển thị tất cả nhân viên có trong thống kê (bao gồm tên mới xuất hiện trong dữ liệu)
+      const allNames = Object.keys(F2_EMPLOYEE_STATS);
+      if (allNames.length === 0) {
+        body.innerHTML = '<tr><td class="px-3 py-3 text-center text-gray-500" colspan="11">Chưa có dữ liệu</td></tr>';
+        return;
+      }
+
+      // Ưu tiên sắp xếp: tên trong FORM2_NAMES trước, sau đó các tên mới theo alpha
+      const preferredSet = new Set(FORM2_NAMES);
+      allNames.sort((a,b)=>{
+        const aPref = preferredSet.has(a) ? 0 : 1;
+        const bPref = preferredSet.has(b) ? 0 : 1;
+        if (aPref !== bPref) return aPref - bPref;
+        return a.localeCompare(b, 'vi');
+      });
+
+      body.innerHTML = '';
+      allNames.forEach(name => {
+        const stat = F2_EMPLOYEE_STATS[name] || {
+          name: name,
+          totalTasks: 0,
+          done: 0,
+          ahead: 0,
+          ontime: 0,
+          late: 0,
+          na: 0,
+          aheadPct: "0",
+          ontimePct: "0",
+          latePct: "0",
+          naPct: "0",
+          tasks: []
+        };
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td class="px-3 py-2 font-medium cursor-pointer hover:text-primary-blue" onclick="openF2P1DetailModal('${stat.name}')">${stat.name}</td>
+          <td class="px-3 py-2 text-center font-semibold text-blue-600">${stat.totalTasks}</td>
+          <td class="px-3 py-2 text-center">${stat.done}</td>
+          <td class="px-3 py-2 text-center text-green-600">${stat.ahead}</td>
+          <td class="px-3 py-2 text-center text-blue-600">${stat.ontime}</td>
+          <td class="px-3 py-2 text-center text-red-600">${stat.late}</td>
+          <td class="px-3 py-2 text-center text-gray-600">${stat.na}</td>
+          <td class="px-3 py-2 text-center text-green-600">${stat.aheadPct || 0}%</td>
+          <td class="px-3 py-2 text-center text-blue-600">${stat.ontimePct || 0}%</td>
+          <td class="px-3 py-2 text-center text-red-600">${stat.latePct || 0}%</td>
+          <td class="px-3 py-2 text-center text-gray-600">${stat.naPct || 0}%</td>
+        `;
+        body.appendChild(tr);
+      });
+    }
+
+    // Form 2: Render panel data (legacy function - now calls fetchForm2Data)
+    function renderForm2Panel(panelId) {
+      if (panelId === 'p1') {
+        fetchForm2Data();
+      }
+    }
+
+    // Form 2: Search button event listeners
+    document.querySelectorAll('[id^="f2-search-"]').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.preventDefault();
+        const panelId = btn.id.replace('f2-search-', '');
+        
+        // Show loading state
+        const originalText = btn.textContent;
+        btn.disabled = true;
+        btn.innerHTML = "<span class='spinner mr-2'></span>Đang tải...";
+        
+        // Simulate API call
+        setTimeout(() => {
+          renderForm2Panel(panelId);
+          btn.disabled = false;
+          btn.textContent = originalText;
+          showToast(`Đã tải dữ liệu ${panelId.toUpperCase()}.`, 'success');
+        }, 1000);
+      });
+    });
+
+    // Form 2: Export functionality
+    const f2ExportBtn = document.getElementById('f2-export');
+    const f2ExportXlsxBtn = document.getElementById('f2-export-xlsx');
+    
+    if (f2ExportBtn) {
+      f2ExportBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        showToast('Chức năng xuất server đang được phát triển.', 'info');
+      });
+    }
+    
+    if (f2ExportXlsxBtn) {
+      f2ExportXlsxBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        showToast('Chức năng xuất XLSX đang được phát triển.', 'info');
+      });
+    }
+
+    // Form 2: Modal functions
+    function openF2P1DetailModal(employeeName) {
+      const modal = document.getElementById('f2-p1-detail-modal');
+      const nameSpan = document.getElementById('f2-p1-detail-name');
+      const body = document.getElementById('f2-p1-detail-body');
+      
+      if (nameSpan) nameSpan.textContent = employeeName;
+      
+      // Lấy dữ liệu thực từ F2_EMPLOYEE_STATS
+      const employeeData = F2_EMPLOYEE_STATS[employeeName];
+      
+      if (!employeeData || !employeeData.tasks || employeeData.tasks.length === 0) {
+        body.innerHTML = '<tr><td class="px-3 py-3 text-center text-gray-500" colspan="8">Không có dữ liệu tác vụ</td></tr>';
+        modal.classList.add('open');
+        modal.setAttribute('aria-hidden', 'false');
+        return;
+      }
+      
+      // Lọc: chỉ hiển thị các tác vụ được đếm
+      // - Luôn gồm các tác vụ Doing (được tính vào totalTasks)
+      // - Và các tác vụ Done có completionDate nằm trong F2_MONTH_FILTER (nếu đang lọc tháng)
+      // - Nếu không lọc tháng, hiển thị Doing và tất cả Done có completionDate
+      const filtered = (employeeData.tasks || []).filter(task => {
+        const statusLower = String(task.status || '').toLowerCase();
+        const isDoing = statusLower.includes('doing') || statusLower.includes('đang');
+        const isDone = statusLower.includes('hoàn') || statusLower.includes('done');
+        const isCancelled = statusLower.includes('cancel') || statusLower.includes('hủy') || statusLower.includes('huỷ');
+        if (isCancelled) return false;
+        if (isDoing) return true;
+        if (!isDone) return false;
+        const comp = task.completionDate;
+        if (!comp) return false;
+        const compDate = parseDateFlexible(comp);
+        if (isNaN(compDate.getTime())) return false;
+        if (F2_MONTH_FILTER) {
+          const ym = `${compDate.getFullYear()}-${String(compDate.getMonth()+1).padStart(2,'0')}`;
+          return ym === F2_MONTH_FILTER;
+        }
+        return true;
+      });
+
+      // Sắp xếp: Doing trên, Done phía dưới (giữ nguyên thứ tự bên trong mỗi nhóm)
+      const sorted = filtered.sort((a,b)=>{
+        const aStatus = String(a.status||'').toLowerCase();
+        const bStatus = String(b.status||'').toLowerCase();
+        const aDoing = aStatus.includes('doing') || aStatus.includes('đang');
+        const bDoing = bStatus.includes('doing') || bStatus.includes('đang');
+        if (aDoing && !bDoing) return -1;
+        if (!aDoing && bDoing) return 1;
+        return 0;
+      });
+
+      body.innerHTML = '';
+      sorted.forEach((task) => {
+        const tr = document.createElement('tr');
+        
+        // Tạo badge trạng thái
+        const statusLower = (task.status || '').toLowerCase();
+        const isDone = statusLower.includes('hoàn') || statusLower.includes('done');
+        const isCancelled = statusLower.includes('cancel') || statusLower.includes('hủy') || statusLower.includes('huỷ');
+        const statusBadge = `<span class="px-2 py-1 rounded text-xs ${isDone ? 'bg-green-100 text-green-800' : (isCancelled || statusLower.includes('chờ') || statusLower.includes('pending')) ? 'bg-yellow-100 text-yellow-800' : 'bg-blue-100 text-blue-800'}">${task.status || ''}</span>`;
+        
+        tr.innerHTML = `
+          <td class="px-3 py-2">${statusBadge}</td>
+          <td class="px-3 py-2">${task.completionDate || '-'}</td>
+          <td class="px-3 py-2">${task.code || '-'}</td>
+          <td class="px-3 py-2">${task.taskName || '-'}</td>
+          <td class="px-3 py-2">${task.requester || '-'}</td>
+          <td class="px-3 py-2">${task.requestDate || '-'}</td>
+          <td class="px-3 py-2">${task.wishDue || '-'}</td>
+          <td class="px-3 py-2">${task.note || '-'}</td>
+        `;
+        body.appendChild(tr);
+      });
+      
+      modal.classList.add('open');
+      modal.setAttribute('aria-hidden', 'false');
+    }
+
+    function closeF2P1DetailModal() {
+      const modal = document.getElementById('f2-p1-detail-modal');
+      modal.classList.remove('open');
+      modal.setAttribute('aria-hidden', 'true');
+    }
+
+    // Form 2: Modal event listeners
+    const f2P1DetailCloseBtn = document.getElementById('f2-p1-detail-close');
+    if (f2P1DetailCloseBtn) {
+      f2P1DetailCloseBtn.addEventListener('click', closeF2P1DetailModal);
+    }
+
+    const f2P1DetailModal = document.getElementById('f2-p1-detail-modal');
+    if (f2P1DetailModal) {
+      f2P1DetailModal.addEventListener('click', (e) => {
+        if (e.target === f2P1DetailModal) closeF2P1DetailModal();
+      });
+    }
+
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && f2P1DetailModal.classList.contains('open')) {
+        closeF2P1DetailModal();
+      }
+    });
+
+    // Initialize Form 2 with P1
+    setTimeout(() => {
+      fetchForm2Data();
+    }, 100);
+
+
   </script>
 </body>
 </html>
