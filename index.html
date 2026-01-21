@@ -23,6 +23,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
   <style>
     .spinner{border:2px solid #e5e7eb;border-top:2px solid #C41E3A;border-radius:50%;width:16px;height:16px;animation:spin 1s linear infinite;display:inline-block;vertical-align:middle}
     @keyframes spin{0%{transform:rotate(0)}100%{transform:rotate(360deg)}}
@@ -45,6 +46,60 @@
     .cell-div{ border-left:1px solid #e5e7eb; }
     .table-vdiv{ border-collapse: separate; border-spacing: 0; }
     .table-vdiv th+th, .table-vdiv td+td{ border-left:1px solid #e5e7eb; }
+    .form-section { border: 1px solid #e5e7eb; border-radius: 12px; transition: box-shadow 0.2s ease; }
+    .form-section:hover { box-shadow: 0 8px 24px rgba(0, 0, 0, 0.06); }
+    /* Section cards for Form 1 */
+    .section-card { border: 1px solid transparent; border-radius: 12px; padding: 14px; }
+    .section-a { background: #fef2f2; border-color: #fecaca; }
+    .section-b { background: #d7e5f3; border-color: #72b2ee; }
+    .section-c { background: #fffbeb; border-color: #fde68a; }
+    .section-d { background: #faf5ff; border-color: #e9d5ff; }
+    .input-field {
+      width: 100%;
+      padding: 0.5rem 0.75rem;
+      border: 1px solid #fca5a5; /* red-300 */
+      border-radius: 0.5rem; /* rounded */
+      background-color: #f1f5f9; /* muted */
+      transition: box-shadow 0.2s ease, border-color 0.2s ease, background-color 0.2s ease;
+      outline: none;
+    }
+    .input-field:focus {
+      border-color: #C41E3A; /* primary-red */
+      box-shadow: 0 0 0 3px rgba(196, 30, 58, 0.2); /* ring-red-200 */
+      background-color: #ffffff;
+    }
+    .input-field::placeholder {
+      color: #9ca3af; /* gray-400 */
+    }
+    .input-field:read-only {
+      background: #e5e7eb; /* gray-200 */
+      color: #6b7280; /* gray-500 */
+    }
+    /* Form 3 specific scrollbar - scoped to #form3 only */
+    #form3 .custom-scrollbar-f3::-webkit-scrollbar {
+        width: 8px;
+        height: 8px;
+    }
+    #form3 .custom-scrollbar-f3::-webkit-scrollbar-track {
+        background: transparent;
+    }
+    #form3 .custom-scrollbar-f3::-webkit-scrollbar-thumb {
+        background-color: #e5e7eb;
+        border-radius: 9999px;
+        border: 2px solid transparent;
+        background-clip: content-box;
+    }
+    #form3 .custom-scrollbar-f3::-webkit-scrollbar-thumb:hover {
+        background-color: #d1d5db;
+    }
+    /* Form 3 specific no-scrollbar - only applies within form3 */
+    #form3 .no-scrollbar::-webkit-scrollbar {
+        display: none;
+    }
+    #form3 .no-scrollbar {
+        -ms-overflow-style: none;
+        scrollbar-width: none;
+    }
   </style>
 </head>
 <body class="bg-muted min-h-screen flex text-gray-800" style="font-family: 'Inter', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol'">
@@ -54,21 +109,101 @@
     <nav class="flex flex-col gap-2 mt-2">
       <button class="nav-btn py-2 px-4 rounded transition hover:bg-sidebar-hover text-left text-base" data-target="form1">Form 1 · Tra cứu tác vụ</button>
       <button class="nav-btn py-2 px-4 rounded transition hover:bg-sidebar-hover text-left text-base" data-target="form2">Form 2 · Tiến độ công việc</button>
+      <button class="nav-btn py-2 px-4 rounded transition hover:bg-sidebar-hover text-left text-base" data-target="form3">Form 3 · Quản lý dự án (đang phát triển)</button>
+      <button class="nav-btn py-2 px-4 rounded transition hover:bg-sidebar-hover text-left text-base" data-target="testRequest">Nhập tác vụ</button>
       <!-- <button class="nav-btn py-2 px-4 rounded transition hover:bg-sidebar-hover text-left text-base" data-target="form4">Form 4 · Bảng theo dõi </button> -->
     </nav>
   </aside>
 
   <!-- Main -->
   <main class="flex-1 py-10 flex flex-col items-center min-h-screen overflow-y-auto">
-    <div class="header-container relative w-full max-w-6xl rounded-xl overflow-hidden mb-8">
-      <div class="relative z-10 p-8 md:p-10">
-        <div class="flex items-center space-x-2 mb-3">
-          <div class="inline-block px-3 py-1 rounded-full text-xs font-semibold text-white" style="background-color: rgba(255,255,255,0.15); backdrop-filter: blur(5px);">Phòng NCTN 2</div>
-        </div>
-        <h2 class="text-2xl md:text-3xl lg:text-4xl font-bold text-white mb-1 tracking-tight">Cổng tác vụ NCTN 2 - Nội bộ</h2>
-        <p class="text-red-100 text-sm md:text-base">Vui lòng không chia sẻ link cổng tác vụ với người ngoài bộ phận.</p>
+    <!-- Test Request Form -->
+    <section id="testRequest" class="form-section w-full max-w-7xl bg-white p-6 rounded-lg shadow-md hidden">
+      <div class="mb-6">
+        <h2 class="text-3xl font-extrabold text-primary-blue tracking-wide mb-1">Nhập tác vụ</h2>
+        <div class="h-1 w-16 bg-primary-blue mb-2 rounded"></div>
       </div>
-    </div>
+      <form id="testRequestForm" class="space-y-5" autocomplete="off">
+        <!-- A. General Information -->
+        <div class="section-card section-a">
+          <h3 class="text-lg font-semibold text-primary-blue mb-2">A. Thông tin chung</h3>
+          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+            <div class="space-y-1">
+              <label class="block text-sm font-medium text-gray-700">Họ tên người yêu cầu</label>
+              <input required name="senderName" type="text" class="input-field"/>
+            </div>
+            <div class="space-y-1">
+              <label class="block text-sm font-medium text-gray-700">Email</label>
+              <input required name="senderEmail" type="email" class="input-field"/>
+            </div>
+            <div class="space-y-1">
+              <label class="block text-sm font-medium text-gray-700">Ngày gửi yêu cầu</label>
+              <input name="requestDate" type="datetime-local" class="input-field" readonly id="testRequestDate"/>
+            </div>
+            <div class="space-y-1">
+              <label class="block text-sm font-medium text-gray-700">Phòng ban yêu cầu</label>
+              <select required name="department" class="input-field">
+                <option value="">Chọn phòng ban *</option>
+               <option>Mua hàng</option><option>SC</option><option>SC2</option><option>KTSX</option><option>KTSP</option>
+                <option>TKCK</option><option>KTCN</option><option>NCTN1</option><option>TKĐT</option>
+                 <option>QA/QC nhà máy</option><option>NCTN2</option>
+              </select>
+            </div>
+          </div>
+        </div>
+        <!-- B. Product/Component Information -->
+        <div class="section-card section-b">
+          <h3 class="text-lg font-semibold text-primary-blue mb-2">B. Thông tin sản phẩm/linh kiện</h3>
+          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            <div class="space-y-1">
+              <label class="block text-sm font-medium text-gray-700">Tên sản phẩm/linh kiện</label>
+              <input required name="productName" type="text" class="input-field"/>
+            </div>
+            <div class="space-y-1">
+              <label class="block text-sm font-medium text-gray-700">Mã sản phẩm/linh kiện</label>
+              <input required name="productCode" type="text" class="input-field"/>
+            </div>
+            <div class="space-y-1">
+              <label class="block text-sm font-medium text-gray-700">Nhà cung cấp</label>
+              <input name="supplier" required type="text" class="input-field"/>
+            </div>
+            <div class="space-y-1">
+              <label class="block text-sm font-medium text-gray-700">Số lượng mẫu giao</label>
+              <input name="numSamples" type="number" min="0" required class="input-field"/>
+            </div>
+            <div class="space-y-1">
+              <label class="block text-sm font-medium text-gray-700">Hạn mong muốn có kết quả</label>
+              <input name="desiredCompletionDate" type="date" required class="input-field"/>
+            </div>
+            <div class="space-y-1 lg:col-span-3">
+              <label class="block text-sm font-medium text-gray-700">Link KOI (nếu có)</label>
+              <input name="koiLink" type="text" class="input-field" placeholder="Copy link luồng phê duyệt KOI vào đây"/>
+            </div>
+            <div class="space-y-1 lg:col-span-3">
+              <label class="block text-sm font-medium text-gray-700">Mục đích yêu cầu</label>
+              <input required name="requestPurpose" id="requestPurpose" type="text" class="input-field" placeholder="Nhập mục đích yêu cầu"/>
+            </div>
+            <div class="space-y-1 lg:col-span-3">
+              <label class="block text-sm font-medium text-gray-700">Ghi chú</label>
+              <textarea name="notes" rows="3" class="input-field" placeholder="Điểm thay đổi, lý do yêu cầu gấp..."></textarea>
+            </div>
+          </div>
+        </div>
+        <!-- C. Attachments -->
+        <div class="section-card section-c">
+          <h3 class="text-lg font-semibold text-primary-blue mb-2">C. Tài liệu đính kèm</h3>
+          <div class="space-y-1">
+            <label class="block text-sm font-medium text-gray-700">Tệp đính kèm</label>
+            <input multiple type="file" id="testRequestFiles" class="block w-full text-sm file:mr-2 file:py-1 file:px-3 file:rounded-full file:border-0 file:bg-primary-blue file:text-white"/>
+          </div>
+          <div id="testRequestUploadList" class="mt-2 flex flex-col gap-2"></div>
+        </div>
+        <button type="submit" class="submit-btn w-full mt-4 py-3 text-white font-semibold text-lg transition flex items-center justify-center gap-2">
+          <span>Gửi yêu cầu</span>
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6" /></svg>
+        </button>
+      </form>
+    </section>
 
     <!-- Form 1 -->
     <section id="form1" class="w-full max-w-none bg-white p-6 rounded-lg shadow-md">
@@ -104,19 +239,19 @@
             <tr class="text-left text-gray-700">
               <th class="px-3 py-2 min-w-[160px]">Trả báo cáo</th>
               <th class="px-3 py-2 min-w-[140px]">Tình trạng</th>
+              <th class="px-3 py-2 min-w-[160px]">Thực hiện</th>
+              <th class="px-3 py-2 min-w-[160px]">Ngày bắt đầu thực tế</th>
               <th class="px-3 py-2 min-w-[160px]">Ngày hoàn thành thực tế</th>
-              <th class="px-3 py-2 min-w-[140px]">Mã</th>
+              <th class="px-3 py-2 min-w-[140px]">Mã tác vụ</th>
               <th class="px-3 py-2 min-w-[260px]">Tên tác vụ</th>
+              <th class="px-3 py-2 min-w-[220px]">File đính kèm</th>
+              <th class="px-3 py-2 min-w-[220px]">File báo cáo</th>
               <th class="px-3 py-2 min-w-[160px]">Người yêu cầu</th>
-              <th class="px-3 py-2 min-w-[120px]">Công chuẩn</th>
+              <th class="px-3 py-2 min-w-[160px]">Người thực hiện</th>
               <th class="px-3 py-2 min-w-[140px]">Ngày yêu cầu</th>
               <th class="px-3 py-2 min-w-[140px]">Hạn mong muốn</th>
-              <th class="px-3 py-2 min-w-[140px]">Hạn đáp ứng</th>
               <th class="px-3 py-2 min-w-[260px]">Mục đích đánh giá</th>
-              <th class="px-3 py-2 min-w-[240px]">Note</th>
-              <th class="px-3 py-2 min-w-[240px]">Yêu cầu test đặc biệt</th>
-              <th class="px-3 py-2 min-w-[260px]">Form báo cáo đánh giá</th>
-              <th class="px-3 py-2 min-w-[220px]">Tên file đính kèm</th>
+              <th class="px-3 py-2 min-w-[240px]">Ghi chú</th>
             </tr>
           </thead>
           <tbody id="f1-body" class="divide-y divide-gray-100">
@@ -200,6 +335,136 @@
       </div>
     </section>
 
+    <!-- Form 3 - Quản lý dự án -->
+    <section id="form3" class="w-full bg-white/50 p-6 lg:p-10 rounded-lg shadow-md hidden flex flex-col" style="min-height: calc(100vh - 120px);">
+      <div class="mx-auto flex w-full flex-col gap-6 flex-1">
+        <!-- Page Heading -->
+        <div class="flex flex-wrap items-center justify-between gap-4">
+          <div class="flex flex-col gap-1">
+            <h2 class="text-2xl font-bold text-[#131118]">Quản lý dự án</h2>
+            <p class="text-[#6b6189] text-sm mt-1">Theo dõi tiến độ và phân cấp công việc Epic → Story → Subtask</p>
+          </div>
+          <div class="flex flex-wrap gap-2">
+            <button id="f3-load-data-btn" class="flex items-center gap-2 px-4 py-2.5 bg-white border border-[#e5e7eb] rounded-full text-sm font-medium hover:bg-gray-50 transition-colors shadow-sm">
+              <span class="material-icons text-[18px]">refresh</span>
+              <span>Tải dữ liệu</span>
+            </button>
+            <button id="f3-export-btn" class="flex items-center gap-2 px-4 py-2.5 bg-white border border-[#e5e7eb] rounded-full text-sm font-medium hover:bg-gray-50 transition-colors shadow-sm">
+              <span class="material-icons text-[18px]">table_view</span>
+              <span>Xuất Excel</span>
+            </button>
+          </div>
+      </div>
+
+        <!-- Upload Section -->
+        <div class="rounded-xl bg-gradient-to-br from-blue-50 to-indigo-50 border border-blue-200 p-6 shadow-sm hidden">
+          <div class="flex items-center justify-between mb-4">
+            <h3 class="text-lg font-semibold text-gray-800">Upload File Excel</h3>
+            <span class="text-xs text-gray-500">Hỗ trợ .xlsx, .xls</span>
+          </div>
+          
+          <div id="f3-drop-zone" class="relative border-2 border-dashed border-blue-300 rounded-lg p-8 text-center bg-white hover:border-blue-500 transition-colors cursor-pointer">
+            <input type="file" id="f3-excel-file" accept=".xlsx,.xls" class="hidden">
+            <div id="f3-drop-content" class="flex flex-col items-center gap-3">
+              <span class="material-icons text-5xl text-blue-500">cloud_upload</span>
+              <div>
+                <p class="text-sm font-medium text-gray-700">Kéo thả file Excel vào đây</p>
+                <p class="text-xs text-gray-500 mt-1">hoặc click để chọn file</p>
+            </div>
+          </div>
+            <div id="f3-file-info" class="hidden flex items-center justify-between gap-3 mt-4 p-3 bg-green-50 rounded-lg border border-green-200">
+              <div class="flex items-center gap-3 flex-1">
+                <span class="material-icons text-green-600">description</span>
+                <div class="flex-1 text-left">
+                  <p id="f3-file-name" class="text-sm font-medium text-gray-900"></p>
+                  <p id="f3-file-size" class="text-xs text-gray-500"></p>
+        </div>
+      </div>
+              <button id="f3-file-remove" class="text-red-500 hover:text-red-700 transition">
+                <span class="material-icons">close</span>
+        </button>
+            </div>
+      </div>
+
+          <div class="flex items-center justify-center gap-3 mt-4">
+            <button id="f3-submit-btn" class="flex items-center gap-2 px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium shadow-md hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed" disabled>
+              <span class="material-icons">upload</span>
+              <span>Tải lên server</span>
+            </button>
+            </div>
+          </div>
+
+        <!-- Search and Filter -->
+        <div class="flex flex-col lg:flex-row gap-3 pt-2">
+          <!-- Search Input -->
+          <div class="relative w-full lg:max-w-md">
+            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+              <span class="material-icons text-[#6b6189]">search</span>
+            </div>
+            <input id="f3-search-input" type="text" placeholder="Tìm theo tên, Jira Key, Assignee..." class="block w-full pl-10 pr-3 py-2.5 border-none rounded-full leading-5 bg-white text-[#131118] placeholder-[#9ca3af] focus:outline-none focus:bg-white focus:ring-2 focus:ring-primary/20 shadow-sm ring-1 ring-[#e5e7eb]">
+          </div>
+          <!-- Filters -->
+          <div class="flex gap-2 overflow-x-auto pb-2 lg:pb-0 no-scrollbar">
+            <select id="f3-filter-status" class="pl-3 pr-8 py-2.5 bg-white border-none ring-1 ring-[#e5e7eb] rounded-full text-sm font-medium text-[#131118] focus:ring-2 focus:ring-primary/20 shadow-sm cursor-pointer appearance-none">
+              <option value="">Tất cả trạng thái</option>
+              <option value="hoàn thành">Hoàn thành</option>
+              <option value="đang triển khai">Đang triển khai</option>
+              <option value="chưa triển khai">Chưa triển khai</option>
+              <option value="hủy tác vụ">Hủy tác vụ</option>
+              <option value="cancelled">Đã hủy</option>
+            </select>
+            <select id="f3-filter-assignee" class="pl-3 pr-8 py-2.5 bg-white border-none ring-1 ring-[#e5e7eb] rounded-full text-sm font-medium text-[#131118] focus:ring-2 focus:ring-primary/20 shadow-sm cursor-pointer appearance-none">
+              <option value="">Tất cả thành viên</option>
+              <!-- Options sẽ được populate bằng JavaScript -->
+            </select>
+            <select id="f3-filter-level" class="pl-3 pr-8 py-2.5 bg-white border-none ring-1 ring-[#e5e7eb] rounded-full text-sm font-medium text-[#131118] focus:ring-2 focus:ring-primary/20 shadow-sm cursor-pointer appearance-none">
+              <option value="all">Tất cả cấp</option>
+              <option value="story">Story và Subtask</option>
+              <option value="subtask">Chỉ Subtask</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Hierarchical Data Table -->
+        <div class="overflow-hidden rounded-lg bg-white shadow-sm border border-[#f1f0f4] flex-1 flex flex-col">
+          <div class="overflow-x-auto overflow-y-auto flex-1" style="min-height: 0;">
+            <!-- Table Header -->
+            <div class="grid grid-cols-12 gap-4 px-6 py-3 bg-[#fafafa] border-b border-[#f1f0f4] text-xs font-semibold text-[#6b6189] uppercase tracking-wider sticky top-0 z-10">
+              <div class="col-span-3 flex items-center">Tên công việc</div>
+              <div class="col-span-1 flex items-center">Thay đổi</div>
+              <div class="col-span-2 flex items-center">Người thực hiện</div>
+              <div class="col-span-1 flex items-center">Trạng thái</div>
+              <div class="col-span-1 flex items-center">Ngày bắt đầu</div>
+              <div class="col-span-1 flex items-center">Hạn HT</div>
+              <div class="col-span-1 flex items-center">Ngày hoàn thành</div>
+              <div class="col-span-1 flex items-center">Mã Jira/KOI</div>
+              <div class="col-span-1 flex items-center">Ghi chú</div>
+            </div>
+            <!-- Table Body (Scrollable) -->
+            <div class="custom-scrollbar-f3">
+              <div id="f3-table-body" class="divide-y divide-[#f1f0f4]">
+                <div class="px-6 py-8 text-center text-[#6b6189]">
+                  <div class="flex flex-col items-center gap-2">
+                    <span class="material-icons text-4xl text-gray-300">table_chart</span>
+                    <p>Chưa có dữ liệu. Vui lòng tải dữ liệu hoặc upload file Excel.</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Loading Indicator -->
+        <div id="f3-loading" class="hidden flex items-center justify-center gap-2 text-primary py-4">
+          <svg class="animate-spin h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+          </svg>
+          <span>Đang tải...</span>
+        </div>
+      </div>
+    </section>
+
   </main>
 
   <!-- Upload Modal -->
@@ -217,7 +482,6 @@
         <div>
           <label class="block text-sm font-medium text-gray-700 mb-1">Chọn tệp báo cáo</label>
           <input id="upload-file" type="file" class="block w-full text-sm file:mr-2 file:py-1 file:px-3 file:rounded-full file:border-0 file:bg-primary-blue file:text-white"/>
-          <p class="text-xs text-gray-500 mt-1">Tệp sẽ gửi kèm timestamp tại thời điểm gửi.</p>
         </div>
         <div>
           <label class="block text-sm font-medium text-gray-700 mb-1">Ghi chú (tùy chọn)</label>
@@ -303,9 +567,10 @@
 
   <script>
     // Constants
-    const WEBHOOK_URL = "https://xcqiyibqs.tino.page/webhook/tracuutacvuNCTN2";
-    const FORM2_WEBHOOK_URL = "https://xcqiyibqs.tino.page/webhook/Tracuutongtacvu";
-    const FORM1_UPLOAD_URL = "https://xcqiyibqs.tino.page/webhook/TrabaocaoNTCN2";
+    const WEBHOOK_URL = "https://xcqiyibqs.tino.page/webhook/LaydulieuNCTN2";
+    const FORM2_WEBHOOK_URL = "https://xcqiyibqs.tino.page/webhook/Laydulieuform2NCTN2";
+    const FORM1_UPLOAD_URL = "https://xcqiyibqs.tino.page/webhook/NopbaocaoNCTN2DBmoi";
+    const N8N_SUBMIT_ENDPOINT = "https://xcqiyibqs.tino.page/webhook/YeucauthunghiemNCTN2";
     let F4_CHART = null;
 
     // Hàm format timestamp theo định dạng DD HH:mm GMT+7
@@ -325,8 +590,20 @@
 
     // Sidebar navigation
     const navBtns = document.querySelectorAll('.nav-btn');
-    const sections = ['form1', 'form2'].map(id=>document.getElementById(id));
-    function showSection(id){ sections.forEach(s=>s.classList.toggle('hidden', s.id!==id)); }
+    const formSections = document.querySelectorAll('.form-section');
+    const sections = ['testRequest', 'form1', 'form2', 'form3'].map(id=>document.getElementById(id));
+    function showSection(id){ 
+      formSections.forEach(sec => sec.classList.add('hidden'));
+      sections.forEach(s=>s.classList.toggle('hidden', s.id!==id)); 
+      
+      // Tự động tải dữ liệu khi chuyển sang Form 3
+      if (id === 'form3') {
+        // Kiểm tra xem đã có dữ liệu chưa, nếu chưa thì tải
+        if (!F3_ALL_DATA || !F3_ALL_DATA.epics || F3_ALL_DATA.epics.length === 0) {
+          loadF3Data();
+        }
+      }
+    }
     navBtns.forEach((btn)=>{
       btn.onclick=()=>{
         navBtns.forEach(b=>b.classList.remove('bg-primary-blue','font-bold'));
@@ -340,17 +617,202 @@
     navBtns[0].classList.add('bg-primary-blue','font-bold');
     showSection(navBtns[0].getAttribute('data-target'));
 
-    // Names - Form 1
+    // Set default current local date+time for date fields on load
+    function setCurrentDateTime(id) {
+      const dt = new Date();
+      const tzOffsetMs = dt.getTimezoneOffset() * 60000;
+      const localISO = new Date(dt.getTime() - tzOffsetMs).toISOString().slice(0, 16);
+      const el = document.getElementById(id);
+      if (el) el.value = localISO;
+    }
+    setCurrentDateTime('testRequestDate');
+
+    // Dynamic fields logic for Test Request Form
+    function generateTaskCode(){
+      const now = new Date();
+      const dd = String(now.getDate()).padStart(2,'0');
+      const mm = String(now.getMonth()+1).padStart(2,'0');
+      const charset = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+      let rand = '';
+      for (let i = 0; i < 6; i++) {
+        rand += charset.charAt(Math.floor(Math.random() * charset.length));
+      }
+      return `NCTN2.${dd}${mm}-${rand}`;
+    }
+
+    // File upload widget logic for Test Request Form
+    let testRequestUploads = [];
+    (function setupTestRequestUploads(){
+      const fileInput = document.getElementById('testRequestFiles');
+      const uploadList = document.getElementById('testRequestUploadList');
+      if (!fileInput || !uploadList) return;
+      testRequestUploads = [];
+      fileInput.addEventListener('change', function(){
+        if (!this.files || this.files.length === 0) return;
+        for (const file of this.files){
+          const rowDiv = document.createElement('div');
+          rowDiv.className = "flex items-center justify-between p-2 bg-blue-50 rounded";
+          rowDiv.innerHTML = `
+            <span>📄<span class="ml-2">${file.name}</span></span>
+            <span class="text-gray-600 text-xs">Sẽ gửi kèm (binary)</span>
+            <button class="ml-2 text-red-600 hover:underline font-bold" type="button">X</button>
+          `;
+          const idx = testRequestUploads.length;
+          testRequestUploads.push({ name: file.name, file });
+          rowDiv.querySelector('button').onclick = ()=>{
+            rowDiv.remove();
+            testRequestUploads[idx] = null;
+          };
+          uploadList.appendChild(rowDiv);
+        }
+        this.value = '';
+      });
+    })();
+
+    // Form submit logic (for testRequestForm)
+    function toJSON(form){
+      const d = {};
+      new FormData(form).forEach((val,key)=>{
+        if(d[key])
+          d[key] = [].concat(d[key],val);
+        else
+          d[key]=val;
+      });
+      return d;
+    }
+    function submitForm(formId, endpoint, getUploads){
+      const formEl = document.getElementById(formId);
+      if (!formEl) return;
+      formEl.onsubmit = async function(e){
+        e.preventDefault();
+        // Confirmation popup for Form 1 before sending
+        if (formId === 'testRequestForm') {
+          const confirmed = window.confirm('Bằng việc xác nhận gửi yêu cầu, bạn cam kết mẫu đã được gửi đúng và đủ đến NCTN 2.');
+          if (!confirmed) return;
+        }
+        const btn = this.querySelector("button[type=submit]");
+        const originalLabel = btn ? btn.textContent : "";
+        if (btn) {
+          btn.disabled = true;
+          btn.innerHTML = "<span class='spinner'></span>";
+        }
+        let data = toJSON(this);
+        // Sinh Mã tác vụ ngay thời điểm submit
+        const taskCode = generateTaskCode();
+        let uploads = [];
+        if(getUploads){
+          if(formId === "testRequestForm"){
+            uploads = getUploads() || [];
+            const valid = (uploads || []).filter(Boolean);
+            data.attachments = valid.map(u=>u.name || '').join(';');
+          } else {
+            data.attachments = getUploads();
+          }
+        }
+        if(formId==="testRequestForm"){
+          // Format requestDate to YYYY-MM-DD HH:mm with GMT +7
+          let normalizedRequestDate = '';
+          if (data.requestDate) {
+            const date = new Date(data.requestDate);
+            // Add 7 hours for GMT +7
+            const gmt7Date = new Date(date.getTime() + (7 * 60 * 60 * 1000));
+            const year = gmt7Date.getUTCFullYear();
+            const month = String(gmt7Date.getUTCMonth() + 1).padStart(2, '0');
+            const day = String(gmt7Date.getUTCDate()).padStart(2, '0');
+            const hours = String(gmt7Date.getUTCHours()).padStart(2, '0');
+            const minutes = String(gmt7Date.getUTCMinutes()).padStart(2, '0');
+            normalizedRequestDate = `${year}-${month}-${day} ${hours}:${minutes}`;
+          }
+          
+          const normalizedDesiredDate = (data.desiredCompletionDate || '').toString().slice(0,10);
+          
+          // Map to JSON body structure as per requirement
+          const mapped = {
+            "Ngày yêu cầu của các bên": String(normalizedRequestDate || '').trim(),
+            "Hạn mong muốn của các bên": String(normalizedDesiredDate || '').trim(),
+            "Mã tác vụ": String(taskCode || '').trim(),
+            "Tên tác vụ": String(data.productName || '').trim(),
+            "Nhà cung cấp": String(data.supplier || '').trim(),
+            "Mục đích đánh giá": String(data.requestPurpose || '').trim(),
+            "Ghi chú của yêu cầu": String(data.notes || '').trim(),
+            "Người yêu cầu": String(data.senderName || '').trim(),
+            "Email người yêu cầu": String(data.senderEmail || '').trim(),
+            "LinkKOI": String(data.koiLink || '').trim(),
+            // Keep these for backward compatibility if needed
+            attachments: String(data.attachments || '').trim()
+          };
+          
+          // Prepare form data - only send non-empty fields, except LinkKOI (always send)
+          const form = new FormData();
+          Object.keys(mapped).forEach(k => {
+            const value = mapped[k];
+            // Always send LinkKOI even if empty, skip other empty fields
+            if (k === "LinkKOI") {
+              form.append(k, value || '');
+            } else if (value !== undefined && value !== null && String(value).trim() !== '') {
+              form.append(k, value);
+            }
+          });
+          form.append('_ts', Date.now().toString());
+          const validUploads = (uploads || []).filter(Boolean);
+          for (const u of validUploads) {
+            if (u && u.file) {
+              form.append('files', u.file, u.name || u.file.name || 'upload');
+            }
+          }
+          try{
+            const resp = await fetch(endpoint, { method: 'POST', body: form });
+            if(resp.ok){
+              if (btn) {
+                btn.innerHTML="Đã gửi!";
+                btn.classList.add("bg-green-600");
+                setTimeout(()=>{
+                  if (btn) {
+                    btn.innerHTML=originalLabel;
+                    btn.disabled=false;
+                    btn.classList.remove("bg-green-600");
+                  }
+                },20000);
+              }
+              // Reset form after submit
+              this.reset();
+              // restore current datetime for readonly field
+              const dtEl = document.getElementById('testRequestDate');
+              if (dtEl) {
+                const now = new Date();
+                const tz = now.getTimezoneOffset() * 60000;
+                dtEl.value = new Date(now.getTime() - tz).toISOString().slice(0, 16);
+              }
+            } else {
+              const text = await resp.text();
+              throw new Error(text || `HTTP ${resp.status}`);
+            }
+          } catch(err){
+            alert("Gửi thất bại: "+err);
+            if (btn) {
+              btn.innerHTML=originalLabel;
+              btn.disabled=false;
+            }
+          }
+          return;
+        }
+      };
+    }
+    submitForm("testRequestForm", 
+      N8N_SUBMIT_ENDPOINT,
+      ()=>testRequestUploads);
+
+    // Names - Form 1 (Cập nhật từ json.json)
     const FORM1_NAMES = [
-      "Trần Văn Hoàng",
-      "Nguyễn Kim Cương",
-      "Trịnh Xuân Hạnh",
+      "Bùi Ngọc Hùng",
       "Đỗ Xuân Huy",
       "Giang Văn Toàn",
-      "Vũ Ngọc Diệp",
-      "Bùi Ngọc Hùng",
-      "Nhân Viên Mới 1",
-      "Nhân Viên Mới 2",
+      "Nguyễn Kim Cương",
+      "Nguyễn Mạnh Quang",
+      "Nguyễn Thế Việt",
+      "Trịnh Xuân Hạnh",
+      "Trần Văn Hoàng",
+      "Vũ Ngọc Diệp"
     ];
 
     // Names - Form 2 (NCTN 2) - Danh sách riêng biệt
@@ -477,6 +939,11 @@
         fd.append('ma_tac_vu', uploadContext.code||'');
         fd.append('ten_tac_vu', uploadContext.taskName||'');
         fd.append('form', uploadContext.form||'');
+        // Gửi kèm Id (taskId) nếu có
+        if(uploadContext.taskId){
+          fd.append('Id', String(uploadContext.taskId));
+          fd.append('taskId', String(uploadContext.taskId));
+        }
       }
       const noteInput = document.getElementById('upload-note');
       const noteValue = noteInput ? (noteInput.value || '').trim() : '';
@@ -510,7 +977,7 @@
       const pager = document.getElementById('f1-pager');
       const total = F1_ALL_ROWS.length;
       if(total === 0){
-        body.innerHTML = '<tr><td class="px-3 py-3 text-center text-gray-500" colspan="12">Không có tác vụ</td></tr>';
+        body.innerHTML = '<tr><td class="px-3 py-3 text-center text-gray-500" colspan="15">Không có tác vụ</td></tr>';
         pager.style.display = 'none';
         return;
       }
@@ -550,7 +1017,7 @@
       // Lọc theo tháng nếu có bộ lọc
       if (F1_MONTH_FILTER) {
         filteredData = filteredData.filter(item => {
-          const statusText = String(getV(item, ['status', 'trangthai', 'trang_thai', 'trạng thái']) || '').toLowerCase();
+          const statusText = String(getV(item, ['Kết quả', 'status', 'trangthai', 'trang_thai', 'trạng thái']) || '').toLowerCase();
           const isDoing = statusText.includes('doing') || statusText.includes('đang');
           
           // Tác vụ Doing luôn hiển thị (không bị lọc theo tháng)
@@ -558,7 +1025,7 @@
           if (isDoing) return true;
           
           // Các tác vụ khác lọc theo tháng
-          const requestDate = getV(item, ['requestdate', 'ngayyeucau', 'ngay_yeu_cau', 'submissiondate', 'ngaygui', 'ngày yêu cầu']);
+          const requestDate = getV(item, ['Ngày yêu cầu của các bên', 'requestdate', 'ngayyeucau', 'ngay_yeu_cau', 'submissiondate', 'ngaygui', 'ngày yêu cầu']);
           if (!requestDate) return false;
           
           const date = new Date(requestDate);
@@ -572,21 +1039,11 @@
         });
       }
 
-      // Sắp xếp: Doing trước, sau đó theo thời gian từ gần đến xa
+      // Sắp xếp theo ngày yêu cầu từ gần đến xa (bất kể trạng thái)
       filteredData.sort((a, b) => {
-        const statusA = String(getV(a, ['status', 'trangthai', 'trang_thai', 'trạng thái']) || '').toLowerCase();
-        const statusB = String(getV(b, ['status', 'trangthai', 'trang_thai', 'trạng thái']) || '').toLowerCase();
-        
-        const isDoingA = statusA.includes('doing') || statusA.includes('đang');
-        const isDoingB = statusB.includes('doing') || statusB.includes('đang');
-        
-        // Ưu tiên Doing trước
-        if (isDoingA && !isDoingB) return -1;
-        if (!isDoingA && isDoingB) return 1;
-        
-        // Nếu cùng trạng thái, sắp xếp theo thời gian từ gần đến xa
+        // Hàm lấy ngày yêu cầu
         const getRequestDate = (item) => {
-          const requestDate = getV(item, ['requestdate', 'ngayyeucau', 'ngay_yeu_cau', 'submissiondate', 'ngaygui', 'ngày yêu cầu']);
+          const requestDate = getV(item, ['Ngày yêu cầu của các bên', 'requestdate', 'ngayyeucau', 'ngay_yeu_cau', 'submissiondate', 'ngaygui', 'ngày yêu cầu']);
           if (!requestDate) return new Date(0); // Nếu không có ngày, đặt ở cuối
           
           const date = new Date(requestDate);
@@ -596,7 +1053,7 @@
         const dateA = getRequestDate(a);
         const dateB = getRequestDate(b);
         
-        // Sắp xếp từ gần đến xa (mới nhất lên đầu)
+        // Sắp xếp theo ngày từ gần đến xa (mới nhất lên đầu)
         return dateB.getTime() - dateA.getTime();
       });
 
@@ -626,14 +1083,20 @@
       F1_ALL_ROWS = [];
       data.forEach(item => {
         const tr = document.createElement('tr');
+        // Lưu Id vào data attribute để sử dụng xuyên suốt
+        const itemId = getV(item, ['Id', 'id', 'ID', '_id']);
+        if (itemId) {
+          tr.setAttribute('data-task-id', String(itemId));
+        }
+        
         const tdBtn = document.createElement('td'); 
         tdBtn.className = 'px-3 py-2';
         
         const code = getV(item, ['Mã tác vụ', 'code', 'ma', 'taskcode', 'mã']);
-        const tname = getV(item, ['Task Name', 'taskname', 'ten_tac_vu', 'ten', 'name', 'title', 'tên tác vụ']);
+        const tname = getV(item, ['Tên tác vụ', 'Task Name', 'taskname', 'ten_tac_vu', 'ten', 'name', 'title']);
         
         // Tạo nút Trả báo cáo - chỉ cho phép khi trạng thái Doing
-        const statusText = getV(item, ['⁉️ Kết quả', 'Hiện trạng', 'status', 'trangthai', 'trang_thai', 'trạng thái']);
+        const statusText = getV(item, ['Kết quả', '⁉️ Kết quả', 'Hiện trạng', 'status', 'trangthai', 'trang_thai', 'trạng thái']);
         const statusLower = (statusText || '').toLowerCase();
         const isDoing = statusLower.includes('doing') || statusLower.includes('đang');
         const isDone = statusLower.includes('hoàn') || statusLower.includes('done');
@@ -662,7 +1125,7 @@
             labelBtn.disabled = true;
             labelBtn.classList.add('opacity-50', 'pointer-events-none');
             lastOpenTrigger = labelBtn;
-            openUploadModal({ form: 'Form 1', name: nameSelected, code, taskName: tname });
+            openUploadModal({ form: 'Form 1', name: nameSelected, code, taskName: tname, taskId: itemId });
           };
         }
         
@@ -683,25 +1146,147 @@
         tdStatus.appendChild(badge); 
         tr.appendChild(tdStatus);
 
+        // Thêm cột "Thực hiện" với nút "Bắt đầu triển khai"
+        const tdAction = document.createElement('td');
+        tdAction.className = 'px-3 py-2';
+        const startDate = getV(item, ['Ngày bắt đầu thực tế', 'startdate', 'start_date', 'ngaybatdau', 'ngay_bat_dau', 'ngày bắt đầu thực tế']);
+        const hasStartDate = startDate && String(startDate).trim() !== '';
+        
+        // Kiểm tra trạng thái cần khóa nút
+        const isPendingApproval = statusLower.includes('trưởng nhóm review') || statusLower.includes('chờ phê duyệt') || statusLower.includes('cho phe duyet');
+        
+        if (isDone || isCancelled) {
+          // Đã hoàn thành hoặc đã hủy - luôn hiển thị "Đã hoàn thành"
+          tdAction.innerHTML = '<span class="text-gray-500 text-xs">Đã hoàn thành</span>';
+        } else if (isPendingApproval) {
+          // Trạng thái "Trưởng nhóm Review" hoặc "Chờ phê duyệt" - hiển thị "Chờ phê duyệt" và khóa nút
+          tdAction.innerHTML = '<span class="text-yellow-600 text-xs">Chờ phê duyệt</span>';
+        } else if (hasStartDate) {
+          // Đã có ngày bắt đầu - hiển thị "Đã bắt đầu"
+          tdAction.innerHTML = '<span class="text-green-600 text-xs">Đã bắt đầu</span>';
+        } else {
+          // Chưa bắt đầu - hiển thị nút "Bắt đầu triển khai"
+          const startBtn = document.createElement('button');
+          startBtn.className = 'px-3 py-1 inline-block rounded-lg text-white bg-green-600 hover:bg-green-700 cursor-pointer text-sm';
+          startBtn.textContent = 'Bắt đầu triển khai';
+          startBtn.onclick = async (e) => {
+            e.preventDefault();
+            if (confirm(`Xác nhận bắt đầu triển khai tác vụ: ${tname} (${code})?`)) {
+              startBtn.disabled = true;
+              startBtn.innerHTML = "<span class='spinner'></span>";
+              
+              try {
+                // Tạo ngày bắt đầu thực tế với GMT+7
+                const now = new Date();
+                const gmt7Date = new Date(now.getTime() + (7 * 60 * 60 * 1000));
+                const year = gmt7Date.getUTCFullYear();
+                const month = String(gmt7Date.getUTCMonth() + 1).padStart(2, '0');
+                const day = String(gmt7Date.getUTCDate()).padStart(2, '0');
+                const hours = String(gmt7Date.getUTCHours()).padStart(2, '0');
+                const minutes = String(gmt7Date.getUTCMinutes()).padStart(2, '0');
+                const startDateStr = `${year}-${month}-${day} ${hours}:${minutes}`;
+                
+                // Tạo FormData để gửi lên webhook
+                const formData = new FormData();
+                if (itemId) {
+                  formData.append('Id', String(itemId));
+                }
+                if (tname) {
+                  formData.append('Tên tác vụ', String(tname));
+                }
+                formData.append('Ngày bắt đầu thực tế', startDateStr);
+                
+                // Gửi request đến webhook
+                const response = await fetch('https://xcqiyibqs.tino.page/webhook/Khaibaobatdau', {
+                  method: 'POST',
+                  body: formData
+                });
+                
+                if (response.ok) {
+                  // Chỉ tải lại trang sau khi nhận phản hồi thành công từ webhook
+                  startBtn.innerHTML = '<span class="text-green-600 text-xs">Đã gửi</span>';
+                  startBtn.disabled = true;
+                  startBtn.classList.remove('bg-green-600', 'hover:bg-green-700');
+                  startBtn.classList.add('bg-gray-200');
+                  
+                  // Tải lại dữ liệu ngay sau khi nhận phản hồi thành công
+                  await renderForm1();
+                } else {
+                  const errorText = await response.text();
+                  throw new Error(errorText || `HTTP ${response.status}`);
+                }
+              } catch (error) {
+                alert('Không thể khai báo bắt đầu: ' + error.message);
+                startBtn.disabled = false;
+                startBtn.innerHTML = 'Bắt đầu triển khai';
+              }
+            }
+          };
+          // Lưu Id vào button để dễ truy cập
+          if (itemId) {
+            startBtn.setAttribute('data-task-id', String(itemId));
+          }
+          tdAction.appendChild(startBtn);
+        }
+        tr.appendChild(tdAction);
+        
+        // Thêm cột "Ngày bắt đầu thực tế"
+        addTd(tr, startDate || '');
+
         // Thêm cột Ngày hoàn thành thực tế
         addTd(tr, getV(item, ['Ngày hoàn thành thực tế', 'completiondate', 'completeddate', 'ngayhoanthanh', 'ngay_hoan_thanh', 'completion', 'done_date', 'ngày hoàn thành']));
 
         addTd(tr, code);
         addTd(tr, tname);
-        addTd(tr, getV(item, ['🖊️ Tên NCC ', 'requester', 'nguoiyeucau', 'nguoi_yeu_cau', 'assigner', 'người yêu cầu']));
-        addTd(tr, getV(item, ['Công chuẩn công việc nhận tuần 22', 'manhour', 'man_hour', 'congchuan', 'cong_chuan', 'workload', 'sogio', 'sogiocong', 'công chuẩn']));
-        addTd(tr, getV(item, ['📆 Ngày yêu cầu ', 'requestdate', 'ngayyeucau', 'ngay_yeu_cau', 'submissiondate', 'ngaygui', 'ngày yêu cầu']));
-        addTd(tr, getV(item, ['Hạn mong muốn ', 'wishdue', 'hanmongmuon', 'han_mong_muon', 'desireddue', 'hạn mong muốn']));
-        addTd(tr, getV(item, ['actualdue', 'handapung', 'han_dap_ung', 'completiondate', 'hạn đáp ứng']));
-        addTd(tr, getV(item, ['❓ Mục đích đánh giá ', 'purpose', 'mucdich', 'muc_dich', 'mục đích đánh giá', 'muc dich danh gia', 'mucdichdanhgia']));
-        addTd(tr, getV(item, ['note', 'ghi_chu', 'ghichu']));
-        addTd(tr, getV(item, ['specialtest', 'yeucau_test_dac_biet', 'yeu_cau_test_dac_biet']));
-        addTd(tr, getV(item, ['reportform', 'form_bao_cao', 'form_bao_cao_danh_gia']));
-        addTd(tr, getV(item, ['attachmentfilename', 'file_name', 'filename', 'tenfile', 'ten_file', 'tên file', 'tên file đính kèm', 'attachment', 'file']));
+        
+        // File đính kèm - hiển thị dưới dạng nút link
+        const tdFile = document.createElement('td');
+        tdFile.className = 'px-3 py-2 align-top';
+        const fileLink = getV(item, ['File đính kèm', 'attachmentfilename', 'file_name', 'filename', 'tenfile', 'ten_file', 'tên file', 'tên file đính kèm', 'attachment', 'file']);
+        if (fileLink && String(fileLink).trim() !== '') {
+          const linkBtn = document.createElement('button');
+          linkBtn.className = 'px-3 py-1 inline-block rounded-lg text-white bg-blue-600 hover:bg-blue-700 cursor-pointer text-sm';
+          linkBtn.textContent = 'Xem file';
+          linkBtn.onclick = (e) => {
+            e.preventDefault();
+            const url = String(fileLink).trim();
+            // Kiểm tra nếu là URL đầy đủ, nếu không thì thêm https://
+            const fullUrl = url.startsWith('http://') || url.startsWith('https://') ? url : `https://${url}`;
+            window.open(fullUrl, '_blank');
+          };
+          tdFile.appendChild(linkBtn);
+        }
+        tr.appendChild(tdFile);
+        
+        // File báo cáo - hiển thị dưới dạng nút link
+        const tdReport = document.createElement('td');
+        tdReport.className = 'px-3 py-2 align-top';
+        const reportLink = getV(item, ['LinkBC', 'linkbc', 'link_bc', 'file_bao_cao', 'filebaocao', 'file báo cáo']);
+        if (reportLink && String(reportLink).trim() !== '') {
+          const reportBtn = document.createElement('button');
+          reportBtn.className = 'px-3 py-1 inline-block rounded-lg text-white bg-blue-600 hover:bg-blue-700 cursor-pointer text-sm';
+          reportBtn.textContent = 'Xem file';
+          reportBtn.onclick = (e) => {
+            e.preventDefault();
+            const url = String(reportLink).trim();
+            // Kiểm tra nếu là URL đầy đủ, nếu không thì thêm https://
+            const fullUrl = url.startsWith('http://') || url.startsWith('https://') ? url : `https://${url}`;
+            window.open(fullUrl, '_blank');
+          };
+          tdReport.appendChild(reportBtn);
+        }
+        tr.appendChild(tdReport);
+        
+        addTd(tr, getV(item, ['Người yêu cầu', 'requester', 'nguoiyeucau', 'nguoi_yeu_cau', 'assigner', 'người yêu cầu']));
+        addTd(tr, getV(item, ['Người thực hiện', 'assignee', 'nguoi_thuc_hien', 'người thực hiện', 'employee', 'nhanvien']));
+        addTd(tr, getV(item, ['Ngày yêu cầu của các bên', 'Ngày yêu cầu', 'requestdate', 'ngayyeucau', 'ngay_yeu_cau', 'submissiondate', 'ngaygui']));
+        addTd(tr, getV(item, ['Hạn mong muốn của các bên', 'Hạn mong muốn', 'wishdue', 'hanmongmuon', 'han_mong_muon', 'desireddue']));
+        addTd(tr, getV(item, ['Mục đích đánh giá', 'purpose', 'mucdich', 'muc_dich', 'mục đích đánh giá', 'muc dich danh gia', 'mucdichdanhgia']));
+        addTd(tr, getV(item, ['Ghi chú của yêu cầu', 'Ghi chú', 'note', 'ghi_chu', 'ghichu']));
 
         // Highlight theo hạn mong muốn cho tác vụ Doing
         try {
-          const wishDueStr = getV(item, ['Hạn mong muốn ', 'wishdue', 'hanmongmuon', 'han_mong_muon', 'desireddue', 'hạn mong muốn']);
+          const wishDueStr = getV(item, ['Hạn mong muốn của các bên', 'Hạn mong muốn', 'wishdue', 'hanmongmuon', 'han_mong_muon', 'desireddue']);
           if (isDoing && wishDueStr) {
             const dueDate = parseDateFlexible(wishDueStr);
             if (!isNaN(dueDate.getTime())) {
@@ -743,38 +1328,33 @@
           const headerMapF1 = {
           header_btn: 'Nút nhập gửi báo cáo',
           header_requester: 'Người yêu cầu',
-          header_requestDate: 'Ngày yêu cầu',
-          header_wishDue: 'Hạn mong muốn',
-          header_actualDue: 'Hạn đáp ứng',
-          header_code: 'Mã',
+          header_requestDate: 'Ngày yêu cầu của các bên',
+          header_wishDue: 'Hạn mong muốn của các bên',
+          header_code: 'Mã tác vụ',
           header_taskName: 'Tên tác vụ',
-            header_manHour: 'Công chuẩn',
           header_purpose: 'Mục đích đánh giá',
-          header_note: 'Note',
-          header_specialTest: 'Yêu cầu test đặc biệt',
-          header_reportForm: 'Form báo cáo đánh giá',
-          header_status: 'Trạng thái',
+          header_note: 'Ghi chú của yêu cầu',
+          header_status: 'Kết quả',
           header_completionDate: 'Ngày hoàn thành thực tế',
-          header_attachmentFileName: 'Tên file đính kèm',
-          field_requester: 'requester',
-          field_requestDate: 'requestDate',
-          field_wishDue: 'wishDue',
-          field_actualDue: 'actualDue',
-          field_code: 'code',
-          field_taskName: 'taskName',
-            field_manHour: 'manHour',
-          field_purpose: 'purpose',
-          field_note: 'note',
-          field_specialTest: 'specialTest',
-          field_reportForm: 'reportForm',
-          field_status: 'status',
-          field_completionDate: 'completionDate',
-          field_attachmentFileName: 'attachmentFileName'
+          header_attachmentFileName: 'File đính kèm',
+          header_assignee: 'Người thực hiện',
+          field_requester: 'Người yêu cầu',
+          field_requestDate: 'Ngày yêu cầu của các bên',
+          field_wishDue: 'Hạn mong muốn của các bên',
+          field_code: 'Mã tác vụ',
+          field_taskName: 'Tên tác vụ',
+          field_purpose: 'Mục đích đánh giá',
+          field_note: 'Ghi chú của yêu cầu',
+          field_status: 'Kết quả',
+          field_completionDate: 'Ngày hoàn thành thực tế',
+          field_attachmentFileName: 'File đính kèm',
+          field_assignee: 'Người thực hiện'
         };
         const params = new URLSearchParams({
           ...headerMapF1,
           action: 'form1_lookup',
           person_name: personParam,
+          filter_by: 'Người thực hiện', // Rõ ràng là lọc theo "Người thực hiện"
           timestamp: formatTimestampGMT7()
         });
         const testUrl = `${WEBHOOK_URL}?${params.toString()}`;
@@ -878,7 +1458,23 @@
           return '';
         };
         // Lọc bỏ các dòng không có Tên tác vụ (tránh rỗng thông tin)
-        rows = rows.filter(item=> String(getV(item,['taskname','ten_tac_vu','ten','name','title','tên tác vụ'])||'').trim() !== '');
+        rows = rows.filter(item=> String(getV(item,['Tên tác vụ','taskname','ten_tac_vu','ten','name','title'])||'').trim() !== '');
+        if(!rows.length){ body.innerHTML = "<tr><td colspan='15' class='px-3 py-3 text-center text-gray-500'>Không có tác vụ</td></tr>"; return; }
+        
+        // Lọc theo "Người thực hiện" nếu có chọn tên và không phải chế độ "Chưa phân công"
+        if (!unassigned && nameSelected) {
+          rows = rows.filter(item => {
+            const assignee = getV(item, ['Người thực hiện', 'assignee', 'nguoi_thuc_hien', 'người thực hiện', 'employee', 'nhanvien']);
+            return String(assignee || '').trim().toLowerCase() === nameSelected.toLowerCase();
+          });
+        } else if (unassigned) {
+          // Chế độ "Chưa phân công": lọc các record có "Người thực hiện" trống hoặc null
+          rows = rows.filter(item => {
+            const assignee = getV(item, ['Người thực hiện', 'assignee', 'nguoi_thuc_hien', 'người thực hiện', 'employee', 'nhanvien']);
+            return !assignee || String(assignee).trim() === '';
+          });
+        }
+        
         if(!rows.length){ body.innerHTML = "<tr><td colspan='15' class='px-3 py-3 text-center text-gray-500'>Không có tác vụ</td></tr>"; return; }
         
         // Lưu dữ liệu gốc để lọc cục bộ
@@ -1014,101 +1610,8 @@
       body.innerHTML = "<tr><td colspan='10' class='px-3 py-3 text-center text-gray-500'><span class='spinner mr-2'></span>Đang tải...</td></tr>";
 
       try {
-        const headerMapF2 = {
-          // Headers cho modal (15 cột)
-          header_btn: 'Nút nhập gửi báo cáo',
-          header_status: 'Tình trạng',
-          header_completionDate: 'Ngày hoàn thành thực tế',
-          header_code: 'Mã',
-          header_taskName: 'Tên tác vụ',
-          header_requester: 'Người yêu cầu',
-          header_manHour: 'Công chuẩn',
-          header_requestDate: 'Ngày yêu cầu',
-          header_wishDue: 'Hạn mong muốn',
-          header_actualDue: 'Hạn đáp ứng',
-          header_purpose: 'Mục đích đánh giá',
-          header_note: 'Note',
-          header_specialTest: 'Yêu cầu test đặc biệt',
-          header_reportForm: 'Form báo cáo đánh giá',
-          header_attachmentFileName: 'Tên file đính kèm',
-          
-          // Field mappings cho modal
-          field_requester: 'requester',
-          field_requestDate: 'requestDate',
-          field_wishDue: 'wishDue',
-          field_actualDue: 'actualDue',
-          field_code: 'code',
-          field_taskName: 'taskName',
-          field_manHour: 'manHour',
-          field_purpose: 'purpose',
-          field_note: 'note',
-          field_specialTest: 'specialTest',
-          field_reportForm: 'reportForm',
-          field_status: 'status',
-          field_completionDate: 'completionDate',
-          field_attachmentFileName: 'attachmentFileName',
-          
-          // Additional fields for comprehensive data
-          field_assignee: 'assignee',
-          field_progress: 'progress',
-          field_priority: 'priority',
-          field_category: 'category',
-          field_department: 'department',
-          field_project: 'project',
-          field_estimatedHours: 'estimatedHours',
-          field_actualHours: 'actualHours',
-          field_createdDate: 'createdDate',
-          field_updatedDate: 'updatedDate',
-          field_createdBy: 'createdBy',
-          field_updatedBy: 'updatedBy',
-          field_tags: 'tags',
-          field_comments: 'comments',
-          field_attachments: 'attachments',
-          field_relatedTasks: 'relatedTasks',
-          field_dependencies: 'dependencies',
-          field_riskLevel: 'riskLevel',
-          field_complexity: 'complexity',
-          field_qualityScore: 'qualityScore',
-          field_feedback: 'feedback',
-          field_lessonsLearned: 'lessonsLearned',
-          field_nextSteps: 'nextSteps',
-          field_resources: 'resources',
-          field_tools: 'tools',
-          field_methodology: 'methodology',
-          field_standards: 'standards',
-          field_compliance: 'compliance',
-          field_approvalStatus: 'approvalStatus',
-          field_approver: 'approver',
-          field_approvalDate: 'approvalDate',
-          field_reviewStatus: 'reviewStatus',
-          field_reviewer: 'reviewer',
-          field_reviewDate: 'reviewDate',
-          field_testStatus: 'testStatus',
-          field_tester: 'tester',
-          field_testDate: 'testDate',
-          field_deploymentStatus: 'deploymentStatus',
-          field_deploymentDate: 'deploymentDate',
-          field_performance: 'performance',
-          field_metrics: 'metrics',
-          field_kpis: 'kpis',
-          field_sla: 'sla',
-          field_budget: 'budget',
-          field_cost: 'cost',
-          field_roi: 'roi',
-          field_impact: 'impact',
-          field_benefits: 'benefits',
-          field_challenges: 'challenges',
-          field_solutions: 'solutions',
-          field_recommendations: 'recommendations'
-        };
-
-        // Lấy tên người hiện tại (có thể từ Form 1 hoặc mặc định)
-        const currentPersonName = (document.getElementById('f1-name')?.value || '').trim() || 'Tất cả';
-        
+        // Đơn giản hóa request - chỉ gửi tham số cần thiết
         const params = new URLSearchParams({
-          ...headerMapF2,
-          action: 'form2_all_tasks', // Action riêng cho Form 2
-          person_name: currentPersonName, // Thêm tên người vào query
           month: F2_MONTH_FILTER || '',
           timestamp: formatTimestampGMT7()
         });
@@ -1286,8 +1789,11 @@
           return;
         }
 
-        // Lọc bỏ các dòng không có Tên tác vụ (bổ sung 'Task Name')
-        rows = rows.filter(item => String(getV(item, ['Task Name', 'taskname', 'ten_tac_vu', 'ten', 'name', 'title', 'tên tác vụ']) || '').trim() !== '');
+        // Lọc bỏ các dòng không có Tên tác vụ - Ưu tiên mapping từ JSON mới: "Tên tác vụ"
+        rows = rows.filter(item => String(getV(item, [
+          'Tên tác vụ', 'tên tác vụ',
+          'Task Name', 'taskname', 'ten_tac_vu', 'ten', 'name', 'title'
+        ]) || '').trim() !== '');
         if (!rows.length) {
           body.innerHTML = "<tr><td colspan='11' class='px-3 py-3 text-center text-gray-500'>Không có tác vụ</td></tr>";
           return;
@@ -1358,7 +1864,7 @@
 
       // Tìm field Ngày hoàn thành thực tế theo nhiều biến thể tên cột
       const getCompletionDateFromItem = (item) => {
-        // 1) Thử các key phổ biến (ưu tiên)
+        // 1) Ưu tiên các key từ JSON mới
         const valDirect = getV(item, [
           'Ngày hoàn thành thực tế', 'ngày hoàn thành thực tế',
           'Ngày hoàn thành', 'ngày hoàn thành',
@@ -1384,7 +1890,9 @@
 
       // Tìm field Ngày yêu cầu (request date) theo nhiều biến thể tên cột
       const getRequestDateFromItem = (item) => {
+        // Ưu tiên key từ JSON mới: "Ngày yêu cầu của các bên"
         const valDirect = getV(item, [
+          'Ngày yêu cầu của các bên', 'ngày yêu cầu của các bên',
           '📆 Ngày yêu cầu ', 'Ngày yêu cầu', 'ngày yêu cầu',
           'requestDate', 'requestdate', 'submissiondate',
           'ngayyeucau', 'ngay_yeu_cau', 'ngay gui', 'ngaygui'
@@ -1404,7 +1912,9 @@
 
       // Tìm field Hạn mong muốn (wish due) theo nhiều biến thể tên cột
       const getWishDueFromItem = (item) => {
+        // Ưu tiên key từ JSON mới: "Hạn mong muốn của các bên"
         const valDirect = getV(item, [
+          'Hạn mong muốn của các bên', 'hạn mong muốn của các bên',
           'Hạn mong muốn ', 'Hạn mong muốn', 'hạn mong muốn',
           'wishDue', 'wishdue', 'desireddue',
           'hanmongmuon', 'han_mong_muon'
@@ -1437,12 +1947,13 @@
       });
 
       rows.forEach(item => {
-        // Sử dụng danh sách fallback keys giống Form 5
+        // Ưu tiên mapping từ JSON mới: "Người thực hiện"
         const assignee = getV(item, [
+          'Người thực hiện', 'người thực hiện',
           'Assignee', 'Assignee Name', 'AssigneeName', 'Assignee name',
           'Phụ trách', 'Phụ trách chính', 'Người phụ trách', 'Người xử lý', 'Người nhận mẫu', 'Người nhận',
           'employee', 'nhanvien', 'nhan_vien', 'nhân viên', 'user', 'name', 'receiver', 'recipient', 'pic', 'nguoi_phu_trach', 'người phụ trách',
-          'assignee', 'nguoi_nhan', 'người nhận', 'nguoi_thuc_hien', 'người thực hiện', 'name_1', 'Name 1'
+          'assignee', 'nguoi_nhan', 'người nhận', 'nguoi_thuc_hien', 'name_1', 'Name 1'
         ]);
         
         if (!assignee || assignee.trim() === '') {
@@ -1464,7 +1975,11 @@
         }
 
         // Đếm tổng số tác vụ đang thực hiện (chỉ trạng thái Doing)
-        const status = getV(item, ['⁉️ Kết quả', 'status', 'trangthai', 'trang_thai', 'trạng thái', 'ket_qua', 'result']);
+        // Ưu tiên mapping từ JSON mới: "Kết quả"
+        const status = getV(item, [
+          'Kết quả', 'kết quả',
+          '⁉️ Kết quả', 'status', 'trangthai', 'trang_thai', 'trạng thái', 'ket_qua', 'result'
+        ]);
         const statusLower = (status || '').toLowerCase();
         const isDoing = statusLower.includes('doing') || statusLower.includes('đang');
         
@@ -1527,13 +2042,25 @@
         const wishDueStr = getWishDueFromItem(item);
         const completionDateStr = getCompletionDateFromItem(item);
         F2_EMPLOYEE_STATS[assignee].tasks.push({
-          // Core fields cho modal (8 cột) - Mapping chính xác theo yêu cầu
-          code: getV(item, ['🆔 Mã Báo cáo', 'Mã tác vụ', 'code', 'ma', 'taskcode', 'mã', 'mã_báo_cáo']),
-          taskName: getV(item, ['Task Name', 'taskname', 'ten_tac_vu', 'ten', 'name', 'title', 'tên tác vụ']),
-          requester: getV(item, ['Người yêu cầu', '🖊️ Tên NCC ', 'requester', 'nguoiyeucau', 'nguoi_yeu_cau', 'assigner', 'người yêu cầu']),
+          // Core fields cho modal - Mapping chính xác theo JSON mới
+          code: getV(item, [
+            'Mã tác vụ', 'mã tác vụ',
+            '🆔 Mã Báo cáo', 'code', 'ma', 'taskcode', 'mã', 'mã_báo_cáo'
+          ]),
+          taskName: getV(item, [
+            'Tên tác vụ', 'tên tác vụ',
+            'Task Name', 'taskname', 'ten_tac_vu', 'ten', 'name', 'title'
+          ]),
+          requester: getV(item, [
+            'Người yêu cầu', 'người yêu cầu',
+            '🖊️ Tên NCC ', 'requester', 'nguoiyeucau', 'nguoi_yeu_cau', 'assigner'
+          ]),
           requestDate: reqDateStr,
           wishDue: wishDueStr,
-          note: getV(item, ['Ghi chú', 'note', 'ghi_chu', 'ghichu', 'comments', 'bình_luận']),
+          note: getV(item, [
+            'Ghi chú của yêu cầu', 'ghi chú của yêu cầu',
+            'Ghi chú', 'note', 'ghi_chu', 'ghichu', 'comments', 'bình_luận'
+          ]),
           completionDate: completionDateStr,
           status: status,
           progress: calculateProgress(reqDateStr, wishDueStr, completionDateStr),
@@ -1894,8 +2421,1589 @@
       fetchForm2Data();
     }, 100);
 
+    // ===== FORM 3 - QUẢN LÝ DỰ ÁN =====
+    let F3_EXCEL_FILE = null;
+    let F3_ALL_DATA = { epics: [] };
+    let F3_FILTERED_DATA = { epics: [] };
+    let F3_EXPANDED_EPICS = new Set();
+    let F3_EXPANDED_STORIES = new Set();
+    let F3_CURRENT_SUBTASK_ID = null; // Lưu ID subtask đang được chỉnh sửa
+    const F3_WEBHOOK_URL = 'https://xcqiyibqs.tino.page/webhook/f3_QLDANCTN2';
+    const F3_DECLARATION_WEBHOOK_URL = 'https://iatzhxxuk.tino.page/webhook/f3KhaibaosubtaskNCTN2';
+
+    // Hàm escape HTML để tránh XSS
+    function escapeHtml(text) {
+      if (text == null) return '';
+      const div = document.createElement('div');
+      div.textContent = String(text);
+      return div.innerHTML;
+    }
+
+    function formatF3Date(dateString) {
+      if (!dateString) return '-';
+      try {
+        const date = new Date(dateString);
+        if (isNaN(date.getTime())) return dateString;
+        const day = String(date.getDate()).padStart(2, '0');
+        const month = String(date.getMonth() + 1).padStart(2, '0');
+        const year = date.getFullYear();
+        return `${day}/${month}/${year}`;
+      } catch (e) {
+        return dateString;
+      }
+    }
+
+    function formatFileSize(bytes) {
+      if (!bytes) return '0 B';
+      const k = 1024;
+      const sizes = ['B', 'KB', 'MB', 'GB'];
+      const i = Math.floor(Math.log(bytes) / Math.log(k));
+      return Math.round(bytes / Math.pow(k, i) * 100) / 100 + ' ' + sizes[i];
+    }
+
+    function getF3StatusBadge(status) {
+      if (!status) return '<span class="px-2 py-1 rounded text-xs font-medium bg-gray-100 text-gray-700">-</span>';
+      const statusStr = String(status).trim();
+      const statusLower = statusStr.toLowerCase();
+      if (statusLower === 'hoàn thành đúng hạn' || statusLower.includes('hoàn thành')) {
+        return '<span class="px-2 py-1 rounded text-xs font-medium bg-green-100 text-green-700">Hoàn thành</span>';
+      } else if (statusLower === 'đang triển khai' || statusLower.includes('đang triển khai')) {
+        return '<span class="px-2 py-1 rounded text-xs font-medium bg-blue-100 text-blue-700">Đang triển khai</span>';
+      } else if (statusLower === 'chưa triển khai' || statusLower.includes('chưa triển khai')) {
+        return '<span class="px-2 py-1 rounded text-xs font-medium bg-yellow-100 text-yellow-700">Chưa triển khai</span>';
+      } else if (statusLower.includes('hủy') || statusLower.includes('cancel') || statusLower.includes('cancelled')) {
+        return '<span class="px-2 py-1 rounded text-xs font-medium bg-red-100 text-red-700">Đã hủy</span>';
+      }
+      return `<span class="px-2 py-1 rounded text-xs font-medium bg-gray-100 text-gray-700">${escapeHtml(statusStr)}</span>`;
+    }
+
+    // Xử lý dữ liệu từ API thành cấu trúc phân cấp Epic → Story → Subtask
+    // Dữ liệu mới có thể là mảng các object hoặc object có epics
+    function organizeF3Data(data) {
+      let allEpics = [];
+
+      // Xử lý nếu data là mảng các object (mỗi object có epics)
+      if (Array.isArray(data)) {
+        data.forEach(item => {
+          if (item && item.epics && Array.isArray(item.epics)) {
+            allEpics = allEpics.concat(item.epics);
+          }
+        });
+      }
+      // Xử lý nếu data là object có epics
+      else if (data && data.epics && Array.isArray(data.epics)) {
+        allEpics = data.epics;
+      }
+      // Nếu không có epics, thử xử lý dữ liệu phẳng (fallback)
+      else {
+        return organizeF3DataFlat(data);
+      }
+
+      // Map tất cả epics thành cấu trúc chuẩn
+      const epics = allEpics.map(epicData => {
+        // Map Epic
+        const epic = {
+          id: epicData.epicKey || epicData.epic || 'Epic không tên',
+          name: epicData.epic || epicData.epicKey || 'Epic không tên',
+          type: 'epic',
+          assignee: epicData.assignee || null,
+          status: epicData.status || null,
+          startDate: epicData.startDate || null,
+          dueDate: epicData.dueDate || null,
+          completedDate: epicData.finishDate || epicData.completedDate || null,
+          jiraKey: epicData.jiraKey || null,
+          jiraLink: epicData.jiraLink || null,
+          taskCode: epicData.taskCode || null,
+          note: epicData.note || null,
+          stories: []
+        };
+
+        // Map Stories
+        if (epicData.stories && Array.isArray(epicData.stories)) {
+          epic.stories = epicData.stories.map(storyData => {
+            // Sử dụng storyTask nếu có, nếu không thì dùng storyData trực tiếp
+            const storyInfo = storyData.storyTask || storyData;
+            const story = {
+              id: storyData.storyKey || `${epic.id}::${storyData.story || 'Story không tên'}`,
+              name: storyData.story || storyInfo.name || 'Story không tên',
+              type: 'story',
+              epicId: epic.id,
+              assignee: storyInfo.assignee || storyData.assignee || null,
+              status: storyInfo.status || storyData.status || null,
+              startDate: storyInfo.startDate || storyData.startDate || null,
+              dueDate: storyInfo.dueDate || storyData.dueDate || null,
+              completedDate: storyInfo.finishDate || storyInfo.completedDate || storyData.finishDate || storyData.completedDate || null,
+              jiraKey: storyInfo.jiraKey || storyData.jiraKey || null,
+              jiraLink: storyInfo.jiraLink || storyData.jiraLink || null,
+              taskCode: storyInfo.taskCode || storyData.taskCode || null,
+              note: storyInfo.note || storyData.note || null,
+              subtasks: []
+            };
+
+            // Map Subtasks
+            if (storyData.subtasks && Array.isArray(storyData.subtasks)) {
+              story.subtasks = storyData.subtasks.map(subtaskData => {
+                return {
+                  id: `${story.id}::${subtaskData.subtask || 'Subtask không tên'}`,
+                  serverId: subtaskData.Id || subtaskData.id || subtaskData.ID || subtaskData.rowNumber || null, // Lưu Id từ server
+                  name: subtaskData.subtask || 'Subtask không tên',
+                  type: 'subtask',
+                  epicId: epic.id,
+                  storyId: story.id,
+                  assignee: subtaskData.assignee || null,
+                  status: subtaskData.status || null,
+                  startDate: subtaskData.startDate || null,
+                  dueDate: subtaskData.dueDate || null,
+                  completedDate: subtaskData.finishDate || subtaskData.completedDate || null,
+                  jiraKey: subtaskData.jiraKey || null,
+                  jiraLink: subtaskData.jiraLink || null,
+                  taskCode: subtaskData.taskCode || null,
+                  note: subtaskData.note || null,
+                  isCanceled: subtaskData.isCanceled === true || subtaskData.isCanceled === 'true'
+                };
+              });
+            }
+
+            return story;
+          });
+        }
+
+        return epic;
+      });
+
+      return { epics };
+    }
+
+    // Fallback: Xử lý dữ liệu phẳng (tương thích ngược)
+    function organizeF3DataFlat(data) {
+      const epicsMap = new Map();
+      
+      const flatData = Array.isArray(data) ? data : (data?.data || data?.results || data?.items || []);
+      
+      flatData.forEach(item => {
+        // Lấy các trường dữ liệu với nhiều biến thể tên
+        const getValue = (keys) => {
+          for (const key of keys) {
+            if (item[key] !== undefined && item[key] !== null && item[key] !== '') {
+              return item[key];
+            }
+          }
+          return null;
+        };
+
+        // Đọc tên với ưu tiên từ server format
+        const epicName = getValue(['epic', 'Epic', 'EPIC', 'Tên Epic', 'tên epic']);
+        const storyName = getValue(['story', 'Story', 'STORY', 'Tên Story', 'tên story']);
+        const subtaskName = getValue(['subtask', 'Subtask', 'SUBTASK', 'Tên Subtask', 'tên subtask', 'Task', 'task']);
+        
+        // Đọc level từ server
+        const level = getValue(['level', 'Level', 'LEVEL', 'Cấp', 'cấp']) || 
+                     (epicName && !storyName && !subtaskName ? 'epic' :
+                      storyName && !subtaskName ? 'story' : 'subtask');
+
+        // Xác định Epic
+        let epicKey = epicName || 'Epic không tên';
+        if (!epicsMap.has(epicKey)) {
+          epicsMap.set(epicKey, {
+            id: epicKey,
+            name: epicName || 'Epic không tên',
+            type: 'epic',
+            assignee: getValue(['assignee', 'Người thực hiện', 'Assignee', 'người thực hiện']),
+            status: getValue(['status', 'Trạng thái', 'Status', 'trạng thái']),
+            startDate: getValue(['start_date', 'startDate', 'Ngày bắt đầu', 'Start Date', 'ngày bắt đầu']),
+            dueDate: getValue(['due_date', 'dueDate', 'Hạn HT', 'Due Date', 'hạn hoàn thành']),
+            completedDate: getValue(['finish_date', 'completedDate', 'completed_date', 'Ngày hoàn thành', 'Completed Date', 'ngày hoàn thành']),
+            jiraKey: getValue(['jira_key', 'Mã Jira/KOI', 'Jira Key', 'jiraKey', 'mã jira', 'Jira']),
+            jiraLink: getValue(['jira_link', 'jiraLink', 'Link jira', 'link jira']),
+            taskCode: getValue(['task_code', 'taskCode', 'Task Code', 'task code']),
+            note: getValue(['note', 'Ghi chú', 'Note', 'ghi chú']),
+            stories: new Map()
+          });
+        }
+        const epic = epicsMap.get(epicKey);
+
+        // Xác định Story
+        if (storyName || level === 'story') {
+          const storyKey = `${epicKey}::${storyName || 'Story không tên'}`;
+          if (!epic.stories.has(storyKey)) {
+            epic.stories.set(storyKey, {
+              id: storyKey,
+              name: storyName || 'Story không tên',
+              type: 'story',
+              epicId: epicKey,
+              assignee: getValue(['assignee', 'Người thực hiện', 'Assignee', 'người thực hiện']),
+              status: getValue(['status', 'Trạng thái', 'Status', 'trạng thái']),
+              startDate: getValue(['start_date', 'startDate', 'Ngày bắt đầu', 'Start Date', 'ngày bắt đầu']),
+              dueDate: getValue(['due_date', 'dueDate', 'Hạn HT', 'Due Date', 'hạn hoàn thành']),
+              completedDate: getValue(['finish_date', 'completedDate', 'completed_date', 'Ngày hoàn thành', 'Completed Date', 'ngày hoàn thành']),
+              jiraKey: getValue(['jira_key', 'Mã Jira/KOI', 'Jira Key', 'jiraKey', 'mã jira', 'Jira']),
+              jiraLink: getValue(['jira_link', 'jiraLink', 'Link jira', 'link jira']),
+              taskCode: getValue(['task_code', 'taskCode', 'Task Code', 'task code']),
+              note: getValue(['note', 'Ghi chú', 'Note', 'ghi chú']),
+              subtasks: []
+            });
+          }
+          const story = epic.stories.get(storyKey);
+
+          // Xác định Subtask
+          if (subtaskName || level === 'subtask') {
+            story.subtasks.push({
+              id: `${storyKey}::${subtaskName || 'Subtask không tên'}`,
+              serverId: getValue(['Id', 'id', 'ID']), // Lưu Id từ server
+              name: subtaskName || 'Subtask không tên',
+              type: 'subtask',
+              epicId: epicKey,
+              storyId: storyKey,
+              assignee: getValue(['assignee', 'Người thực hiện', 'Assignee', 'người thực hiện']),
+              status: getValue(['status', 'Trạng thái', 'Status', 'trạng thái']),
+              startDate: getValue(['start_date', 'startDate', 'Ngày bắt đầu', 'Start Date', 'ngày bắt đầu']),
+              dueDate: getValue(['due_date', 'dueDate', 'Hạn HT', 'Due Date', 'hạn hoàn thành']),
+              completedDate: getValue(['finish_date', 'completedDate', 'completed_date', 'Ngày hoàn thành', 'Completed Date', 'ngày hoàn thành']),
+              jiraKey: getValue(['jira_key', 'Mã Jira/KOI', 'Jira Key', 'jiraKey', 'mã jira', 'Jira']),
+              jiraLink: getValue(['jira_link', 'jiraLink', 'Link jira', 'link jira']),
+              taskCode: getValue(['task_code', 'taskCode', 'Task Code', 'task code']),
+              note: getValue(['note', 'Ghi chú', 'Note', 'ghi chú']),
+              isCanceled: getValue(['is_canceled', 'isCanceled', 'Is Canceled', 'is_canceled']) === 'true' || getValue(['is_canceled', 'isCanceled', 'Is Canceled', 'is_canceled']) === true
+            });
+          }
+        }
+      });
+
+      // Chuyển Map thành Array
+      const epics = Array.from(epicsMap.values()).map(epic => ({
+        ...epic,
+        stories: Array.from(epic.stories.values())
+      }));
+
+      return { epics };
+    }
+
+    // Render một hàng trong bảng
+    function renderF3Row(item, level = 0, isExpanded = false, hasChildren = false) {
+      const indent = level * 24;
+      const isEpic = item.type === 'epic';
+      const isStory = item.type === 'story';
+      const isSubtask = item.type === 'subtask';
+      
+      const expandIcon = hasChildren 
+        ? (isExpanded 
+          ? '<span class="material-icons text-sm text-gray-600 cursor-pointer">expand_more</span>'
+          : '<span class="material-icons text-sm text-gray-600 cursor-pointer">chevron_right</span>')
+        : '<span class="w-4"></span>';
+
+      const rowClass = isEpic ? 'bg-blue-50 font-semibold' : isStory ? 'bg-purple-50' : 'bg-white';
+      const nameClass = isEpic ? 'text-blue-700' : isStory ? 'text-purple-700' : 'text-gray-900';
+
+      let actionButton = '-';
+      if (isSubtask) {
+        actionButton = `<button type="button" class="f3-edit-btn px-2 py-1 text-xs bg-blue-100 text-blue-700 rounded hover:bg-blue-200 transition-colors cursor-pointer" data-id="${escapeHtml(item.id)}">Thay đổi</button>`;
+      } else if (isStory) {
+        actionButton = `<button type="button" class="f3-add-subtask-btn px-2 py-1 text-xs bg-green-100 text-green-700 rounded hover:bg-green-200 transition-colors cursor-pointer" data-id="${escapeHtml(item.id)}" data-epic-id="${escapeHtml(item.epicId || '')}">Thêm Subtask</button>`;
+      } else if (isEpic) {
+        actionButton = `<button type="button" class="f3-add-story-btn px-2 py-1 text-xs bg-purple-100 text-purple-700 rounded hover:bg-purple-200 transition-colors cursor-pointer" data-id="${escapeHtml(item.id)}">Thêm Story</button>`;
+      }
+
+      return `
+        <div class="grid grid-cols-12 gap-4 px-6 py-3 ${rowClass} hover:bg-opacity-80 transition-colors border-b border-[#f1f0f4]" data-id="${item.id}" data-type="${item.type}" data-level="${level}">
+          <div class="col-span-3 flex items-center gap-2" style="padding-left: ${indent}px;">
+            ${expandIcon}
+            <span class="${nameClass} text-sm">${escapeHtml(item.name || '-')}</span>
+          </div>
+          <div class="col-span-1 flex items-center">
+            ${actionButton}
+          </div>
+          <div class="col-span-2 flex items-center text-sm text-gray-700">${escapeHtml(item.assignee || '-')}</div>
+          <div class="col-span-1 flex items-center">${getF3StatusBadge(item.status)}</div>
+          <div class="col-span-1 flex items-center text-sm text-gray-600">${formatF3Date(item.startDate)}</div>
+          <div class="col-span-1 flex items-center text-sm text-gray-600">${formatF3Date(item.dueDate)}</div>
+          <div class="col-span-1 flex items-center text-sm text-gray-600">${formatF3Date(item.completedDate)}</div>
+          <div class="col-span-1 flex items-center text-sm text-gray-700">
+            ${item.jiraKey && item.jiraKey !== '' 
+              ? `<a href="${escapeHtml(item.jiraLink || '#')}" target="_blank" class="text-xs font-medium text-primary-blue hover:underline">${escapeHtml(item.jiraKey)}</a>` 
+              : '-'}
+          </div>
+          <div class="col-span-1 flex items-center text-sm text-gray-600">${escapeHtml((item.note || '').substring(0, 30))}${(item.note || '').length > 30 ? '...' : ''}</div>
+        </div>
+      `;
+    }
+
+    // Render toàn bộ bảng
+    function renderF3Table() {
+      const tbody = document.getElementById('f3-table-body');
+      if (!tbody) return;
+
+      if (!F3_FILTERED_DATA || !F3_FILTERED_DATA.epics || F3_FILTERED_DATA.epics.length === 0) {
+        tbody.innerHTML = `
+          <div class="px-6 py-8 text-center text-[#6b6189]">
+            <div class="flex flex-col items-center gap-2">
+              <span class="material-icons text-4xl text-gray-300">table_chart</span>
+              <p>Chưa có dữ liệu. Vui lòng tải dữ liệu hoặc upload file Excel.</p>
+            </div>
+          </div>
+        `;
+        return;
+      }
+
+      let html = '';
+      F3_FILTERED_DATA.epics.forEach(epic => {
+        const epicExpanded = F3_EXPANDED_EPICS.has(epic.id);
+        html += renderF3Row(epic, 0, epicExpanded, epic.stories && epic.stories.length > 0);
+        
+        if (epicExpanded && epic.stories) {
+          epic.stories.forEach(story => {
+            const storyExpanded = F3_EXPANDED_STORIES.has(story.id);
+            html += renderF3Row(story, 1, storyExpanded, story.subtasks && story.subtasks.length > 0);
+            
+            if (storyExpanded && story.subtasks) {
+              story.subtasks.forEach(subtask => {
+                html += renderF3Row(subtask, 2, false, false);
+              });
+            }
+          });
+        }
+      });
+
+      tbody.innerHTML = html;
+
+      // Thêm event listeners cho expand/collapse
+      tbody.querySelectorAll('[data-type="epic"]').forEach(row => {
+        const expandIcon = row.querySelector('.material-icons');
+        if (expandIcon) {
+          expandIcon.addEventListener('click', () => {
+            const epicId = row.getAttribute('data-id');
+            if (F3_EXPANDED_EPICS.has(epicId)) {
+              F3_EXPANDED_EPICS.delete(epicId);
+            } else {
+              F3_EXPANDED_EPICS.add(epicId);
+            }
+            renderF3Table();
+          });
+        }
+      });
+
+      tbody.querySelectorAll('[data-type="story"]').forEach(row => {
+        const expandIcon = row.querySelector('.material-icons');
+        if (expandIcon) {
+          expandIcon.addEventListener('click', () => {
+            const storyId = row.getAttribute('data-id');
+            if (F3_EXPANDED_STORIES.has(storyId)) {
+              F3_EXPANDED_STORIES.delete(storyId);
+            } else {
+              F3_EXPANDED_STORIES.add(storyId);
+            }
+            renderF3Table();
+          });
+        }
+      });
+
+      // Sử dụng event delegation cho các button động
+      // Xóa các listener cũ nếu có
+      const oldHandler = tbody._f3ButtonHandler;
+      if (oldHandler) {
+        tbody.removeEventListener('click', oldHandler);
+      }
+
+      // Tạo handler mới
+      const buttonHandler = (e) => {
+        const target = e.target.closest('.f3-edit-btn, .f3-add-story-btn, .f3-add-subtask-btn');
+        if (!target) return;
+
+        e.preventDefault();
+        e.stopPropagation();
+
+        if (target.classList.contains('f3-edit-btn')) {
+          const itemId = target.getAttribute('data-id');
+          if (itemId) {
+            openF3DeclarationModal(itemId);
+          }
+        } else if (target.classList.contains('f3-add-story-btn')) {
+          const epicId = target.getAttribute('data-id');
+          if (epicId) {
+            openF3AddStoryModal(epicId);
+          }
+        } else if (target.classList.contains('f3-add-subtask-btn')) {
+          const storyId = target.getAttribute('data-id');
+          const epicId = target.getAttribute('data-epic-id');
+          if (storyId && epicId) {
+            openF3AddSubtaskModal(epicId, storyId);
+          }
+        }
+      };
+
+      // Lưu handler để có thể xóa sau
+      tbody._f3ButtonHandler = buttonHandler;
+      tbody.addEventListener('click', buttonHandler);
+    }
+
+    // Mở modal thêm Story
+    function openF3AddStoryModal(epicId) {
+      const result = findF3ItemById(epicId);
+      if (!result || result.type !== 'epic') {
+        showToast('Không tìm thấy Epic', 'error');
+        return;
+      }
+
+      const epic = result.item;
+      const modal = document.getElementById('modal-f3-add-story');
+      
+      if (modal) {
+        document.getElementById('modal-f3-add-story-epic-id').value = epicId;
+        document.getElementById('modal-f3-add-story-epic-name').textContent = epic.name || '';
+        
+        // Tự động sinh Story Code (có thể tùy chỉnh logic này)
+        const storyCode = `STORY-${Date.now().toString().slice(-6)}`;
+        document.getElementById('modal-f3-add-story-code').value = storyCode;
+        
+        // Reset các trường khác
+        document.getElementById('modal-f3-add-story-name').value = '';
+        document.getElementById('modal-f3-add-story-assignee').value = '';
+        document.getElementById('modal-f3-add-story-start-date').value = '';
+        document.getElementById('modal-f3-add-story-due-date').value = '';
+        document.getElementById('modal-f3-add-story-jira-key').value = '';
+        document.getElementById('modal-f3-add-story-jira-link').value = '';
+        document.getElementById('modal-f3-add-story-note').value = '';
+        
+        modal.classList.remove('hidden');
+        modal.style.display = 'flex';
+      }
+    }
+
+    // Mở modal thêm Subtask
+    function openF3AddSubtaskModal(epicId, storyId) {
+      const epicResult = findF3ItemById(epicId);
+      const storyResult = findF3ItemById(storyId);
+      
+      if (!epicResult || epicResult.type !== 'epic') {
+        showToast('Không tìm thấy Epic', 'error');
+        return;
+      }
+      
+      if (!storyResult || storyResult.type !== 'story') {
+        showToast('Không tìm thấy Story', 'error');
+        return;
+      }
+
+      const epic = epicResult.item;
+      const story = storyResult.item;
+      const modal = document.getElementById('modal-f3-add-subtask');
+      
+      if (modal) {
+        document.getElementById('modal-f3-add-subtask-epic-id').value = epicId;
+        document.getElementById('modal-f3-add-subtask-epic-name').textContent = epic.name || '';
+        document.getElementById('modal-f3-add-subtask-story-id').value = storyId;
+        document.getElementById('modal-f3-add-subtask-story-name').textContent = story.name || '';
+        
+        // Tự động sinh Task Code (có thể tùy chỉnh logic này)
+        const taskCode = `TASK-${Date.now().toString().slice(-6)}`;
+        document.getElementById('modal-f3-add-subtask-task-code').value = taskCode;
+        
+        // Reset các trường khác
+        document.getElementById('modal-f3-add-subtask-name').value = '';
+        document.getElementById('modal-f3-add-subtask-assignee').value = '';
+        document.getElementById('modal-f3-add-subtask-start-date').value = '';
+        document.getElementById('modal-f3-add-subtask-due-date').value = '';
+        document.getElementById('modal-f3-add-subtask-jira-key').value = '';
+        document.getElementById('modal-f3-add-subtask-jira-link').value = '';
+        document.getElementById('modal-f3-add-subtask-note').value = '';
+        
+        modal.classList.remove('hidden');
+        modal.style.display = 'flex';
+      }
+    }
+
+    // Tìm item theo ID trong cấu trúc dữ liệu
+    function findF3ItemById(itemId) {
+      for (const epic of F3_ALL_DATA.epics || []) {
+        if (epic.id === itemId) return { item: epic, type: 'epic' };
+        for (const story of epic.stories || []) {
+          if (story.id === itemId) return { item: story, type: 'story' };
+          for (const subtask of story.subtasks || []) {
+            if (subtask.id === itemId) return { item: subtask, type: 'subtask', epic, story };
+          }
+        }
+      }
+      return null;
+    }
+
+    // Mở modal cập nhật thông tin
+    function openF3DeclarationModal(itemId) {
+      const result = findF3ItemById(itemId);
+      if (!result) {
+        showToast('Không tìm thấy tác vụ', 'error');
+        return;
+      }
+
+      const { item, type, epic, story } = result;
+      
+      // Chỉ cho phép cập nhật Subtask
+      if (type !== 'subtask') {
+        showToast('Chỉ có thể cập nhật thông tin cho Subtask', 'info');
+        return;
+      }
+
+      const modal = document.getElementById('modal-f3-declaration');
+      
+      if (modal) {
+        F3_CURRENT_SUBTASK_ID = itemId;
+        document.getElementById('modal-f3-declaration-epic').value = epic ? epic.name : '';
+        document.getElementById('modal-f3-declaration-story').value = story ? story.name : '';
+        document.getElementById('modal-f3-declaration-subtask').value = item.name || '';
+        document.getElementById('modal-f3-declaration-status').value = item.status || '';
+        document.getElementById('modal-f3-declaration-jira-key').value = item.jiraKey || '';
+        document.getElementById('modal-f3-declaration-jira-link').value = item.jiraLink || '';
+        document.getElementById('modal-f3-declaration-note').value = item.note || '';
+        
+        modal.classList.remove('hidden');
+        modal.style.display = 'flex';
+      }
+    }
+
+    // POST: Cập nhật thông tin Subtask (Khai báo)
+    async function updateF3Subtask(subtaskId, data) {
+      try {
+        // Đảm bảo không có subtask_id trong data, chỉ có Id
+        const cleanData = { ...data };
+        delete cleanData.subtask_id; // Xóa subtask_id nếu có
+        
+        console.log('[Form 3] Sending to webhook:', F3_DECLARATION_WEBHOOK_URL);
+        console.log('[Form 3] Payload:', cleanData);
+        
+        const response = await fetch(F3_DECLARATION_WEBHOOK_URL, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json'
+          },
+          body: JSON.stringify(cleanData)
+        });
+
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        const result = await response.json();
+        return result;
+      } catch (error) {
+        console.error('[Form 3] Error updating subtask:', error);
+        throw error;
+      }
+    }
+
+    // POST: Tạo Story mới
+    async function createF3Story(data) {
+      try {
+        const response = await fetch(F3_WEBHOOK_URL, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json'
+          },
+          body: JSON.stringify({
+            action: 'create_story',
+            ...data
+          })
+        });
+
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        const result = await response.json();
+        return result;
+      } catch (error) {
+        console.error('[Form 3] Error creating story:', error);
+        throw error;
+      }
+    }
+
+    // POST: Tạo Subtask mới
+    async function createF3Subtask(data) {
+      try {
+        const response = await fetch(F3_WEBHOOK_URL, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json'
+          },
+          body: JSON.stringify({
+            action: 'create_subtask',
+            ...data
+          })
+        });
+
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        const result = await response.json();
+        return result;
+      } catch (error) {
+        console.error('[Form 3] Error creating subtask:', error);
+        throw error;
+      }
+    }
+
+    // Lọc dữ liệu
+    function filterF3Data() {
+      const searchTerm = (document.getElementById('f3-search-input')?.value || '').toLowerCase();
+      const statusFilter = document.getElementById('f3-filter-status')?.value || '';
+      const assigneeFilter = document.getElementById('f3-filter-assignee')?.value || '';
+      const levelFilter = document.getElementById('f3-filter-level')?.value || 'all';
+
+      // Kiểm tra item có match với filter không (không bao gồm level filter)
+      const matchesFilters = (item) => {
+        // Kiểm tra search term
+        if (searchTerm) {
+          const searchFields = [
+            item.name || '',
+            item.assignee || '',
+            item.jiraKey || '',
+            item.note || ''
+          ].join(' ').toLowerCase();
+          if (!searchFields.includes(searchTerm)) {
+            return false;
+          }
+        }
+
+        // Kiểm tra status filter
+        if (statusFilter) {
+          if (!item.status || !item.status.toLowerCase().includes(statusFilter.toLowerCase())) {
+            return false;
+          }
+        }
+
+        // Kiểm tra assignee filter
+        if (assigneeFilter) {
+          if (item.assignee !== assigneeFilter) {
+            return false;
+          }
+        }
+
+        return true;
+      };
+
+      // Kiểm tra level filter
+      const matchesLevel = (item) => {
+        if (levelFilter === 'all') return true;
+        if (levelFilter === 'epic') return item.type === 'epic';
+        if (levelFilter === 'story') return item.type === 'story';
+        if (levelFilter === 'subtask') return item.type === 'subtask';
+        return true;
+      };
+
+      // Filter subtask - phải match tất cả filters bao gồm level
+      const filterSubtask = (subtask) => {
+        return matchesFilters(subtask) && matchesLevel(subtask);
+      };
+
+      // Filter story - hiển thị nếu story match HOẶC có subtask match
+      const filterStory = (story) => {
+        // Nếu level filter là "epic", không hiển thị story
+        if (levelFilter === 'epic') return false;
+        
+        // Nếu level filter là "story", chỉ kiểm tra story có match không
+        if (levelFilter === 'story') {
+          return matchesFilters(story) && matchesLevel(story);
+        }
+        
+        // Nếu level filter là "subtask", chỉ hiển thị story nếu có subtask match
+        if (levelFilter === 'subtask') {
+          // Story phải có ít nhất một subtask match
+          return (story.subtasks || []).some(filterSubtask);
+        }
+        
+        // Level filter là "all" - hiển thị story nếu story match HOẶC có subtask match
+        const storyMatches = matchesFilters(story);
+        const hasMatchingSubtasks = (story.subtasks || []).some(filterSubtask);
+        return storyMatches || hasMatchingSubtasks;
+      };
+
+      // Filter epic - hiển thị nếu epic match HOẶC có story/subtask match
+      const filterEpic = (epic) => {
+        // Nếu level filter là "epic", chỉ kiểm tra epic có match không
+        if (levelFilter === 'epic') {
+          return matchesFilters(epic) && matchesLevel(epic);
+        }
+        
+        // Nếu level filter là "story" hoặc "subtask", chỉ hiển thị epic nếu có children match
+        if (levelFilter === 'story' || levelFilter === 'subtask') {
+          return (epic.stories || []).some(filterStory);
+        }
+        
+        // Level filter là "all" - hiển thị epic nếu epic match HOẶC có story/subtask match
+        const epicMatches = matchesFilters(epic);
+        const hasMatchingChildren = (epic.stories || []).some(filterStory);
+        return epicMatches || hasMatchingChildren;
+      };
+
+      // Áp dụng filter từ dưới lên (subtask -> story -> epic)
+      // Đảm bảo chỉ giữ lại các subtask match, sau đó filter story, cuối cùng filter epic
+      const filteredEpics = (F3_ALL_DATA.epics || []).map(epic => {
+        // Filter stories và subtasks của chúng
+        const filteredStories = (epic.stories || []).map(story => {
+          // Luôn filter subtasks trước
+          const filteredSubtasks = (story.subtasks || []).filter(filterSubtask);
+          // Trả về story với subtasks đã được filter
+          return { ...story, subtasks: filteredSubtasks };
+        }).filter(filterStory); // Sau đó filter stories
+
+        // Trả về epic với stories đã được filter
+        return { ...epic, stories: filteredStories };
+      }).filter(filterEpic); // Cuối cùng filter epics
+
+      F3_FILTERED_DATA = { epics: filteredEpics };
+      
+      // Render lại bảng với dữ liệu đã filter
+      renderF3Table();
+    }
+
+    // Cập nhật danh sách assignee trong filter
+    function updateF3AssigneeFilter() {
+      const assigneeSelect = document.getElementById('f3-filter-assignee');
+      if (!assigneeSelect) return;
+
+      const assignees = new Set();
+      (F3_ALL_DATA.epics || []).forEach(epic => {
+        if (epic.assignee) assignees.add(epic.assignee);
+        (epic.stories || []).forEach(story => {
+          if (story.assignee) assignees.add(story.assignee);
+          (story.subtasks || []).forEach(subtask => {
+            if (subtask.assignee) assignees.add(subtask.assignee);
+          });
+        });
+      });
+
+      const currentValue = assigneeSelect.value;
+      assigneeSelect.innerHTML = '<option value="">Tất cả thành viên</option>';
+      Array.from(assignees).sort().forEach(assignee => {
+        const option = document.createElement('option');
+        option.value = assignee;
+        option.textContent = assignee;
+        assigneeSelect.appendChild(option);
+      });
+      assigneeSelect.value = currentValue;
+    }
+
+    async function loadF3Data() {
+      const loadingDiv = document.getElementById('f3-loading');
+      const loadBtn = document.getElementById('f3-load-data-btn');
+      const tbody = document.getElementById('f3-table-body');
+      const webhookUrl = F3_WEBHOOK_URL;
+      try {
+        if (loadingDiv) loadingDiv.classList.remove('hidden');
+        if (loadBtn) loadBtn.disabled = true;
+        if (tbody) tbody.innerHTML = '<div class="px-6 py-8 text-center text-gray-500">Đang tải dữ liệu...</div>';
+        
+        const response = await fetch(webhookUrl, { method: 'GET', headers: { 'Accept': 'application/json', 'Content-Type': 'application/json' } });
+        if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+        const responseText = await response.text();
+        let data = JSON.parse(responseText);
+        
+        // Tổ chức dữ liệu thành cấu trúc phân cấp
+        // Dữ liệu mới đã có cấu trúc { epics: [...] }, hàm organizeF3Data sẽ xử lý
+        F3_ALL_DATA = organizeF3Data(data);
+        F3_FILTERED_DATA = F3_ALL_DATA;
+        
+        // Đếm tổng số bản ghi để hiển thị thông báo
+        let totalRecords = 0;
+        if (F3_ALL_DATA.epics && Array.isArray(F3_ALL_DATA.epics)) {
+          F3_ALL_DATA.epics.forEach(epic => {
+            totalRecords++; // Đếm epic
+            if (epic.stories && Array.isArray(epic.stories)) {
+              epic.stories.forEach(story => {
+                totalRecords++; // Đếm story
+                if (story.subtasks && Array.isArray(story.subtasks)) {
+                  totalRecords += story.subtasks.length; // Đếm subtasks
+                }
+              });
+            }
+          });
+        }
+        
+        // Tự động mở tất cả Epic và Story
+        F3_EXPANDED_EPICS.clear();
+        F3_EXPANDED_STORIES.clear();
+        (F3_ALL_DATA.epics || []).forEach(epic => {
+          F3_EXPANDED_EPICS.add(epic.id);
+          (epic.stories || []).forEach(story => {
+            F3_EXPANDED_STORIES.add(story.id);
+          });
+        });
+        
+        // Cập nhật filter assignee
+        updateF3AssigneeFilter();
+        
+        // Render bảng
+        renderF3Table();
+        
+        showToast(`Đã tải ${totalRecords} bản ghi`, 'success');
+      } catch (error) {
+        console.error('[Form 3] Error loading data:', error);
+        if (tbody) tbody.innerHTML = `<div class="px-6 py-8 text-center text-red-500">Lỗi: ${escapeHtml(error.message)}</div>`;
+        showToast('Lỗi khi tải dữ liệu: ' + error.message, 'error');
+      } finally {
+        if (loadingDiv) loadingDiv.classList.add('hidden');
+        if (loadBtn) loadBtn.disabled = false;
+      }
+    }
+
+    function exportF3ToExcel() {
+      showToast('Chức năng xuất Excel đang được phát triển. Vui lòng cài đặt thư viện SheetJS (XLSX).', 'info');
+    }
+
+    // Hàm đóng modal declaration
+    function closeF3DeclarationModal() {
+      const modalF3Declaration = document.getElementById('modal-f3-declaration');
+      if (modalF3Declaration) {
+        modalF3Declaration.classList.add('hidden');
+        modalF3Declaration.style.display = 'none';
+        F3_CURRENT_SUBTASK_ID = null;
+      }
+    }
+
+    // Khởi tạo Form 3 Event Listeners
+    function initF3EventListeners() {
+      // Form 3 Event Listeners
+      const f3LoadBtn = document.getElementById('f3-load-data-btn');
+      const f3ExportBtn = document.getElementById('f3-export-btn');
+      const f3SearchInput = document.getElementById('f3-search-input');
+      const f3FilterStatus = document.getElementById('f3-filter-status');
+      const f3FilterAssignee = document.getElementById('f3-filter-assignee');
+      const f3FilterLevel = document.getElementById('f3-filter-level');
+      
+      if (f3LoadBtn) f3LoadBtn.addEventListener('click', loadF3Data);
+      if (f3ExportBtn) f3ExportBtn.addEventListener('click', exportF3ToExcel);
+      
+      // Debounce cho search input để tránh filter quá nhiều lần
+      let searchTimeout = null;
+      if (f3SearchInput) {
+        f3SearchInput.addEventListener('input', (e) => {
+          clearTimeout(searchTimeout);
+          searchTimeout = setTimeout(() => {
+            filterF3Data();
+          }, 300); // Đợi 300ms sau khi người dùng ngừng gõ
+        });
+        
+        // Cho phép Enter để filter ngay lập tức
+        f3SearchInput.addEventListener('keydown', (e) => {
+          if (e.key === 'Enter') {
+            clearTimeout(searchTimeout);
+            filterF3Data();
+          }
+        });
+      }
+      
+      // Các filter khác áp dụng ngay lập tức
+      if (f3FilterStatus) {
+        f3FilterStatus.addEventListener('change', () => {
+          filterF3Data();
+        });
+      }
+      if (f3FilterAssignee) {
+        f3FilterAssignee.addEventListener('change', () => {
+          filterF3Data();
+        });
+      }
+      if (f3FilterLevel) {
+        f3FilterLevel.addEventListener('change', () => {
+          filterF3Data();
+        });
+      }
+
+      // Modal Declaration event listeners
+      const modalF3Declaration = document.getElementById('modal-f3-declaration');
+      const modalF3DeclarationClose = document.getElementById('modal-f3-declaration-close');
+      const modalF3DeclarationCancel = document.getElementById('modal-f3-declaration-cancel');
+      const modalF3DeclarationSubmit = document.getElementById('modal-f3-declaration-submit');
+      const modalF3DeclarationOverlay = document.getElementById('modal-f3-declaration-overlay');
+      const modalF3DeclarationContent = document.getElementById('modal-f3-declaration-content');
+      
+      // Ngăn click vào content đóng modal
+      if (modalF3DeclarationContent) {
+        modalF3DeclarationContent.addEventListener('click', (e) => {
+          e.stopPropagation();
+        });
+      }
+      
+      if (modalF3DeclarationClose) {
+        modalF3DeclarationClose.addEventListener('click', (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          closeF3DeclarationModal();
+        });
+      }
+      
+      if (modalF3DeclarationCancel) {
+        modalF3DeclarationCancel.addEventListener('click', (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          closeF3DeclarationModal();
+        });
+      }
+      
+      if (modalF3DeclarationSubmit) {
+        modalF3DeclarationSubmit.addEventListener('click', async (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          
+          if (!F3_CURRENT_SUBTASK_ID) {
+            showToast('Không tìm thấy Subtask cần cập nhật', 'error');
+            return;
+          }
+
+          const status = document.getElementById('modal-f3-declaration-status')?.value;
+          const jiraKey = document.getElementById('modal-f3-declaration-jira-key')?.value;
+          const jiraLink = document.getElementById('modal-f3-declaration-jira-link')?.value;
+          const note = document.getElementById('modal-f3-declaration-note')?.value;
+
+          if (!status || !jiraKey) {
+            showToast('Vui lòng điền đầy đủ thông tin bắt buộc (Trạng thái, Mã Jira)', 'error');
+            return;
+          }
+
+          try {
+            modalF3DeclarationSubmit.disabled = true;
+            const originalText = modalF3DeclarationSubmit.textContent;
+            modalF3DeclarationSubmit.textContent = 'Đang lưu...';
+
+            const result = findF3ItemById(F3_CURRENT_SUBTASK_ID);
+            if (!result) {
+              throw new Error('Không tìm thấy Subtask');
+            }
+
+            const { item, epic, story } = result;
+            
+            // Tạo timestamp dạng YYYY-MM-DD HH:mm (GMT+7)
+            const now = new Date();
+            // Chuyển sang GMT+7: lấy UTC time và cộng thêm 7 giờ
+            const utcTime = now.getTime() + (now.getTimezoneOffset() * 60 * 1000);
+            const gmt7Time = new Date(utcTime + (7 * 60 * 60 * 1000));
+            const year = gmt7Time.getFullYear();
+            const month = String(gmt7Time.getMonth() + 1).padStart(2, '0');
+            const day = String(gmt7Time.getDate()).padStart(2, '0');
+            const hours = String(gmt7Time.getHours()).padStart(2, '0');
+            const minutes = String(gmt7Time.getMinutes()).padStart(2, '0');
+            const timestamp = `${year}-${month}-${day} ${hours}:${minutes}`;
+            
+            // Lấy Id từ server
+            const serverId = item.serverId;
+            
+            if (!serverId) {
+              console.error('[Form 3] ServerId not found:', item);
+              showToast('Không tìm thấy Id từ server. Vui lòng tải lại dữ liệu.', 'error');
+              modalF3DeclarationSubmit.disabled = false;
+              modalF3DeclarationSubmit.textContent = 'Lưu thay đổi';
+              return;
+            }
+            
+            const payload = {
+              action: 'update_subtask',
+              Id: serverId, // Id từ server (số nguyên)
+              timestamp: timestamp,
+              level: 'subtask',
+              epic_name: epic?.name || '',
+              story_name: story?.name || '',
+              subtask_name: item.name || '',
+              status: status,
+              jira_key: jiraKey,
+              jira_link: jiraLink || '',
+              note: note || '',
+              assignee: item.assignee || '',
+              start_date: item.startDate || '',
+              due_date: item.dueDate || '',
+              completed_date: item.completedDate || ''
+            };
+            
+            console.log('[Form 3] Sending payload:', payload);
+            
+            await updateF3Subtask(F3_CURRENT_SUBTASK_ID, payload);
+
+            // Cập nhật dữ liệu local ngay lập tức trong F3_ALL_DATA
+            const updatedResult = findF3ItemById(F3_CURRENT_SUBTASK_ID);
+            if (updatedResult && updatedResult.item) {
+              // Lưu giá trị cũ để debug
+              const oldJiraKey = updatedResult.item.jiraKey;
+              
+              // Cập nhật trực tiếp vào object trong F3_ALL_DATA
+              updatedResult.item.status = status;
+              updatedResult.item.jiraKey = jiraKey || '';
+              updatedResult.item.jiraLink = jiraLink || '';
+              updatedResult.item.note = note || '';
+              
+              console.log('[Form 3] Cập nhật dữ liệu local:');
+              console.log('  - Subtask ID:', F3_CURRENT_SUBTASK_ID);
+              console.log('  - jiraKey cũ:', oldJiraKey);
+              console.log('  - jiraKey mới:', updatedResult.item.jiraKey);
+              console.log('  - status:', updatedResult.item.status);
+              console.log('  - Item object:', updatedResult.item);
+              
+              // Áp dụng lại filter để tạo lại F3_FILTERED_DATA từ F3_ALL_DATA đã cập nhật
+              // Hàm filterF3Data() sẽ tự động gọi renderF3Table() ở cuối
+              filterF3Data();
+            } else {
+              console.error('[Form 3] Không tìm thấy item để cập nhật:', F3_CURRENT_SUBTASK_ID);
+              console.error('[Form 3] F3_ALL_DATA:', F3_ALL_DATA);
+              // Nếu không tìm thấy, vẫn render lại để đảm bảo UI được cập nhật
+              renderF3Table();
+            }
+
+            showToast('Cập nhật thông tin thành công', 'success');
+            
+            // Đóng modal
+            closeF3DeclarationModal();
+
+            // Tải lại dữ liệu từ server để đồng bộ (chạy ngầm)
+            loadF3Data().catch(err => {
+              console.error('Lỗi khi tải lại dữ liệu:', err);
+            });
+          } catch (error) {
+            console.error('[Form 3] Error updating subtask:', error);
+            showToast('Lỗi khi cập nhật: ' + error.message, 'error');
+          } finally {
+            modalF3DeclarationSubmit.disabled = false;
+            modalF3DeclarationSubmit.textContent = 'Lưu thay đổi';
+          }
+        });
+      }
+
+      // Modal overlay click để đóng modal
+      if (modalF3DeclarationOverlay) {
+        modalF3DeclarationOverlay.addEventListener('click', (e) => {
+          e.preventDefault();
+          closeF3DeclarationModal();
+        });
+      }
+
+      // Click vào modal container để đóng
+      if (modalF3Declaration) {
+        modalF3Declaration.addEventListener('click', (e) => {
+          if (e.target === modalF3Declaration) {
+            closeF3DeclarationModal();
+          }
+        });
+      }
+
+      // Modal Add Story
+      const modalF3AddStory = document.getElementById('modal-f3-add-story');
+      const modalF3AddStoryClose = document.getElementById('modal-f3-add-story-close');
+      const modalF3AddStoryCancel = document.getElementById('modal-f3-add-story-cancel');
+      const modalF3AddStorySubmit = document.getElementById('modal-f3-add-story-submit');
+      const modalF3AddStoryOverlay = document.getElementById('modal-f3-add-story-overlay');
+      const modalF3AddStoryContent = document.getElementById('modal-f3-add-story-content');
+      
+      const closeModalF3AddStory = () => {
+        const modal = document.getElementById('modal-f3-add-story');
+        if (modal) {
+          modal.classList.add('hidden');
+          modal.style.display = 'none';
+        }
+      };
+
+      if (modalF3AddStoryContent) {
+        modalF3AddStoryContent.addEventListener('click', (e) => {
+          e.stopPropagation();
+        });
+      }
+
+      if (modalF3AddStoryClose) {
+        modalF3AddStoryClose.addEventListener('click', (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          closeModalF3AddStory();
+        });
+      }
+
+      if (modalF3AddStoryCancel) {
+        modalF3AddStoryCancel.addEventListener('click', (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          closeModalF3AddStory();
+        });
+      }
+
+      if (modalF3AddStoryOverlay) {
+        modalF3AddStoryOverlay.addEventListener('click', (e) => {
+          e.preventDefault();
+          closeModalF3AddStory();
+        });
+      }
+
+      if (modalF3AddStory) {
+        modalF3AddStory.addEventListener('click', (e) => {
+          if (e.target === modalF3AddStory) {
+            closeModalF3AddStory();
+          }
+        });
+      }
+      
+      if (modalF3AddStorySubmit) {
+        modalF3AddStorySubmit.addEventListener('click', async (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          
+          const form = document.getElementById('modal-f3-add-story-form');
+          if (!form || !form.checkValidity()) {
+            form?.reportValidity();
+            return;
+          }
+
+          const epicId = document.getElementById('modal-f3-add-story-epic-id')?.value;
+          const epicName = document.getElementById('modal-f3-add-story-epic-name')?.textContent || '';
+          const storyName = document.getElementById('modal-f3-add-story-name')?.value;
+          const storyCode = document.getElementById('modal-f3-add-story-code')?.value || '';
+          const assignee = document.getElementById('modal-f3-add-story-assignee')?.value;
+          const startDate = document.getElementById('modal-f3-add-story-start-date')?.value;
+          const dueDate = document.getElementById('modal-f3-add-story-due-date')?.value;
+          const jiraKey = document.getElementById('modal-f3-add-story-jira-key')?.value;
+          const jiraLink = document.getElementById('modal-f3-add-story-jira-link')?.value || '';
+          const note = document.getElementById('modal-f3-add-story-note')?.value || '';
+
+          if (!storyName || !assignee || !startDate || !dueDate || !jiraKey) {
+            showToast('Vui lòng điền đầy đủ thông tin bắt buộc', 'error');
+            return;
+          }
+
+          try {
+            modalF3AddStorySubmit.disabled = true;
+            const originalText = modalF3AddStorySubmit.textContent;
+            modalF3AddStorySubmit.textContent = 'Đang thêm...';
+
+            await createF3Story({
+              level: 'story',
+              epic_id: epicId,
+              epic_name: epicName,
+              story_name: storyName,
+              story_code: storyCode,
+              assignee: assignee,
+              start_date: startDate,
+              due_date: dueDate,
+              jira_key: jiraKey,
+              jira_link: jiraLink,
+              note: note,
+              status: 'Đang triển khai'
+            });
+
+            showToast('Thêm Story thành công', 'success');
+            
+            // Đóng modal và reset form
+            closeModalF3AddStory();
+            if (form) form.reset();
+
+            // Tải lại dữ liệu
+            await loadF3Data();
+          } catch (error) {
+            console.error('[Form 3] Error creating story:', error);
+            showToast('Lỗi khi thêm Story: ' + error.message, 'error');
+          } finally {
+            modalF3AddStorySubmit.disabled = false;
+            modalF3AddStorySubmit.textContent = 'Thêm Story';
+          }
+        });
+      }
+
+      // Modal Add Subtask
+      const modalF3AddSubtask = document.getElementById('modal-f3-add-subtask');
+      const modalF3AddSubtaskClose = document.getElementById('modal-f3-add-subtask-close');
+      const modalF3AddSubtaskCancel = document.getElementById('modal-f3-add-subtask-cancel');
+      const modalF3AddSubtaskSubmit = document.getElementById('modal-f3-add-subtask-submit');
+      const modalF3AddSubtaskOverlay = document.getElementById('modal-f3-add-subtask-overlay');
+      const modalF3AddSubtaskContent = document.getElementById('modal-f3-add-subtask-content');
+      
+      const closeModalF3AddSubtask = () => {
+        const modal = document.getElementById('modal-f3-add-subtask');
+        if (modal) {
+          modal.classList.add('hidden');
+          modal.style.display = 'none';
+        }
+      };
+
+      if (modalF3AddSubtaskContent) {
+        modalF3AddSubtaskContent.addEventListener('click', (e) => {
+          e.stopPropagation();
+        });
+      }
+
+      if (modalF3AddSubtaskClose) {
+        modalF3AddSubtaskClose.addEventListener('click', (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          closeModalF3AddSubtask();
+        });
+      }
+
+      if (modalF3AddSubtaskCancel) {
+        modalF3AddSubtaskCancel.addEventListener('click', (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          closeModalF3AddSubtask();
+        });
+      }
+
+      if (modalF3AddSubtaskOverlay) {
+        modalF3AddSubtaskOverlay.addEventListener('click', (e) => {
+          e.preventDefault();
+          closeModalF3AddSubtask();
+        });
+      }
+
+      if (modalF3AddSubtask) {
+        modalF3AddSubtask.addEventListener('click', (e) => {
+          if (e.target === modalF3AddSubtask) {
+            closeModalF3AddSubtask();
+          }
+        });
+      }
+      
+      if (modalF3AddSubtaskSubmit) {
+        modalF3AddSubtaskSubmit.addEventListener('click', async (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          
+          const form = document.getElementById('modal-f3-add-subtask-form');
+          if (!form || !form.checkValidity()) {
+            form?.reportValidity();
+            return;
+          }
+
+          const epicId = document.getElementById('modal-f3-add-subtask-epic-id')?.value;
+          const epicName = document.getElementById('modal-f3-add-subtask-epic-name')?.textContent || '';
+          const storyId = document.getElementById('modal-f3-add-subtask-story-id')?.value;
+          const storyName = document.getElementById('modal-f3-add-subtask-story-name')?.textContent || '';
+          const subtaskName = document.getElementById('modal-f3-add-subtask-name')?.value;
+          const taskCode = document.getElementById('modal-f3-add-subtask-task-code')?.value || '';
+          const assignee = document.getElementById('modal-f3-add-subtask-assignee')?.value;
+          const startDate = document.getElementById('modal-f3-add-subtask-start-date')?.value;
+          const dueDate = document.getElementById('modal-f3-add-subtask-due-date')?.value;
+          const jiraKey = document.getElementById('modal-f3-add-subtask-jira-key')?.value;
+          const jiraLink = document.getElementById('modal-f3-add-subtask-jira-link')?.value || '';
+          const note = document.getElementById('modal-f3-add-subtask-note')?.value || '';
+
+          if (!subtaskName || !assignee || !startDate || !dueDate || !jiraKey) {
+            showToast('Vui lòng điền đầy đủ thông tin bắt buộc', 'error');
+            return;
+          }
+
+          try {
+            modalF3AddSubtaskSubmit.disabled = true;
+            const originalText = modalF3AddSubtaskSubmit.textContent;
+            modalF3AddSubtaskSubmit.textContent = 'Đang thêm...';
+
+            await createF3Subtask({
+              level: 'subtask',
+              epic_id: epicId,
+              epic_name: epicName,
+              story_id: storyId,
+              story_name: storyName,
+              subtask_name: subtaskName,
+              task_code: taskCode,
+              assignee: assignee,
+              start_date: startDate,
+              due_date: dueDate,
+              jira_key: jiraKey,
+              jira_link: jiraLink,
+              note: note,
+              status: 'Đang triển khai'
+            });
+
+            showToast('Thêm Sub-task thành công', 'success');
+            
+            // Đóng modal và reset form
+            closeModalF3AddSubtask();
+            if (form) form.reset();
+
+            // Tải lại dữ liệu
+            await loadF3Data();
+          } catch (error) {
+            console.error('[Form 3] Error creating subtask:', error);
+            showToast('Lỗi khi thêm Sub-task: ' + error.message, 'error');
+          } finally {
+            modalF3AddSubtaskSubmit.disabled = false;
+            modalF3AddSubtaskSubmit.textContent = 'Thêm Sub-task';
+          }
+        });
+      }
+    }
+
+    // Gọi khởi tạo khi DOM sẵn sàng
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', initF3EventListeners);
+    } else {
+      initF3EventListeners();
+    }
 
   </script>
+
+  <!-- MODAL SYSTEM - FORM 3: DECLARATION (Khai báo thay đổi) -->
+  <!-- ============================================ -->
+  <div id="modal-f3-declaration" class="modal-container modal-f3-declaration fixed inset-0 z-50 hidden" style="display: none;">
+    <div id="modal-f3-declaration-overlay" class="modal-overlay modal-f3-declaration-overlay fixed inset-0 bg-black/30 backdrop-blur-sm z-40"></div>
+    <div id="modal-f3-declaration-content" class="modal-content modal-f3-declaration-content fixed inset-0 z-50 flex items-center justify-center p-4 pointer-events-none">
+      <div class="w-full max-w-3xl rounded-xl bg-white p-8 shadow-xl pointer-events-auto relative z-50 max-h-[90vh] overflow-hidden flex flex-col">
+        <div class="flex items-start justify-between mb-6">
+          <div class="flex flex-col gap-1">
+            <h2 class="text-2xl font-bold text-gray-900">Cập nhật thông tin</h2>
+            <p class="text-sm text-gray-600">Cập nhật trạng thái, Jira Key và Note cho tác vụ</p>
+          </div>
+          <button type="button" id="modal-f3-declaration-close" class="modal-close modal-f3-declaration-close text-gray-500 hover:text-gray-700 transition">
+            <span class="material-icons">close</span>
+          </button>
+        </div>
+        
+        <!-- Modal Body -->
+        <div id="modal-f3-declaration-body" class="modal-body modal-f3-declaration-body overflow-y-auto flex-1 p-4 space-y-6">
+          <!-- Thông tin tác vụ -->
+          <div class="border border-gray-200 rounded-lg p-4 bg-gray-50">
+            <h4 class="text-lg font-semibold text-gray-700 mb-3">Thông tin tác vụ</h4>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Epic</label>
+                <input type="text" id="modal-f3-declaration-epic" class="w-full px-3 py-2 border border-gray-300 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-blue-500" readonly/>
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Story</label>
+                <input type="text" id="modal-f3-declaration-story" class="w-full px-3 py-2 border border-gray-300 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-blue-500" readonly/>
+              </div>
+              <div class="md:col-span-2">
+                <label class="block text-sm font-medium text-gray-700 mb-1">Subtask</label>
+                <input type="text" id="modal-f3-declaration-subtask" class="w-full px-3 py-2 border border-gray-300 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-blue-500" readonly/>
+              </div>
+            </div>
+          </div>
+
+          <!-- Cập nhật thông tin -->
+          <div class="border border-gray-200 rounded-lg p-4 bg-blue-50">
+            <h4 class="text-lg font-semibold text-gray-700 mb-3">Cập nhật thông tin</h4>
+            
+            <!-- Trạng thái -->
+            <div class="mb-4">
+              <label class="block text-sm font-medium text-gray-700 mb-2">Trạng thái *</label>
+              <select id="modal-f3-declaration-status" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" required>
+                <option value="">Chọn trạng thái</option>
+                <option value="Hoàn thành">Hoàn thành</option>
+                <option value="Đang triển khai">Đang triển khai</option>
+                <option value="Chưa triển khai">Chưa triển khai</option>
+                <option value="Hủy tác vụ">Hủy tác vụ</option>
+              </select>
+            </div>
+
+            <!-- Mã Jira -->
+            <div class="mb-4">
+              <label class="block text-sm font-medium text-gray-700 mb-2">Mã Jira *</label>
+              <input type="text" id="modal-f3-declaration-jira-key" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Nhập Mã Jira..."/>
+            </div>
+
+            <!-- Link jira -->
+            <div class="mb-4">
+              <label class="block text-sm font-medium text-gray-700 mb-2">Link jira</label>
+              <input type="text" id="modal-f3-declaration-jira-link" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Nhập link jira..."/>
+            </div>
+
+            <!-- Note -->
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">Note</label>
+              <textarea id="modal-f3-declaration-note" rows="4" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Nhập ghi chú..."></textarea>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Modal Footer -->
+        <div class="mt-6 flex justify-end gap-3 border-t border-gray-200 pt-4">
+          <button type="button" id="modal-f3-declaration-cancel" class="modal-cancel-btn modal-f3-declaration-cancel-btn h-11 rounded-full border border-gray-300 bg-white px-6 text-sm font-bold text-gray-700 shadow-sm hover:bg-gray-50">Hủy</button>
+          <button type="button" id="modal-f3-declaration-submit" class="modal-submit-btn modal-f3-declaration-submit-btn h-11 rounded-full bg-primary-blue px-6 text-sm font-bold text-white shadow-sm hover:shadow-md">Lưu thay đổi</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- ============================================ -->
+  <!-- END MODAL SYSTEM - FORM 3: DECLARATION -->
+  <!-- ============================================ -->
+
+  <!-- ============================================ -->
+  <!-- MODAL SYSTEM - FORM 3: ADD STORY (Thêm Story) -->
+  <!-- ============================================ -->
+  <div id="modal-f3-add-story" class="modal-container modal-f3-add-story fixed inset-0 z-50 hidden" style="display: none;">
+    <div id="modal-f3-add-story-overlay" class="modal-overlay modal-f3-add-story-overlay fixed inset-0 bg-black/30 backdrop-blur-sm z-40"></div>
+    <div id="modal-f3-add-story-content" class="modal-content modal-f3-add-story-content fixed inset-0 z-50 flex items-center justify-center p-4 pointer-events-none">
+      <div class="w-full max-w-3xl rounded-xl bg-white p-8 shadow-xl pointer-events-auto relative z-50 max-h-[90vh] overflow-hidden flex flex-col">
+        <div class="flex items-start justify-between mb-6">
+          <div class="flex flex-col gap-1">
+            <h2 class="text-2xl font-bold text-gray-900">Thêm Story mới</h2>
+            <p class="text-sm text-gray-600">Thêm Story vào Epic: <span id="modal-f3-add-story-epic-name" class="font-medium text-blue-600"></span></p>
+          </div>
+          <button id="modal-f3-add-story-close" class="modal-close modal-f3-add-story-close text-gray-500 hover:text-gray-700 transition">
+            <span class="material-icons">close</span>
+          </button>
+        </div>
+        
+        <form id="modal-f3-add-story-form" class="modal-body overflow-y-auto flex-1 space-y-6">
+          <input type="hidden" id="modal-f3-add-story-epic-id" />
+          
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div class="md:col-span-2">
+              <label class="block text-sm font-medium text-gray-700 mb-2">Tên Story *</label>
+              <input type="text" id="modal-f3-add-story-name" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Nhập tên Story..."/>
+            </div>
+            
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">Story Code *</label>
+              <input type="text" id="modal-f3-add-story-code" readonly class="w-full px-3 py-2 border border-gray-300 rounded-lg bg-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Tự động sinh..."/>
+            </div>
+            
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">Người thực hiện *</label>
+              <select id="modal-f3-add-story-assignee" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                <option value="">Chọn người thực hiện</option>
+                <option>Trần Văn Hoàng</option>
+                <option>Nguyễn Kim Cương</option>
+                <option>Trịnh Xuân Hạnh</option>
+                <option>Đỗ Xuân Huy</option>
+                <option>Giang Văn Toàn</option>
+                <option>Vũ Ngọc Diệp</option>
+                <option>Bùi Ngọc Hùng</option>
+                <option>Nguyễn Thế Việt</option>
+                <option>Nguyễn Mạnh Quang</option>
+              </select>
+            </div>
+            
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">Ngày bắt đầu *</label>
+              <input type="date" id="modal-f3-add-story-start-date" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"/>
+            </div>
+            
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">Hạn hoàn thành *</label>
+              <input type="date" id="modal-f3-add-story-due-date" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"/>
+            </div>
+            
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">Mã Jira *</label>
+              <input type="text" id="modal-f3-add-story-jira-key" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Nhập Mã Jira..."/>
+            </div>
+            
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">Link jira</label>
+              <input type="text" id="modal-f3-add-story-jira-link" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Nhập link jira..."/>
+            </div>
+            
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">Trạng thái *</label>
+              <select id="modal-f3-add-story-status" disabled class="w-full px-3 py-2 border border-gray-300 rounded-lg bg-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500 cursor-not-allowed">
+                <option value="Đang triển khai" selected>Đang triển khai</option>
+              </select>
+            </div>
+            
+            <div class="md:col-span-2">
+              <label class="block text-sm font-medium text-gray-700 mb-2">Note</label>
+              <textarea id="modal-f3-add-story-note" rows="3" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Nhập ghi chú..."></textarea>
+            </div>
+          </div>
+        </form>
+        
+        <div class="mt-6 flex justify-end gap-3 border-t border-gray-200 pt-4">
+          <button type="button" id="modal-f3-add-story-cancel" class="modal-cancel-btn h-11 rounded-full border border-gray-300 bg-white px-6 text-sm font-bold text-gray-700 shadow-sm hover:bg-gray-50">Hủy</button>
+          <button type="submit" id="modal-f3-add-story-submit" class="modal-submit-btn h-11 rounded-full bg-primary-blue px-6 text-sm font-bold text-white shadow-sm hover:shadow-md">Thêm Story</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- ============================================ -->
+  <!-- END MODAL SYSTEM - FORM 3: ADD STORY -->
+  <!-- ============================================ -->
+
+  <!-- ============================================ -->
+  <!-- MODAL SYSTEM - FORM 3: ADD SUBTASK (Thêm Sub-task) -->
+  <!-- ============================================ -->
+  <div id="modal-f3-add-subtask" class="modal-container modal-f3-add-subtask fixed inset-0 z-50 hidden" style="display: none;">
+    <div id="modal-f3-add-subtask-overlay" class="modal-overlay modal-f3-add-subtask-overlay fixed inset-0 bg-black/30 backdrop-blur-sm z-40"></div>
+    <div id="modal-f3-add-subtask-content" class="modal-content modal-f3-add-subtask-content fixed inset-0 z-50 flex items-center justify-center p-4 pointer-events-none">
+      <div class="w-full max-w-3xl rounded-xl bg-white p-8 shadow-xl pointer-events-auto relative z-50 max-h-[90vh] overflow-hidden flex flex-col">
+        <div class="flex items-start justify-between mb-6">
+          <div class="flex flex-col gap-1">
+            <h2 class="text-2xl font-bold text-gray-900">Thêm Sub-task mới</h2>
+            <p class="text-sm text-gray-600">Thêm Sub-task vào Story: <span id="modal-f3-add-subtask-story-name" class="font-medium text-blue-600"></span></p>
+            <p class="text-xs text-gray-500">Epic: <span id="modal-f3-add-subtask-epic-name" class="font-medium"></span></p>
+          </div>
+          <button id="modal-f3-add-subtask-close" class="modal-close modal-f3-add-subtask-close text-gray-500 hover:text-gray-700 transition">
+            <span class="material-icons">close</span>
+          </button>
+        </div>
+        
+        <form id="modal-f3-add-subtask-form" class="modal-body overflow-y-auto flex-1 space-y-6">
+          <input type="hidden" id="modal-f3-add-subtask-epic-id" />
+          <input type="hidden" id="modal-f3-add-subtask-story-id" />
+          
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div class="md:col-span-2">
+              <label class="block text-sm font-medium text-gray-700 mb-2">Tên Sub-task *</label>
+              <input type="text" id="modal-f3-add-subtask-name" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Nhập tên Sub-task..."/>
+            </div>
+            
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">Task Code *</label>
+              <input type="text" id="modal-f3-add-subtask-task-code" readonly class="w-full px-3 py-2 border border-gray-300 rounded-lg bg-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Tự động sinh..."/>
+            </div>
+            
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">Người thực hiện *</label>
+              <select id="modal-f3-add-subtask-assignee" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                <option value="">Chọn người thực hiện</option>
+                <option>Trần Văn Hoàng</option>
+                <option>Nguyễn Thế Việt</option>
+                <option>Nguyễn Mạnh Quang</option>
+                <option>Nguyễn Kim Cương</option>
+                <option>Trịnh Xuân Hạnh</option>
+                <option>Đỗ Xuân Huy</option>
+                <option>Giang Văn Toàn</option>
+                <option>Vũ Ngọc Diệp</option>
+                <option>Bùi Ngọc Hùng</option>
+              </select>
+            </div>
+            
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">Trạng thái *</label>
+              <select id="modal-f3-add-subtask-status" disabled class="w-full px-3 py-2 border border-gray-300 rounded-lg bg-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500 cursor-not-allowed">
+                <option value="Chưa triển khai" selected>Chưa triển khai</option>
+              </select>
+            </div>
+            
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">Ngày bắt đầu *</label>
+              <input type="date" id="modal-f3-add-subtask-start-date" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"/>
+            </div>
+            
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">Hạn hoàn thành *</label>
+              <input type="date" id="modal-f3-add-subtask-due-date" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"/>
+            </div>
+            
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">Mã Jira *</label>
+              <input type="text" id="modal-f3-add-subtask-jira-key" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Nhập Mã Jira..."/>
+            </div>
+            
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">Link jira</label>
+              <input type="text" id="modal-f3-add-subtask-jira-link" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Nhập link jira..."/>
+            </div>
+            
+            <div class="md:col-span-2">
+              <label class="block text-sm font-medium text-gray-700 mb-2">Note</label>
+              <textarea id="modal-f3-add-subtask-note" rows="3" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Nhập ghi chú..."></textarea>
+            </div>
+          </div>
+        </form>
+        
+        <div class="mt-6 flex justify-end gap-3 border-t border-gray-200 pt-4">
+          <button type="button" id="modal-f3-add-subtask-cancel" class="modal-cancel-btn h-11 rounded-full border border-gray-300 bg-white px-6 text-sm font-bold text-gray-700 shadow-sm hover:bg-gray-50">Hủy</button>
+          <button type="submit" id="modal-f3-add-subtask-submit" class="modal-submit-btn h-11 rounded-full bg-primary-blue px-6 text-sm font-bold text-white shadow-sm hover:shadow-md">Thêm Sub-task</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- ============================================ -->
+  <!-- END MODAL SYSTEM - FORM 3: ADD SUBTASK -->
+  <!-- ============================================ -->
+
 </body>
 </html>
 
