@@ -20,6 +20,7 @@
     }
   </script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
+  <script src="https://cdn.sheetjs.com/xlsx-0.20.0/package/dist/xlsx.full.min.js"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -41,6 +42,10 @@
     /* Form 2: Tab styling */
     .f2-panel{transition:all .2s ease}
     .f2-panel.hidden{display:none}
+    .f4r-phan-hoi-tab{border-bottom:2px solid transparent;transition:all .15s ease}
+    .f4r-phan-hoi-tab.tab-active{border-bottom-color:inherit}
+    #f4r-tab-trao-doi.tab-active{border-bottom-color:#eab308;color:#a16207;background:#fef9c3}
+    #f4r-tab-huy.tab-active{border-bottom-color:#ef4444;color:#b91c1c;background:#fee2e2}
     /* Form 2: Table styling */
     .table-zebra tbody tr:nth-child(even){ background-color:#f8fafc; }
     .cell-div{ border-left:1px solid #e5e7eb; }
@@ -75,31 +80,57 @@
       background: #e5e7eb; /* gray-200 */
       color: #6b7280; /* gray-500 */
     }
-    /* Form 3 specific scrollbar - scoped to #form3 only */
-    #form3 .custom-scrollbar-f3::-webkit-scrollbar {
+    /* Form 0 specific scrollbar - scoped to #form0 only */
+    #form0 .custom-scrollbar-f4::-webkit-scrollbar {
         width: 8px;
         height: 8px;
     }
-    #form3 .custom-scrollbar-f3::-webkit-scrollbar-track {
+    #form0 .custom-scrollbar-f4::-webkit-scrollbar-track {
         background: transparent;
     }
-    #form3 .custom-scrollbar-f3::-webkit-scrollbar-thumb {
+    #form0 .custom-scrollbar-f4::-webkit-scrollbar-thumb {
         background-color: #e5e7eb;
         border-radius: 9999px;
         border: 2px solid transparent;
         background-clip: content-box;
     }
-    #form3 .custom-scrollbar-f3::-webkit-scrollbar-thumb:hover {
+    #form0 .custom-scrollbar-f4::-webkit-scrollbar-thumb:hover {
         background-color: #d1d5db;
     }
-    /* Form 3 specific no-scrollbar - only applies within form3 */
-    #form3 .no-scrollbar::-webkit-scrollbar {
+    /* Form 0 specific no-scrollbar - only applies within form0 */
+    #form0 .no-scrollbar::-webkit-scrollbar {
         display: none;
     }
-    #form3 .no-scrollbar {
+    #form0 .no-scrollbar {
         -ms-overflow-style: none;
         scrollbar-width: none;
     }
+    /* Form 3: Resizable table panel */
+    #form3 { display: flex; flex-direction: column; min-height: calc(100vh - 120px); }
+    #form3.hidden { display: none !important; }
+    #form4.hidden { display: none !important; }
+    #form5.hidden { display: none !important; }
+    #form4 table { width: 100%; table-layout: fixed; }
+    #form4 td, #form4 th { word-wrap: break-word; overflow-wrap: break-word; }
+    #form3 .f3-table-wrapper { flex: 1; min-height: 0; display: flex; flex-direction: column; }
+    #form3 .f3-resize-handle {
+      height: 6px; cursor: ns-resize; background: linear-gradient(to bottom, transparent, #e5e7eb);
+      flex-shrink: 0; transition: background .15s;
+    }
+    #form3 .f3-resize-handle:hover { background: linear-gradient(to bottom, transparent, #C41E3A); }
+    #form3 .f3-resize-handle:active { background: #C41E3A; }
+    /* Form 3: Autocomplete gợi ý */
+    .f3-autocomplete-wrap { position: relative; }
+    .f3-autocomplete-list {
+      position: absolute; left: 0; right: 0; top: 100%; z-index: 50;
+      max-height: 200px; overflow-y: auto; background: white; border: 1px solid #e5e7eb;
+      border-radius: 0 0 0.5rem 0.5rem; box-shadow: 0 4px 6px -1px rgba(0,0,0,.1);
+      margin-top: -1px; display: none;
+    }
+    .f3-autocomplete-list.show { display: block; }
+    .f3-autocomplete-item { padding: 0.5rem 0.75rem; cursor: pointer; font-size: 0.875rem; border-bottom: 1px solid #f3f4f6; }
+    .f3-autocomplete-item:hover { background: #fef2f2; }
+    .f3-autocomplete-item:last-child { border-bottom: none; }
   </style>
 </head>
 <body class="bg-muted min-h-screen flex text-gray-800" style="font-family: 'Inter', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol'">
@@ -109,9 +140,11 @@
     <nav class="flex flex-col gap-2 mt-2">
       <button class="nav-btn py-2 px-4 rounded transition hover:bg-sidebar-hover text-left text-base" data-target="form1">Form 1 · Tra cứu tác vụ</button>
       <button class="nav-btn py-2 px-4 rounded transition hover:bg-sidebar-hover text-left text-base" data-target="form2">Form 2 · Tiến độ công việc</button>
-      <button class="nav-btn py-2 px-4 rounded transition hover:bg-sidebar-hover text-left text-base" data-target="form3">Form 3 · Quản lý dự án (đang phát triển)</button>
-      <button class="nav-btn py-2 px-4 rounded transition hover:bg-sidebar-hover text-left text-base" data-target="testRequest">Nhập tác vụ</button>
-      <!-- <button class="nav-btn py-2 px-4 rounded transition hover:bg-sidebar-hover text-left text-base" data-target="form4">Form 4 · Bảng theo dõi </button> -->
+      <button class="nav-btn py-2 px-4 rounded transition hover:bg-sidebar-hover text-left text-base" data-target="form3">Form 3 · Gửi yêu cầu rà soát TCKT</button>
+      <button class="nav-btn py-2 px-4 rounded transition hover:bg-sidebar-hover text-left text-base" data-target="form4">Form 4 · Quản lý tác vụ rà soát</button>
+      <button class="nav-btn py-2 px-4 rounded transition hover:bg-sidebar-hover text-left text-base" data-target="form5">Form 5 · KPI Thống kê rà soát</button>
+      <button class="nav-btn py-2 px-4 rounded transition hover:bg-sidebar-hover text-left text-base" data-target="testRequest">Nhập tác vụ mới</button>
+      <button class="nav-btn py-2 px-4 rounded transition hover:bg-sidebar-hover text-left text-base" data-target="form0">Form 0 · Quản lý dự án (đang phát triển)</button>
     </nav>
   </aside>
 
@@ -198,6 +231,10 @@
           </div>
           <div id="testRequestUploadList" class="mt-2 flex flex-col gap-2"></div>
         </div>
+        <div class="flex items-center gap-2 mt-4">
+          <input type="checkbox" id="testRequestKeepData" class="h-4 w-4 rounded border-gray-300 text-primary-blue focus:ring-primary-blue"/>
+          <label for="testRequestKeepData" class="text-sm font-medium text-gray-700 select-none cursor-pointer">Giữ nguyên dữ liệu sau khi gửi</label>
+        </div>
         <button type="submit" class="submit-btn w-full mt-4 py-3 text-white font-semibold text-lg transition flex items-center justify-center gap-2">
           <span>Gửi yêu cầu</span>
           <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6" /></svg>
@@ -242,14 +279,14 @@
               <th class="px-3 py-2 min-w-[160px]">Thực hiện</th>
               <th class="px-3 py-2 min-w-[160px]">Ngày bắt đầu thực tế</th>
               <th class="px-3 py-2 min-w-[160px]">Ngày hoàn thành thực tế</th>
-              <th class="px-3 py-2 min-w-[140px]">Mã tác vụ</th>
+              <th class="px-3 py-2 min-w-[140px]">Ngày yêu cầu</th>
+              <th class="px-3 py-2 min-w-[140px]">Hạn mong muốn</th>
               <th class="px-3 py-2 min-w-[260px]">Tên tác vụ</th>
+              <th class="px-3 py-2 min-w-[140px]">Mã tác vụ</th>
               <th class="px-3 py-2 min-w-[220px]">File đính kèm</th>
               <th class="px-3 py-2 min-w-[220px]">File báo cáo</th>
               <th class="px-3 py-2 min-w-[160px]">Người yêu cầu</th>
               <th class="px-3 py-2 min-w-[160px]">Người thực hiện</th>
-              <th class="px-3 py-2 min-w-[140px]">Ngày yêu cầu</th>
-              <th class="px-3 py-2 min-w-[140px]">Hạn mong muốn</th>
               <th class="px-3 py-2 min-w-[260px]">Mục đích đánh giá</th>
               <th class="px-3 py-2 min-w-[240px]">Ghi chú</th>
             </tr>
@@ -298,17 +335,10 @@
         <div class="flex items-center gap-2 p-2">
           <label class="text-sm text-gray-700">Tháng</label>
           <input id="f2-month" type="month" class="border border-red-300 rounded-lg bg-slate-100 p-2 focus:outline-none focus:ring-2 focus:ring-red-200 focus:bg-white"/>
+          <button id="f2-search-p1" class="submit-btn px-3 py-1.5 text-white text-sm font-semibold transition">Tra cứu</button>
         </div>
-        <!-- P1 Header -->
-        <div class="mt-2 flex items-center gap-2 border-b border-gray-200">
-          <div class="px-4 py-2 font-semibold text-red-800 bg-red-50 rounded-t-lg border-b-2 border-red-200">Thống kê tiến độ</div>
-        </div>
-        <!-- Thẻ P1: Thống kê tiến độ -->
+        <!-- P1: Thống kê tiến độ -->
         <div id="f2-panel-p1" class="f2-panel bg-white border border-gray-200 rounded-lg shadow-sm mt-2">
-          <div class="px-3 py-2 border-b border-gray-200 bg-gradient-to-r from-red-50 to-white flex items-center justify-center">
-            <span class="font-semibold text-red-800 mr-4">Thẻ - Thống kê tiến độ</span>
-            <button id="f2-search-p1" class="submit-btn px-3 py-1.5 text-white text-sm font-semibold transition">Tra cứu</button>
-          </div>
           <div class="overflow-auto max-h-[60vh] p-2">
           <table class="min-w-[1200px] w-full text-sm table-zebra table-vdiv">
           <thead class="bg-gradient-to-r from-red-100 to-red-50 sticky top-0">
@@ -335,8 +365,189 @@
       </div>
     </section>
 
-    <!-- Form 3 - Quản lý dự án -->
-    <section id="form3" class="w-full bg-white/50 p-6 lg:p-10 rounded-lg shadow-md hidden flex flex-col" style="min-height: calc(100vh - 120px);">
+    <!-- Form 3 - Gửi yêu cầu rà soát TCKT -->
+    <section id="form3" class="w-full bg-white p-6 rounded-lg shadow-md hidden flex flex-col self-stretch">
+      <div class="flex-shrink-0 mb-4">
+        <h2 class="text-2xl font-bold text-red-800">Form 3 · Gửi yêu cầu rà soát TCKT</h2>
+        <p class="text-gray-500 text-sm mt-1">Trang đang được phát triển</p>
+      </div>
+      <!-- Thông tin yêu cầu rà soát -->
+      <div class="flex-shrink-0 mb-4 p-4 bg-red-50/50 border border-red-100 rounded-lg">
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
+          <div class="space-y-1 f3-autocomplete-wrap">
+            <label class="block text-sm font-medium text-gray-700">Người yêu cầu</label>
+            <input id="f3-nguoi-yeu-cau" type="text" class="input-field" placeholder="Họ tên người yêu cầu" autocomplete="off"/>
+            <div id="f3-ac-list-1" class="f3-autocomplete-list"></div>
+          </div>
+          <div class="space-y-1 f3-autocomplete-wrap">
+            <label class="block text-sm font-medium text-gray-700">Email người yêu cầu</label>
+            <input id="f3-email-yeu-cau" type="email" class="input-field" placeholder="email@example.com" autocomplete="off"/>
+            <div id="f3-ac-list-3" class="f3-autocomplete-list"></div>
+          </div>
+          <div class="space-y-1">
+            <label class="block text-sm font-medium text-gray-700">Người nhận rà soát</label>
+            <select id="f3-nguoi-nhan" class="input-field">
+              <option value="">Chọn người nhận rà soát</option>
+              <option value="Nguyễn Hữu Thịnh" data-email="thinh.nguyen2@karofi.vn">Nguyễn Hữu Thịnh</option>
+              <option value="Nguyễn Văn Hiếu" data-email="hieu.nguyen2@karofi.vn">Nguyễn Văn Hiếu</option>
+              <option value="Đỗ Quang Long" data-email="long.do@karofi.vn">Đỗ Quang Long</option>
+              <option value="Nguyễn Thị Hiền" data-email="hien.nguyen1@karofi.vn">Nguyễn Thị Hiền</option>
+              <option value="Vũ Thị Hằng" data-email="hang.vu@karofi.vn">Vũ Thị Hằng</option>
+              <option value="Phạm Thành Trung Kiên" data-email="kien.pham1@karofi.vn">Phạm Thành Trung Kiên</option>
+              <option value="Nguyễn Văn Linh" data-email="linh.nguyen@karofi.vn">Nguyễn Văn Linh</option>
+              <option value="Đào Hoàng Dương" data-email="duong.dao@karofi.vn">Đào Hoàng Dương</option>
+              <option value="Lê Ngọc Ánh" data-email="anh.le1@karofi.vn">Lê Ngọc Ánh</option>
+              <option value="Hà Mỹ Linh" data-email="linh.ha@karofi.vn">Hà Mỹ Linh</option>
+              <option value="Bùi Đặng Quốc Huy" data-email="huy.bui@karofi.vn">Bùi Đặng Quốc Huy</option>
+              <option value="Phạm Thị Minh" data-email="minh.pham1@karofi.vn">Phạm Thị Minh</option>
+              <option value="Vũ Duy Minh" data-email="minh.vu@karofi.com">Vũ Duy Minh</option>
+              <option value="Đào Tuấn Kỳ" data-email="ky.dao@karofi.vn">Đào Tuấn Kỳ</option>
+              <option value="Lê Văn Sơn" data-email="son.le2@karofi.vn">Lê Văn Sơn</option>
+              <option value="Lại Quốc Lộc" data-email="loc.lai@karofi.vn">Lại Quốc Lộc</option>
+              <option value="Thái Thị Giang" data-email="giang.thai@karofi.vn">Thái Thị Giang</option>
+              <option value="Lê Thị Thảo" data-email="thao.le@karofi.vn">Lê Thị Thảo</option>
+              <option value="Vũ Thị Thanh Hiền" data-email="hien.vu2@karofi.vn">Vũ Thị Thanh Hiền</option>
+              <option value="Trần Hiếu Nghĩa" data-email="nghia.tran1@karofi.vn">Trần Hiếu Nghĩa</option>
+            </select>
+          </div>
+          <div class="space-y-1">
+            <label class="block text-sm font-medium text-gray-700">Email người nhận</label>
+            <input id="f3-email-nguoi-nhan" type="text" class="input-field" readonly placeholder="Tự động điền khi chọn người nhận"/>
+          </div>
+          <div class="space-y-1">
+            <label class="block text-sm font-medium text-gray-700">Thời gian gửi</label>
+            <input id="f3-thoi-gian-gui" type="text" class="input-field" readonly placeholder="YYYY/MM/DD HH:mm"/>
+          </div>
+        </div>
+      </div>
+      <div class="flex items-center gap-3 mb-4 flex-shrink-0 flex-wrap">
+        <input type="file" id="f3-temp-file" accept=".xlsx,.xls" class="hidden">
+        <button type="button" id="f3-temp-upload-btn" class="flex items-center gap-2 px-4 py-2.5 bg-white border border-red-300 rounded-lg text-primary-blue font-medium hover:bg-red-50 transition-colors shadow-sm">
+          <span class="material-icons text-[20px]">upload_file</span>
+          <span>Tải lên file Temp</span>
+        </button>
+        <span id="f3-temp-file-name" class="text-sm text-gray-500"></span>
+        <button type="button" id="f3-send-request-btn" class="flex items-center gap-2 px-4 py-2.5 bg-primary-blue text-white rounded-lg font-medium hover:bg-red-600 transition-colors shadow-sm">
+          <span class="material-icons text-[20px]">send</span>
+          <span>Gửi yêu cầu</span>
+        </button>
+      </div>
+      <!-- Vùng hiển thị bảng theo nhóm - có thể kéo để thay đổi chiều cao -->
+      <div id="f3-table-preview" class="f3-table-wrapper mt-4 border border-gray-200 rounded-lg overflow-hidden flex flex-col flex-1 min-h-[300px]">
+        <div class="px-3 py-2 bg-gray-50 border-b border-gray-200 text-sm font-medium text-gray-700 flex-shrink-0">
+          File temp PHẢI được xuất trực tiếp từ hệ thống Code của BPS, không qua chỉnh sửa thêm trên file Excel.
+        </div>
+        <div id="f3-resize-handle" class="f3-resize-handle" title="Kéo để thay đổi chiều cao"></div>
+        <div id="f3-table-content" class="p-4 overflow-auto space-y-6 flex-1 min-h-0">
+          <p class="text-gray-500 text-sm">Chưa có dữ liệu. Vui lòng tải lên file Excel.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Form 4 - Quản lý tác vụ rà soát -->
+    <section id="form4" class="w-full bg-white p-6 rounded-lg shadow-md hidden flex flex-col self-stretch min-h-0">
+      <div class="flex items-center justify-between mb-4 flex-shrink-0">
+        <h2 class="text-2xl font-bold text-red-800">Form 4 · Quản lý tác vụ rà soát</h2>
+        <button id="f4r-load-btn" class="flex items-center gap-2 px-4 py-2.5 bg-white border border-red-300 rounded-lg text-primary-blue font-medium hover:bg-red-50 transition-colors shadow-sm">
+          <span class="material-icons text-[18px]">refresh</span>
+          <span>Tải dữ liệu</span>
+        </button>
+      </div>
+      <div id="f4r-loading" class="hidden flex items-center justify-center gap-2 text-primary py-4 flex-shrink-0">
+        <span class="spinner"></span>
+        <span>Đang tải...</span>
+      </div>
+      <div class="flex flex-wrap gap-3 py-3 flex-shrink-0">
+        <div class="flex items-center gap-2">
+          <label class="text-sm font-medium text-gray-700">Người gửi:</label>
+          <select id="f4r-filter-nguoi-gui" class="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white min-w-[160px]">
+            <option value="">Tất cả</option>
+          </select>
+        </div>
+        <div class="flex items-center gap-2">
+          <label class="text-sm font-medium text-gray-700">Tháng:</label>
+          <select id="f4r-filter-thang" class="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white min-w-[140px]">
+            <option value="">Tất cả</option>
+          </select>
+        </div>
+      </div>
+      <div class="mt-4 overflow-auto flex-1 min-h-0 border border-gray-200 rounded-lg">
+        <table class="w-full text-sm table-zebra" style="table-layout: fixed; width: 100%;">
+          <thead class="bg-gradient-to-r from-red-100 to-red-50 sticky top-0">
+            <tr class="text-left text-gray-700">
+              <th class="px-3 py-2 w-[22%]">Linh kiện rà soát</th>
+              <th class="px-3 py-2 w-[10%]">Tình trạng</th>
+              <th class="px-3 py-2 w-[9%]">Ngày gửi</th>
+              <th class="px-3 py-2 w-[8%]">Ngày trả</th>
+              <th class="px-3 py-2 w-[10%]">Người gửi</th>
+              <th class="px-3 py-2 w-[10%]">Người nhận rà soát</th>
+              <th class="px-3 py-2 w-[8%]">File ban đầu</th>
+              <th class="px-3 py-2 w-[8%]">File phản hồi</th>
+              <th class="px-3 py-2 w-[8%]">Link Jira</th>
+              <th class="px-3 py-2 w-[8%]">Ghi chú</th>
+              <th class="px-3 py-2 w-[8%]">Chi tiết sửa đổi</th>
+              <th class="px-3 py-2 w-[8%]">Phản hồi</th>
+            </tr>
+          </thead>
+          <tbody id="f4r-table-body" class="divide-y divide-gray-100">
+            <tr><td class="px-3 py-3 text-center text-gray-500" colspan="12">Chưa có dữ liệu. Nhấn "Tải dữ liệu" để lấy từ webhook.</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- Form 5 - KPI Thống kê rà soát (copy từ Form 3 Cổng 2) -->
+    <section id="form5" class="w-full bg-white p-6 rounded-lg shadow-md hidden flex flex-col min-h-0">
+      <div class="flex flex-wrap items-center justify-between gap-4 mb-4 flex-shrink-0">
+        <div>
+          <h2 class="text-2xl font-bold text-red-800">Form 5 · KPI Thống kê rà soát</h2>
+          <p class="text-sm text-gray-500 mt-0.5">Theo Người gửi</p>
+        </div>
+        <div class="flex items-center gap-3">
+          <select id="f5-filter-month" class="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-red-500 bg-white min-w-[140px]">
+            <option value="">Chọn tháng</option>
+          </select>
+          <button id="f5-load-btn" class="flex items-center gap-2 px-4 py-2.5 bg-white border border-red-300 rounded-lg text-primary-blue font-medium hover:bg-red-50 transition-colors shadow-sm">
+            <span class="material-icons text-[18px]">refresh</span>
+            <span>Tải dữ liệu</span>
+          </button>
+        </div>
+      </div>
+
+      <div id="f5-loading" class="hidden flex items-center justify-center gap-2 text-primary py-4 flex-shrink-0">
+        <span class="spinner"></span>
+        <span>Đang tải...</span>
+      </div>
+
+      <div id="f5-content" class="flex-1 overflow-auto min-h-0 space-y-4">
+        <!-- KPI Summary Cards -->
+        <div id="f5-kpi-cards" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3 flex-shrink-0"></div>
+
+        <!-- Bảng KPI theo Người gửi -->
+        <div class="flex-shrink-0">
+          <h3 class="text-lg font-semibold text-gray-800 mb-2">KPI theo Người gửi</h3>
+          <div class="overflow-auto border border-gray-200 rounded-lg" style="max-height: 450px;">
+            <table class="w-full text-sm table-zebra">
+              <thead class="bg-gray-100 sticky top-0 z-10">
+                <tr>
+                  <th class="px-3 py-2 text-left font-semibold text-gray-700">Người gửi</th>
+                  <th class="px-3 py-2 text-right font-semibold text-gray-700">Yêu cầu</th>
+                  <th class="px-3 py-2 text-right font-semibold text-gray-700">Linh kiện</th>
+                  <th class="px-3 py-2 text-right font-semibold text-gray-700">Hạng mục gốc</th>
+                  <th class="px-3 py-2 text-right font-semibold text-gray-700">Hạng mục đổi</th>
+                  <th class="px-3 py-2 text-right font-semibold text-gray-700">Tỷ lệ đổi</th>
+                  <th class="px-3 py-2 text-left font-semibold text-gray-700">Mã Jira</th>
+                </tr>
+              </thead>
+              <tbody id="f5-table-body"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Form 0 - Quản lý dự án -->
+    <section id="form0" class="w-full bg-white/50 p-6 lg:p-10 rounded-lg shadow-md hidden flex flex-col" style="min-height: calc(100vh - 120px);">
       <div class="mx-auto flex w-full flex-col gap-6 flex-1">
         <!-- Page Heading -->
         <div class="flex flex-wrap items-center justify-between gap-4">
@@ -345,11 +556,11 @@
             <p class="text-[#6b6189] text-sm mt-1">Theo dõi tiến độ và phân cấp công việc Epic → Story → Subtask</p>
           </div>
           <div class="flex flex-wrap gap-2">
-            <button id="f3-load-data-btn" class="flex items-center gap-2 px-4 py-2.5 bg-white border border-[#e5e7eb] rounded-full text-sm font-medium hover:bg-gray-50 transition-colors shadow-sm">
+            <button id="f4-load-data-btn" class="flex items-center gap-2 px-4 py-2.5 bg-white border border-[#e5e7eb] rounded-full text-sm font-medium hover:bg-gray-50 transition-colors shadow-sm">
               <span class="material-icons text-[18px]">refresh</span>
               <span>Tải dữ liệu</span>
             </button>
-            <button id="f3-export-btn" class="flex items-center gap-2 px-4 py-2.5 bg-white border border-[#e5e7eb] rounded-full text-sm font-medium hover:bg-gray-50 transition-colors shadow-sm">
+            <button id="f4-export-btn" class="flex items-center gap-2 px-4 py-2.5 bg-white border border-[#e5e7eb] rounded-full text-sm font-medium hover:bg-gray-50 transition-colors shadow-sm">
               <span class="material-icons text-[18px]">table_view</span>
               <span>Xuất Excel</span>
             </button>
@@ -363,31 +574,31 @@
             <span class="text-xs text-gray-500">Hỗ trợ .xlsx, .xls</span>
           </div>
           
-          <div id="f3-drop-zone" class="relative border-2 border-dashed border-blue-300 rounded-lg p-8 text-center bg-white hover:border-blue-500 transition-colors cursor-pointer">
-            <input type="file" id="f3-excel-file" accept=".xlsx,.xls" class="hidden">
-            <div id="f3-drop-content" class="flex flex-col items-center gap-3">
+          <div id="f4-drop-zone" class="relative border-2 border-dashed border-blue-300 rounded-lg p-8 text-center bg-white hover:border-blue-500 transition-colors cursor-pointer">
+            <input type="file" id="f4-excel-file" accept=".xlsx,.xls" class="hidden">
+            <div id="f4-drop-content" class="flex flex-col items-center gap-3">
               <span class="material-icons text-5xl text-blue-500">cloud_upload</span>
               <div>
                 <p class="text-sm font-medium text-gray-700">Kéo thả file Excel vào đây</p>
                 <p class="text-xs text-gray-500 mt-1">hoặc click để chọn file</p>
             </div>
           </div>
-            <div id="f3-file-info" class="hidden flex items-center justify-between gap-3 mt-4 p-3 bg-green-50 rounded-lg border border-green-200">
+            <div id="f4-file-info" class="hidden flex items-center justify-between gap-3 mt-4 p-3 bg-green-50 rounded-lg border border-green-200">
               <div class="flex items-center gap-3 flex-1">
                 <span class="material-icons text-green-600">description</span>
                 <div class="flex-1 text-left">
-                  <p id="f3-file-name" class="text-sm font-medium text-gray-900"></p>
-                  <p id="f3-file-size" class="text-xs text-gray-500"></p>
+                  <p id="f4-file-name" class="text-sm font-medium text-gray-900"></p>
+                  <p id="f4-file-size" class="text-xs text-gray-500"></p>
         </div>
       </div>
-              <button id="f3-file-remove" class="text-red-500 hover:text-red-700 transition">
+              <button id="f4-file-remove" class="text-red-500 hover:text-red-700 transition">
                 <span class="material-icons">close</span>
         </button>
             </div>
       </div>
 
           <div class="flex items-center justify-center gap-3 mt-4">
-            <button id="f3-submit-btn" class="flex items-center gap-2 px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium shadow-md hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed" disabled>
+            <button id="f4-submit-btn" class="flex items-center gap-2 px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium shadow-md hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed" disabled>
               <span class="material-icons">upload</span>
               <span>Tải lên server</span>
             </button>
@@ -401,11 +612,11 @@
             <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
               <span class="material-icons text-[#6b6189]">search</span>
             </div>
-            <input id="f3-search-input" type="text" placeholder="Tìm theo tên, Jira Key, Assignee..." class="block w-full pl-10 pr-3 py-2.5 border-none rounded-full leading-5 bg-white text-[#131118] placeholder-[#9ca3af] focus:outline-none focus:bg-white focus:ring-2 focus:ring-primary/20 shadow-sm ring-1 ring-[#e5e7eb]">
+            <input id="f4-search-input" type="text" placeholder="Tìm theo tên, Jira Key, Assignee..." class="block w-full pl-10 pr-3 py-2.5 border-none rounded-full leading-5 bg-white text-[#131118] placeholder-[#9ca3af] focus:outline-none focus:bg-white focus:ring-2 focus:ring-primary/20 shadow-sm ring-1 ring-[#e5e7eb]">
           </div>
           <!-- Filters -->
           <div class="flex gap-2 overflow-x-auto pb-2 lg:pb-0 no-scrollbar">
-            <select id="f3-filter-status" class="pl-3 pr-8 py-2.5 bg-white border-none ring-1 ring-[#e5e7eb] rounded-full text-sm font-medium text-[#131118] focus:ring-2 focus:ring-primary/20 shadow-sm cursor-pointer appearance-none">
+            <select id="f4-filter-status" class="pl-3 pr-8 py-2.5 bg-white border-none ring-1 ring-[#e5e7eb] rounded-full text-sm font-medium text-[#131118] focus:ring-2 focus:ring-primary/20 shadow-sm cursor-pointer appearance-none">
               <option value="">Tất cả trạng thái</option>
               <option value="hoàn thành">Hoàn thành</option>
               <option value="đang triển khai">Đang triển khai</option>
@@ -413,11 +624,11 @@
               <option value="hủy tác vụ">Hủy tác vụ</option>
               <option value="cancelled">Đã hủy</option>
             </select>
-            <select id="f3-filter-assignee" class="pl-3 pr-8 py-2.5 bg-white border-none ring-1 ring-[#e5e7eb] rounded-full text-sm font-medium text-[#131118] focus:ring-2 focus:ring-primary/20 shadow-sm cursor-pointer appearance-none">
+            <select id="f4-filter-assignee" class="pl-3 pr-8 py-2.5 bg-white border-none ring-1 ring-[#e5e7eb] rounded-full text-sm font-medium text-[#131118] focus:ring-2 focus:ring-primary/20 shadow-sm cursor-pointer appearance-none">
               <option value="">Tất cả thành viên</option>
               <!-- Options sẽ được populate bằng JavaScript -->
             </select>
-            <select id="f3-filter-level" class="pl-3 pr-8 py-2.5 bg-white border-none ring-1 ring-[#e5e7eb] rounded-full text-sm font-medium text-[#131118] focus:ring-2 focus:ring-primary/20 shadow-sm cursor-pointer appearance-none">
+            <select id="f4-filter-level" class="pl-3 pr-8 py-2.5 bg-white border-none ring-1 ring-[#e5e7eb] rounded-full text-sm font-medium text-[#131118] focus:ring-2 focus:ring-primary/20 shadow-sm cursor-pointer appearance-none">
               <option value="all">Tất cả cấp</option>
               <option value="story">Story và Subtask</option>
               <option value="subtask">Chỉ Subtask</option>
@@ -441,8 +652,8 @@
               <div class="col-span-1 flex items-center">Ghi chú</div>
             </div>
             <!-- Table Body (Scrollable) -->
-            <div class="custom-scrollbar-f3">
-              <div id="f3-table-body" class="divide-y divide-[#f1f0f4]">
+            <div class="custom-scrollbar-f4">
+              <div id="f4-table-body" class="divide-y divide-[#f1f0f4]">
                 <div class="px-6 py-8 text-center text-[#6b6189]">
                   <div class="flex flex-col items-center gap-2">
                     <span class="material-icons text-4xl text-gray-300">table_chart</span>
@@ -455,7 +666,7 @@
         </div>
 
         <!-- Loading Indicator -->
-        <div id="f3-loading" class="hidden flex items-center justify-center gap-2 text-primary py-4">
+        <div id="f4-loading" class="hidden flex items-center justify-center gap-2 text-primary py-4">
           <svg class="animate-spin h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
             <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
             <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
@@ -500,6 +711,62 @@
     </div>
   </div>
 
+  <!-- Modal: Chi tiết sửa đổi (Form 4 rà soát - Kết quả rà soát, tham khảo Form 1 Cổng 2) -->
+  <div id="f4r-chi-tiet-modal" class="modal" aria-hidden="true" role="dialog" style="z-index: 9999;">
+    <div class="w-full bg-white rounded-xl border border-gray-200 shadow-xl overflow-hidden" style="width:98vw; max-width:1800px">
+      <div class="px-4 py-3 bg-gradient-to-b from-red-50 to-white border-b border-gray-200 flex items-center justify-between">
+        <h3 class="text-base font-semibold text-gray-800">Chi tiết sửa đổi</h3>
+        <button id="f4r-chi-tiet-modal-close" class="px-3 py-1 rounded-lg bg-slate-100 text-gray-800 hover:bg-slate-200">Đóng</button>
+      </div>
+      <div class="p-4 overflow-auto" style="max-height:80vh">
+        <div class="border border-gray-200 rounded-lg bg-gray-50 p-4">
+          <div id="f4r-chi-tiet-summary" class="mb-4"></div>
+          <div id="f4r-chi-tiet-body"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: Phản hồi / Ý kiến (Form 4 rà soát) -->
+  <div id="f4r-phan-hoi-modal" class="modal" aria-hidden="true" role="dialog">
+    <div class="w-full max-w-lg bg-white rounded-xl border border-gray-200 shadow-xl overflow-hidden">
+      <div class="px-4 py-3 bg-gradient-to-b from-red-50 to-white border-b border-gray-200 flex items-center justify-between">
+        <h3 class="text-base font-semibold text-gray-800">Phản hồi <span id="f4r-phan-hoi-modal-id" class="text-primary-blue"></span></h3>
+        <button id="f4r-phan-hoi-modal-close" class="px-3 py-1 rounded-lg bg-slate-100 text-gray-800 hover:bg-slate-200">Đóng</button>
+      </div>
+      <div class="flex border-b border-gray-200">
+        <button type="button" id="f4r-tab-trao-doi" class="f4r-phan-hoi-tab tab-active flex-1 px-4 py-3 text-sm font-medium text-gray-600 hover:bg-gray-50">Xem xét trao đổi lại</button>
+        <button type="button" id="f4r-tab-huy" class="f4r-phan-hoi-tab flex-1 px-4 py-3 text-sm font-medium text-gray-600 hover:bg-gray-50">Hủy bỏ yêu cầu</button>
+      </div>
+      <div class="p-4">
+        <div id="f4r-panel-trao-doi" class="f4r-phan-hoi-panel space-y-3">
+          <label class="block text-sm font-medium text-gray-700">Ghi chú</label>
+          <textarea id="f4r-ghichu-trao-doi" rows="3" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Ghi chú..."></textarea>
+          <button type="button" id="f4r-btn-trao-doi" class="px-4 py-2 rounded-lg bg-yellow-100 text-yellow-800 border border-yellow-200 hover:bg-yellow-200 font-medium text-sm">Xem xét trao đổi lại</button>
+        </div>
+        <div id="f4r-panel-huy" class="f4r-phan-hoi-panel hidden space-y-3">
+          <label class="block text-sm font-medium text-gray-700">Ghi chú</label>
+          <textarea id="f4r-ghichu-huy" rows="3" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Ghi chú..."></textarea>
+          <button type="button" id="f4r-btn-huy" class="px-4 py-2 rounded-lg bg-red-100 text-red-800 border border-red-200 hover:bg-red-200 font-medium text-sm">Hủy bỏ yêu cầu</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: Xác nhận gửi yêu cầu rà soát (Form 3) -->
+  <div id="f3-confirm-modal" class="modal" aria-hidden="true" role="dialog">
+    <div class="w-full max-w-md bg-white rounded-xl border border-gray-200 shadow-xl overflow-hidden">
+      <div class="p-6 text-center">
+        <p class="text-lg font-semibold text-gray-800 mb-2">Bạn có chắc chắn muốn gửi yêu cầu rà soát không?</p>
+        <p class="text-sm text-gray-500">Tác vụ sẽ được tạo trên Jira và sẽ không thể sửa</p>
+      </div>
+      <div class="px-6 py-4 border-t border-gray-200 flex justify-center gap-3">
+        <button id="f3-confirm-cancel" class="px-4 py-2 rounded-lg bg-slate-100 text-gray-800 hover:bg-slate-200">Hủy</button>
+        <button id="f3-confirm-send" class="px-4 py-2 rounded-lg text-white font-semibold bg-primary-blue hover:brightness-105">Xác nhận gửi</button>
+      </div>
+    </div>
+  </div>
+
   <!-- Modal: Chi tiết tác vụ theo nhân viên (Form 2 P1) -->
   <div id="f2-p1-detail-modal" class="modal" aria-hidden="true" role="dialog" aria-labelledby="f2-p1-detail-title">
     <div class="w-full max-w-[95vw] bg-white rounded-xl border border-gray-200 shadow-xl overflow-hidden" style="width:95vw">
@@ -524,6 +791,67 @@
             </thead>
             <tbody id="f2-p1-detail-body" class="divide-y divide-gray-100">
               <tr><td class="px-3 py-3 text-center text-gray-500" colspan="8">Chưa có dữ liệu</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: Số Done trong tháng (Form 2) -->
+  <div id="f2-done-modal" class="modal" aria-hidden="true" role="dialog" aria-labelledby="f2-done-title">
+    <div class="w-full max-w-[95vw] bg-white rounded-xl border border-gray-200 shadow-xl overflow-hidden" style="width:95vw">
+      <div class="px-4 py-3 bg-gradient-to-b from-red-50 to-white border-b border-gray-200 flex items-center justify-between">
+        <h3 id="f2-done-title" class="text-base font-semibold text-gray-800">Số Done trong tháng của <span id="f2-done-name" class="text-primary-blue"></span></h3>
+        <button id="f2-done-close" class="px-3 py-1 rounded-lg bg-slate-100 text-gray-800 hover:bg-slate-200 transition">Đóng</button>
+      </div>
+      <div class="p-4">
+        <div class="overflow-auto border border-gray-200 rounded-lg" style="max-height:60vh">
+          <table class="min-w-[1200px] w-full text-sm">
+            <thead class="bg-gradient-to-r from-red-100 to-red-50 sticky top-0">
+              <tr class="text-left text-gray-700">
+                <th class="px-3 py-2 min-w-[140px]">Tình trạng</th>
+                <th class="px-3 py-2 min-w-[160px]">Ngày hoàn thành thực tế</th>
+                <th class="px-3 py-2 min-w-[140px]">Mã</th>
+                <th class="px-3 py-2 min-w-[260px]">Tên tác vụ</th>
+                <th class="px-3 py-2 min-w-[160px]">Người yêu cầu</th>
+                <th class="px-3 py-2 min-w-[140px]">Ngày yêu cầu</th>
+                <th class="px-3 py-2 min-w-[140px]">Hạn mong muốn</th>
+                <th class="px-3 py-2 min-w-[240px]">Note</th>
+              </tr>
+            </thead>
+            <tbody id="f2-done-body" class="divide-y divide-gray-100">
+              <tr><td class="px-3 py-3 text-center text-gray-500" colspan="8">Chưa có dữ liệu</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: Tác vụ đang thực hiện (Form 2 - từ cột Tổng tác vụ đang thực hiện) -->
+  <div id="f2-doing-modal" class="modal" aria-hidden="true" role="dialog" aria-labelledby="f2-doing-title">
+    <div class="w-full max-w-[95vw] bg-white rounded-xl border border-gray-200 shadow-xl overflow-hidden" style="width:95vw">
+      <div class="px-4 py-3 bg-gradient-to-b from-red-50 to-white border-b border-gray-200 flex items-center justify-between">
+        <h3 id="f2-doing-title" class="text-base font-semibold text-gray-800">Tác vụ đang thực hiện của <span id="f2-doing-name" class="text-primary-blue"></span></h3>
+        <button id="f2-doing-close" class="px-3 py-1 rounded-lg bg-slate-100 text-gray-800 hover:bg-slate-200 transition">Đóng</button>
+      </div>
+      <div class="p-4">
+        <div class="overflow-auto border border-gray-200 rounded-lg" style="max-height:60vh">
+          <table class="min-w-[1200px] w-full text-sm">
+            <thead class="bg-gradient-to-r from-red-100 to-red-50 sticky top-0">
+              <tr class="text-left text-gray-700">
+                <th class="px-3 py-2 min-w-[140px]">Tình trạng</th>
+                <th class="px-3 py-2 min-w-[140px]">Mã</th>
+                <th class="px-3 py-2 min-w-[260px]">Tên tác vụ</th>
+                <th class="px-3 py-2 min-w-[160px]">Người yêu cầu</th>
+                <th class="px-3 py-2 min-w-[140px]">Ngày yêu cầu</th>
+                <th class="px-3 py-2 min-w-[140px]">Hạn mong muốn</th>
+                <th class="px-3 py-2 min-w-[240px]">Note</th>
+              </tr>
+            </thead>
+            <tbody id="f2-doing-body" class="divide-y divide-gray-100">
+              <tr><td class="px-3 py-3 text-center text-gray-500" colspan="7">Chưa có dữ liệu</td></tr>
             </tbody>
           </table>
         </div>
@@ -591,16 +919,17 @@
     // Sidebar navigation
     const navBtns = document.querySelectorAll('.nav-btn');
     const formSections = document.querySelectorAll('.form-section');
-    const sections = ['testRequest', 'form1', 'form2', 'form3'].map(id=>document.getElementById(id));
+    const sections = ['testRequest', 'form1', 'form2', 'form3', 'form4', 'form5', 'form0'].map(id=>document.getElementById(id));
     function showSection(id){ 
       formSections.forEach(sec => sec.classList.add('hidden'));
-      sections.forEach(s=>s.classList.toggle('hidden', s.id!==id)); 
+      sections.forEach(s=>s.classList.toggle('hidden', s.id!==id));
+      if (id === 'form3') setF3ThoiGianGui();
       
-      // Tự động tải dữ liệu khi chuyển sang Form 3
-      if (id === 'form3') {
+      // Tự động tải dữ liệu khi chuyển sang Form 0
+      if (id === 'form0') {
         // Kiểm tra xem đã có dữ liệu chưa, nếu chưa thì tải
-        if (!F3_ALL_DATA || !F3_ALL_DATA.epics || F3_ALL_DATA.epics.length === 0) {
-          loadF3Data();
+        if (!F4_ALL_DATA || !F4_ALL_DATA.epics || F4_ALL_DATA.epics.length === 0) {
+          loadF4Data();
         }
       }
     }
@@ -616,6 +945,997 @@
     // Default
     navBtns[0].classList.add('bg-primary-blue','font-bold');
     showSection(navBtns[0].getAttribute('data-target'));
+
+    // ===== Form 3 - Gửi yêu cầu rà soát TCKT: Tải lên file Temp (Excel → JSON) =====
+    function setF3ThoiGianGui() {
+      const el = document.getElementById('f3-thoi-gian-gui');
+      if (!el) return;
+      const d = new Date();
+      const y = d.getFullYear();
+      const m = String(d.getMonth() + 1).padStart(2, '0');
+      const dd = String(d.getDate()).padStart(2, '0');
+      const h = String(d.getHours()).padStart(2, '0');
+      const min = String(d.getMinutes()).padStart(2, '0');
+      el.value = `${y}/${m}/${dd} ${h}:${min}`;
+    }
+    const F3_SUGGEST_DATA = [
+      { name: 'Đặng Văn Hải', dept: 'TKCK', email: 'haidv1@karofi.vn' },
+      { name: 'Phạm Quang Doanh', dept: 'TKĐT', email: 'doanh.pham@karofi.vn' },
+      { name: 'Đặng Thế Huy', dept: 'TKĐT', email: 'huydt@karofi.com' },
+      { name: 'Nguyễn Ngọc Quang', dept: 'TKCK', email: 'quang.nguyen1@karofi.vn' },
+      { name: 'Hoàng Thùy Linh', dept: 'NCTN', email: 'linh.hoang1@karofi.vn' },
+      { name: 'Đỗ Công Nhậm', dept: 'TKCK', email: 'nham.do@karofi.vn' },
+      { name: 'Dương Quốc Hiếu', dept: 'TKCK', email: 'hieudq1@karofi.vn' },
+      { name: 'Đào Hoàng Dương', dept: 'DQA', email: 'duong.dao@karofi.vn' },
+      { name: 'Khương Đức Tình', dept: 'NCTN', email: 'tinh.khuong@karofi.vn' },
+      { name: 'Đặng Thị Chín', dept: 'NCTN', email: 'chindt@karofi.vn' },
+      { name: 'Hoàng Văn Thành', dept: 'NCTN', email: 'thanhhv@karofi.vn' },
+      { name: 'Nguyễn Thị Thủy', dept: 'NCTN', email: 'thuynt3@karofi.vn' },
+      { name: 'Trần Văn Hoàng', dept: 'NCTN 2', email: 'hoang.tran@karofi.vn' },
+      { name: 'Nguyễn Kim Cương', dept: 'NCTN 2', email: 'cuong.nguyen6@karofi.com' },
+      { name: 'Trịnh Xuân Hạnh', dept: 'NCTN 2', email: 'hanhtx@karofi.vn' },
+      { name: 'Đỗ Xuân Huy', dept: 'NCTN 2', email: 'huydx@karofi.vn' },
+      { name: 'Giang Văn Toàn', dept: 'NCTN 2', email: 'toan.giang@karofi.vn' },
+      { name: 'Vũ Ngọc Diệp', dept: 'NCTN 2', email: 'diep.vu@karofi.vn' },
+      { name: 'Bùi Ngọc Hùng', dept: 'NCTN 2', email: 'hung.bui@karofi.vn' },
+      { name: 'Nguyễn Mạnh Quang', dept: 'NCTN 2', email: 'quang.nguyen3@karofi.vn' },
+      { name: 'Nguyễn Thế Việt', dept: 'NCTN 2', email: 'viet.nguyen@karofi.vn' }
+    ];
+    (function initF3Autocomplete() {
+      const inpName = document.getElementById('f3-nguoi-yeu-cau');
+      const inpEmail = document.getElementById('f3-email-yeu-cau');
+      const list1 = document.getElementById('f3-ac-list-1');
+      const list3 = document.getElementById('f3-ac-list-3');
+      if (!inpName || !inpEmail) return;
+      const norm = (s) => String(s || '').toLowerCase().trim();
+      const match = (q, item) => {
+        const qn = norm(q);
+        if (!qn) return true;
+        return norm(item.name).includes(qn) || norm(item.dept).includes(qn) || norm(item.email).includes(qn);
+      };
+      const hideAll = () => { [list1, list3].forEach(l => l && l.classList.remove('show')); };
+      const fillAll = (item) => {
+        inpName.value = item.name;
+        inpEmail.value = item.email;
+        hideAll();
+      };
+      const render = (listEl, items, fillFn) => {
+        if (!listEl) return;
+        listEl.innerHTML = items.slice(0, 10).map(item => {
+          const label = `${item.name} · ${item.dept} · ${item.email}`;
+          return `<div class="f3-autocomplete-item" data-name="${(item.name || '').replace(/"/g, '&quot;')}" data-dept="${(item.dept || '').replace(/"/g, '&quot;')}" data-email="${(item.email || '').replace(/"/g, '&quot;')}">${label.replace(/</g, '&lt;')}</div>`;
+        }).join('');
+        listEl.querySelectorAll('.f3-autocomplete-item').forEach(el => {
+          el.addEventListener('click', () => {
+            fillFn({ name: el.dataset.name, dept: el.dataset.dept, email: el.dataset.email });
+          });
+        });
+        listEl.classList.toggle('show', items.length > 0);
+      };
+      const setup = (inputEl, listEl, data, fillFn) => {
+        inputEl.addEventListener('focus', () => {
+          const q = inputEl.value.trim();
+          const items = data.filter(item => match(q, item));
+          render(listEl, items, fillFn);
+        });
+        inputEl.addEventListener('input', () => {
+          const q = inputEl.value.trim();
+          const items = data.filter(item => match(q, item));
+          render(listEl, items, fillFn);
+        });
+        inputEl.addEventListener('blur', () => setTimeout(hideAll, 150));
+      };
+      setup(inpName, list1, F3_SUGGEST_DATA, fillAll);
+      setup(inpEmail, list3, F3_SUGGEST_DATA, fillAll);
+      document.addEventListener('click', (e) => {
+        if (!e.target.closest('.f3-autocomplete-wrap')) hideAll();
+      });
+    })();
+    let F3_TEMP_JSON = null;
+    let F3_TEMP_FILE = null;
+    const F3_OUTPUT_FIELDS = [
+      { key: 'Code_1', excelKeys: ['Code_1', 'Code', 'code_1', 'code'] },
+      { key: 'Name 1', excelKeys: ['Name 1', 'Name1', 'name 1', 'name1'] },
+      { key: 'Index', excelKeys: ['Index', 'index'] },
+      { key: 'Standard', excelKeys: ['Standard', 'standard'] },
+      { key: 'Tool', excelKeys: ['Tool', 'tool'] },
+      { key: 'Type', excelKeys: ['Type', 'type'] },
+      { key: 'Document', excelKeys: ['Document', 'document'] },
+      { key: 'Available', excelKeys: ['Available', 'available'] }
+    ];
+    function extractF3Fields(row) {
+      const norm = (k) => String(k || '').trim().toLowerCase().replace(/\s+/g, '');
+      const keyMap = {};
+      Object.keys(row || {}).forEach(k => { keyMap[norm(k)] = k; });
+      const out = {};
+      F3_OUTPUT_FIELDS.forEach(({ key, excelKeys }) => {
+        let val = '';
+        for (const ek of excelKeys) {
+          const orig = keyMap[norm(ek)];
+          if (orig !== undefined) { val = row[orig] ?? ''; break; }
+        }
+        out[key] = val === null || val === undefined ? '' : String(val).trim();
+      });
+      return out;
+    }
+    const f3TempUploadBtn = document.getElementById('f3-temp-upload-btn');
+    const f3TempFileInput = document.getElementById('f3-temp-file');
+    const f3TempFileName = document.getElementById('f3-temp-file-name');
+    if (f3TempUploadBtn && f3TempFileInput) {
+      f3TempUploadBtn.addEventListener('click', () => f3TempFileInput.click());
+      f3TempFileInput.addEventListener('change', (e) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+        F3_TEMP_FILE = file;
+        f3TempFileName.textContent = file.name;
+        const reader = new FileReader();
+        reader.onload = (ev) => {
+          try {
+            const data = new Uint8Array(ev.target.result);
+            const workbook = XLSX.read(data, { type: 'array' });
+            const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
+            const raw = XLSX.utils.sheet_to_json(firstSheet, { defval: '', blankrows: true });
+            const rows = raw.map(extractF3Fields);
+            const KEY_FIELD = 'Code_1';
+            const groupsMap = new Map();
+            for (const r of rows) {
+              const key = String(r?.[KEY_FIELD] ?? '').trim() || '__NO_CODE__';
+              if (!groupsMap.has(key)) groupsMap.set(key, []);
+              groupsMap.get(key).push(r);
+            }
+            F3_TEMP_JSON = Array.from(groupsMap.entries())
+              .sort((a, b) => a[0].localeCompare(b[0]))
+              .map(([code, items]) => ({
+                code,
+                name: items[0]?.['Name 1'] ?? items[0]?.['Name'] ?? '',
+                count: items.length,
+                items,
+              }));
+            console.log('[Form 3] Excel → JSON (grouped):', F3_TEMP_JSON);
+            const content = document.getElementById('f3-table-content');
+            const preview = document.getElementById('f3-table-preview');
+            const headers = ['Code_1', 'Name 1', 'Index', 'Standard', 'Tool', 'Type', 'Document', 'Available'];
+            if (content && preview) {
+              preview.classList.remove('border-red-300');
+              let html = '';
+              html += `<div class="border border-gray-200 rounded-lg overflow-hidden mb-6">
+                <div class="px-3 py-2 bg-gray-100 border-b border-gray-200 text-sm font-semibold text-gray-800">
+                  Tóm tắt · ${F3_TEMP_JSON.length} nhóm
+                </div>
+                <div class="overflow-x-auto">
+                  <table class="min-w-full text-sm border-collapse table-zebra">
+                    <thead class="bg-gradient-to-r from-red-100 to-red-50"><tr>
+                      <th class="px-3 py-2 text-left border border-gray-200">Code_1</th>
+                      <th class="px-3 py-2 text-left border border-gray-200">Name 1</th>
+                      <th class="px-3 py-2 text-left border border-gray-200">Số dòng</th>
+                      <th class="px-3 py-2 text-left border border-gray-200">Số lỗi</th>
+                    </tr></thead><tbody>`;
+              F3_TEMP_JSON.forEach(group => {
+                const items = group.items || [];
+                const nameCounts = new Map();
+                const orderOfFirstOccurrence = [];
+                items.forEach(row => {
+                  const n = String(row['Name 1'] ?? '').trim();
+                  if (!nameCounts.has(n)) orderOfFirstOccurrence.push(n);
+                  nameCounts.set(n, (nameCounts.get(n) || 0) + 1);
+                });
+                const maxCount = nameCounts.size ? Math.max(...Array.from(nameCounts.values())) : 0;
+                const namesWithMaxCount = orderOfFirstOccurrence.filter(n => nameCounts.get(n) === maxCount);
+                const namesToHighlight = new Set();
+                orderOfFirstOccurrence.forEach(n => {
+                  if (nameCounts.get(n) < maxCount) namesToHighlight.add(n);
+                  else if (namesWithMaxCount.length > 1 && namesWithMaxCount[1] === n) namesToHighlight.add(n);
+                });
+                const summaryName = String(group.name || '').trim();
+                const isSummaryMinority = namesToHighlight.has(summaryName);
+                const nameTdClass = isSummaryMinority ? 'px-3 py-2 border border-gray-200 bg-yellow-200' : 'px-3 py-2 border border-gray-200';
+                const errorCount = items.filter(row => namesToHighlight.has(String(row['Name 1'] ?? '').trim())).length;
+                html += `<tr>
+                  <td class="px-3 py-2 border border-gray-200">${(group.code === '__NO_CODE__' ? '(Không có Code)' : group.code).replace(/</g, '&lt;')}</td>
+                  <td class="${nameTdClass}">${String(group.name || '').replace(/</g, '&lt;')}</td>
+                  <td class="px-3 py-2 border border-gray-200 font-semibold">${group.count}</td>
+                  <td class="px-3 py-2 border border-gray-200 font-semibold">${errorCount}</td>
+                </tr>`;
+              });
+              html += '</tbody></table></div></div>';
+              F3_TEMP_JSON.forEach((group, gi) => {
+                const items = group.items || [];
+                const nameCounts = new Map();
+                const orderOfFirstOccurrence = [];
+                items.forEach(row => {
+                  const n = String(row['Name 1'] ?? '').trim();
+                  if (!nameCounts.has(n)) orderOfFirstOccurrence.push(n);
+                  nameCounts.set(n, (nameCounts.get(n) || 0) + 1);
+                });
+                const maxCount = nameCounts.size ? Math.max(...Array.from(nameCounts.values())) : 0;
+                const namesWithMaxCount = orderOfFirstOccurrence.filter(n => nameCounts.get(n) === maxCount);
+                const namesToHighlight = new Set();
+                orderOfFirstOccurrence.forEach(n => {
+                  if (nameCounts.get(n) < maxCount) namesToHighlight.add(n);
+                  else if (namesWithMaxCount.length > 1 && namesWithMaxCount[1] === n) namesToHighlight.add(n);
+                });
+                html += `<div class="border border-gray-200 rounded-lg overflow-hidden">
+                  <div class="px-3 py-2 bg-red-50 border-b border-red-200 text-sm font-semibold text-red-800">
+                    ${group.code === '__NO_CODE__' ? '(Không có Code)' : group.code} · ${group.name || '(Không có tên)'} · ${group.count} dòng
+                  </div>
+                  <div class="overflow-x-auto">
+                    <table class="min-w-full text-sm border-collapse table-zebra">
+                      <thead class="bg-gradient-to-r from-red-100 to-red-50"><tr>`;
+                headers.forEach(h => { html += `<th class="px-3 py-2 text-left border border-gray-200">${h}</th>`; });
+                html += `</tr></thead><tbody>`;
+                items.forEach(row => {
+                  html += '<tr>';
+                  const name1Val = String(row['Name 1'] ?? '').trim();
+                  const isMinority = namesToHighlight.has(name1Val);
+                  headers.forEach(h => {
+                    const val = String(row[h] ?? '').replace(/</g, '&lt;');
+                    const tdClass = (h === 'Name 1' && isMinority) ? 'px-3 py-2 border border-gray-200 bg-yellow-200' : 'px-3 py-2 border border-gray-200';
+                    html += `<td class="${tdClass}">${val}</td>`;
+                  });
+                  html += '</tr>';
+                });
+                html += '</tbody></table></div></div>';
+              });
+              content.innerHTML = html || '<p class="text-gray-500">Không có dữ liệu.</p>';
+            }
+            if (typeof showToast === 'function') {
+              showToast(`Đã chuyển ${rows.length} dòng → ${F3_TEMP_JSON.length} nhóm.`, 'success');
+            } else {
+              alert(`Đã chuyển ${rows.length} dòng → ${F3_TEMP_JSON.length} nhóm.`);
+            }
+          } catch (err) {
+            console.error('[Form 3] Lỗi đọc Excel:', err);
+            F3_TEMP_JSON = null;
+            const content = document.getElementById('f3-table-content');
+            const preview = document.getElementById('f3-table-preview');
+            if (content && preview) {
+              preview.classList.add('border-red-300');
+              content.innerHTML = '<p class="p-4 text-red-600 font-medium">Lỗi đọc file Excel: ' + String(err.message || err).replace(/</g, '&lt;') + '</p>';
+            }
+            if (typeof showToast === 'function') showToast('Lỗi đọc file Excel.', 'error');
+            else alert('Lỗi đọc file Excel.');
+          }
+        };
+        reader.readAsArrayBuffer(file);
+        e.target.value = '';
+      });
+    }
+
+    // Form 3: Người nhận → Email người nhận (tự động điền)
+    (function initF3EmailNguoiNhan() {
+      const sel = document.getElementById('f3-nguoi-nhan');
+      const inpEmail = document.getElementById('f3-email-nguoi-nhan');
+      if (!sel || !inpEmail) return;
+      const updateEmail = () => {
+        const opt = sel.selectedOptions?.[0];
+        inpEmail.value = opt?.dataset?.email || '';
+      };
+      sel.addEventListener('change', updateEmail);
+      updateEmail();
+    })();
+
+    // Form 3: Gửi yêu cầu rà soát TCKT
+    const F3_WEBHOOK_URL = 'https://iatzhxxuk.tino.page/webhook/RasoatTCKT';
+    const F4R_WEBHOOK_URL = 'https://iatzhxxuk.tino.page/webhook/RasoatTCKT';
+    const F4R_PHAN_HOI_WEBHOOK_URL = 'https://iatzhxxuk.tino.page/webhook/Phanhoiykienrasoat';
+
+    // Form 4: Badge cho cột Tình trạng (viên thuốc)
+    function getF4RStatusBadge(val) {
+      if (!val || !String(val).trim()) return '-';
+      const v = String(val).trim().toLowerCase();
+      const base = 'inline-block rounded-full px-3 py-1 text-xs font-medium whitespace-nowrap';
+      if (v.includes('đang rà soát') || v.includes('dang ra soat')) return `<span class="${base} bg-blue-100 text-blue-800 border border-blue-200">Đang rà soát</span>`;
+      if (v.includes('đã phản hồi') || v.includes('da phan hoi')) return `<span class="${base} bg-purple-100 text-purple-800 border border-purple-200">Đã phản hồi</span>`;
+      if (v.includes('đang trao đổi') || v.includes('dang trao doi')) return `<span class="${base} bg-yellow-100 text-yellow-800 border border-yellow-200">Đang trao đổi lại</span>`;
+      if (v.includes('hoàn thành') || v.includes('hoan thanh')) return `<span class="${base} bg-green-100 text-green-800 border border-green-200">Hoàn thành</span>`;
+      return `<span class="${base} bg-gray-100 text-gray-700 border border-gray-200">${String(val).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')}</span>`;
+    }
+
+    // Form 4: Tải dữ liệu rà soát TCKT từ webhook
+    let F4R_DATA = [];
+    function getNgayGuiVal(row) {
+      const v = row['Ngày gửi'] ?? row.ngayGui ?? row.thoiGianGui ?? '';
+      const d = new Date(String(v).replace(/\//g, '-'));
+      return isNaN(d.getTime()) ? null : d;
+    }
+    function getNguoiGuiVal(row) {
+      return String(row['Người gửi'] ?? row.nguoiYeuCau ?? row.nguoi_yeu_cau ?? '').trim();
+    }
+    function renderF4RTable(data) {
+      const tbody = document.getElementById('f4r-table-body');
+      if (!tbody) return;
+      if (!data || data.length === 0) {
+        tbody.innerHTML = '<tr><td class="px-3 py-3 text-center text-gray-500" colspan="12">Không có dữ liệu</td></tr>';
+        return;
+      }
+      const esc = (s) => String(s ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+      const parseNgayGui = (row) => { const d = getNgayGuiVal(row); return d ? d.getTime() : 0; };
+      const sorted = [...data].sort((a, b) => parseNgayGui(b) - parseNgayGui(a));
+      tbody.innerHTML = sorted.map(row => {
+        const id = esc(row.Id ?? row.id ?? '');
+        const ngayGui = esc(row['Ngày gửi'] ?? row.ngayGui ?? row.thoiGianGui ?? '');
+        const nguoiGui = esc(row['Người gửi'] ?? row.nguoiYeuCau ?? row.nguoi_yeu_cau ?? '');
+        const nguoiNhan = esc(row['Người nhận rà soát'] ?? row.nguoiNhanRasoat ?? row.nguoi_nhan_rasoat ?? '');
+        const fileUrl = (row['File ban đầu'] ?? row.fileBanDau ?? row.fileName ?? '').trim();
+        const fileCell = fileUrl ? `<a href="${esc(fileUrl)}" target="_blank" rel="noopener" class="text-primary-blue hover:underline">Xem file</a>` : '-';
+        const ngayTra = esc(row['Ngày trả'] ?? row.ngayTra ?? '');
+        const linhKien = esc(row['Linh kiện rà soát'] ?? row.linhKienRasoat ?? row.data ?? '').replace(/\n/g, '<br>');
+        const jiraUrl = (row['Link Jira'] ?? row.linkJira ?? '').trim();
+        const jiraCell = jiraUrl ? `<a href="${esc(jiraUrl)}" target="_blank" rel="noopener" class="text-primary-blue hover:underline">Nhấn để mở</a>` : '-';
+        const filePhanHoiUrl = (row['File phản hồi'] ?? row.filePhanHoi ?? '').trim();
+        const filePhanHoiCell = filePhanHoiUrl ? `<a href="${esc(filePhanHoiUrl)}" target="_blank" rel="noopener" class="text-primary-blue hover:underline">Xem file</a>` : '-';
+        const tinhTrangRaw = row['Tình trạng'] ?? row.tinhTrang ?? '';
+        const tinhTrangCell = getF4RStatusBadge(tinhTrangRaw);
+        const ghiChu = String(row['Ghi chú'] ?? row.ghiChu ?? row.note ?? '').trim();
+        const ghiChuCell = ghiChu ? `<span class="text-sm text-gray-700 whitespace-pre-wrap break-words block">${esc(ghiChu).replace(/\n/g, '<br>')}</span>` : '-';
+        const tyLeCell = `<button type="button" class="f4r-ty-le-btn px-2 py-1 text-xs rounded border border-gray-300 text-gray-600 hover:bg-gray-50" data-f4r-id="${id}">Xem</button>`;
+        const phanHoiCell = `<button type="button" class="f4r-phan-hoi-btn px-2 py-1 text-xs rounded border border-blue-300 text-blue-700 bg-blue-50 hover:bg-blue-100" data-f4r-id="${id}" data-f4r-tinh-trang="${esc(tinhTrangRaw)}">Ý kiến</button>`;
+        return `<tr><td class="px-3 py-2 text-sm">${linhKien || '-'}</td><td class="px-3 py-2">${tinhTrangCell}</td><td class="px-3 py-2">${ngayGui}</td><td class="px-3 py-2">${ngayTra || '-'}</td><td class="px-3 py-2">${nguoiGui}</td><td class="px-3 py-2">${nguoiNhan}</td><td class="px-3 py-2">${fileCell}</td><td class="px-3 py-2">${filePhanHoiCell}</td><td class="px-3 py-2">${jiraCell}</td><td class="px-3 py-2">${ghiChuCell}</td><td class="px-3 py-2">${tyLeCell}</td><td class="px-3 py-2">${phanHoiCell}</td></tr>`;
+      }).join('');
+    }
+    function populateF4RFilters() {
+      const selNguoi = document.getElementById('f4r-filter-nguoi-gui');
+      const selThang = document.getElementById('f4r-filter-thang');
+      if (!selNguoi || !selThang) return;
+      const curNguoi = selNguoi.value;
+      const curThang = selThang.value;
+      const nguoiSet = new Set();
+      const thangSet = new Map();
+      F4R_DATA.forEach(row => {
+        const n = getNguoiGuiVal(row);
+        if (n) nguoiSet.add(n);
+        const d = getNgayGuiVal(row);
+        if (d) {
+          const key = `${String(d.getMonth() + 1).padStart(2, '0')}/${d.getFullYear()}`;
+          const label = `Tháng ${d.getMonth() + 1}/${d.getFullYear()}`;
+          if (!thangSet.has(key)) thangSet.set(key, label);
+        }
+      });
+      const escOpt = (s) => String(s ?? '').replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+      selNguoi.innerHTML = '<option value="">Tất cả</option>' + [...nguoiSet].sort().map(n => `<option value="${escOpt(n)}">${escOpt(n)}</option>`).join('');
+      selThang.innerHTML = '<option value="">Tất cả</option>' + [...thangSet.entries()].sort((a, b) => b[0].localeCompare(a[0])).map(([k, v]) => `<option value="${k}">${v}</option>`).join('');
+      if (curNguoi) selNguoi.value = curNguoi;
+      if (curThang) selThang.value = curThang;
+    }
+    function applyF4RFilters() {
+      const nguoi = (document.getElementById('f4r-filter-nguoi-gui')?.value || '').trim();
+      const thang = (document.getElementById('f4r-filter-thang')?.value || '').trim();
+      let filtered = F4R_DATA;
+      if (nguoi) filtered = filtered.filter(row => getNguoiGuiVal(row) === nguoi);
+      if (thang) {
+        const [m, y] = thang.split('/').map(Number);
+        filtered = filtered.filter(row => {
+          const d = getNgayGuiVal(row);
+          return d && d.getMonth() + 1 === m && d.getFullYear() === y;
+        });
+      }
+      renderF4RTable(filtered);
+    }
+    async function loadF4RasoatData() {
+      const loadingDiv = document.getElementById('f4r-loading');
+      const loadBtn = document.getElementById('f4r-load-btn');
+      const tbody = document.getElementById('f4r-table-body');
+      try {
+        if (loadingDiv) loadingDiv.classList.remove('hidden');
+        if (loadBtn) loadBtn.disabled = true;
+        if (tbody) tbody.innerHTML = '<tr><td class="px-3 py-3 text-center text-gray-500" colspan="12">Đang tải...</td></tr>';
+        const resp = await fetch(F4R_WEBHOOK_URL, { method: 'GET', headers: { 'Accept': 'application/json' } });
+        if (!resp.ok) throw new Error('HTTP ' + resp.status);
+        const raw = await resp.text();
+        let data = [];
+        try {
+          const parsed = JSON.parse(raw);
+          if (Array.isArray(parsed)) data = parsed;
+          else if (parsed && Array.isArray(parsed.records)) data = parsed.records;
+          else if (parsed && Array.isArray(parsed.data)) data = parsed.data;
+          else if (parsed && typeof parsed === 'object') data = [parsed];
+        } catch (_) { data = []; }
+        F4R_DATA = data;
+        if (!tbody) return;
+        if (data.length === 0) {
+          tbody.innerHTML = '<tr><td class="px-3 py-3 text-center text-gray-500" colspan="12">Không có dữ liệu</td></tr>';
+          if (typeof showToast === 'function') showToast('Không có dữ liệu rà soát.', 'info');
+          populateF4RFilters();
+        } else {
+          populateF4RFilters();
+          applyF4RFilters();
+          if (typeof showToast === 'function') showToast(`Đã tải ${data.length} yêu cầu rà soát.`, 'success');
+        }
+      } catch (err) {
+        console.error('[Form 4] Lỗi tải dữ liệu rà soát:', err);
+        if (tbody) tbody.innerHTML = `<tr><td class="px-3 py-3 text-center text-red-500" colspan="12">Lỗi: ${String(err.message || err).replace(/</g, '&lt;')}</td></tr>`;
+        if (typeof showToast === 'function') showToast('Lỗi tải dữ liệu: ' + (err.message || err), 'error');
+      } finally {
+        if (loadingDiv) loadingDiv.classList.add('hidden');
+        if (loadBtn) loadBtn.disabled = false;
+      }
+    }
+    const f4rLoadBtn = document.getElementById('f4r-load-btn');
+    if (f4rLoadBtn) f4rLoadBtn.addEventListener('click', loadF4RasoatData);
+    document.getElementById('f4r-filter-nguoi-gui')?.addEventListener('change', applyF4RFilters);
+    document.getElementById('f4r-filter-thang')?.addEventListener('change', applyF4RFilters);
+
+    // ===== Form 5 - KPI Thống kê rà soát (copy từ Form 3 Cổng 2) =====
+    const F5_WEBHOOK_URL = 'https://iatzhxxuk.tino.page/webhook/thongkerasoattcktNCTN2';
+    let F5_DATA = { kpi_monthly_sender_totals: [], kpi_monthly_sender: [] };
+
+    function f5Esc(s) { return String(s ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;'); }
+    function f5FmtHours(v) { const n = Number(v); return isNaN(n) ? '-' : n.toFixed(2); }
+    function f5FmtNum(v) { const n = Number(v); return isNaN(n) ? '-' : String(n); }
+
+    function f5GetChangeRateBadge(percentStr, rateNum) {
+      const r = rateNum != null ? Number(rateNum) : NaN;
+      let cls = 'bg-gray-100 text-gray-700 border-gray-200';
+      if (!isNaN(r)) {
+        if (r < 0.05) cls = 'bg-green-50 text-green-700 border-green-200';
+        else if (r <= 0.10) cls = 'bg-yellow-50 text-yellow-700 border-yellow-200';
+        else cls = 'bg-orange-50 text-orange-700 border-orange-200';
+      }
+      return `<span class="inline-flex px-2 py-0.5 rounded text-xs font-medium border ${cls}">${f5Esc(percentStr || '-')}</span>`;
+    }
+
+    function f5PopulateMonthFilter() {
+      const sel = document.getElementById('f5-filter-month');
+      if (!sel) return;
+      const totals = F5_DATA.kpi_monthly_sender_totals || [];
+      const months = [...new Set(totals.map(t => t.month).filter(Boolean))].sort().reverse();
+      const cur = sel.value;
+      sel.innerHTML = '<option value="">Chọn tháng</option>' + months.map(m => `<option value="${f5Esc(m)}">${f5Esc(m)}</option>`).join('');
+      sel.value = cur || (months[0] || '');
+    }
+
+    function f5RenderKpiCards() {
+      const container = document.getElementById('f5-kpi-cards');
+      if (!container) return;
+      const month = document.getElementById('f5-filter-month')?.value || '';
+      const totals = (F5_DATA.kpi_monthly_sender_totals || []).find(t => t.month === month);
+      if (!totals) {
+        container.innerHTML = '<div class="col-span-6 text-gray-500 text-sm py-4">Chưa có dữ liệu cho tháng đã chọn.</div>';
+        return;
+      }
+      const cards = [
+        { label: 'Tổng yêu cầu', value: totals.total_requests, icon: 'assignment' },
+        { label: 'Tổng giờ', value: f5FmtHours(totals.total_hours), icon: 'schedule' },
+        { label: 'Linh kiện', value: totals.total_components, icon: 'widgets' },
+        { label: 'Hạng mục gốc', value: totals.total_base_items, icon: 'inventory' },
+        { label: 'Hạng mục thay đổi', value: totals.total_changed_items, icon: 'edit_note' },
+        { label: 'Tỷ lệ thay đổi', value: totals.change_rate_overall_percent || '-', icon: 'trending_up' }
+      ];
+      container.innerHTML = cards.map(c => `
+        <div class="bg-white border border-gray-200 rounded-lg p-3 shadow-sm">
+          <div class="flex items-center gap-1 text-gray-500 text-xs mb-0.5">
+            <span class="material-icons text-sm">${c.icon}</span>
+            <span>${f5Esc(c.label)}</span>
+          </div>
+          <div class="text-lg font-bold text-gray-900">${f5Esc(c.value)}</div>
+        </div>
+      `).join('');
+    }
+
+    function f5RenderTable() {
+      const tbody = document.getElementById('f5-table-body');
+      if (!tbody) return;
+      const month = document.getElementById('f5-filter-month')?.value || '';
+      const rows = (F5_DATA.kpi_monthly_sender || []).filter(r => r.month === month).sort((a, b) => (Number(b.total_requests) || 0) - (Number(a.total_requests) || 0));
+      if (rows.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="7" class="px-3 py-6 text-center text-gray-500">Chưa có dữ liệu. Chọn tháng và tải dữ liệu.</td></tr>';
+        return;
+      }
+      tbody.innerHTML = rows.map(r => {
+        const senderName = r.sender || r.sender_name || r.nguoi_gui || '';
+        const senderEmail = r.sender_email || r.senderEmail || r.nguoi_gui_email || '';
+        const jiraKeys = Array.isArray(r.jira_keys) ? r.jira_keys.join(', ') : (r.jira_keys || '');
+        return `
+        <tr class="border-b border-gray-100 hover:bg-red-50">
+          <td class="px-3 py-2">
+            <div class="font-medium text-gray-800">${f5Esc(senderName)}</div>
+            <div class="text-xs text-gray-500">${f5Esc(senderEmail)}</div>
+          </td>
+          <td class="px-3 py-2 text-right">${f5FmtNum(r.total_requests)}</td>
+          <td class="px-3 py-2 text-right">${f5FmtNum(r.total_components)}</td>
+          <td class="px-3 py-2 text-right">${f5FmtNum(r.total_base_items)}</td>
+          <td class="px-3 py-2 text-right">${f5FmtNum(r.total_changed_items)}</td>
+          <td class="px-3 py-2 text-right">${f5GetChangeRateBadge(r.change_rate_overall_percent, r.change_rate_overall)}</td>
+          <td class="px-3 py-2 text-left text-xs">${f5Esc(jiraKeys)}</td>
+        </tr>
+      `;
+      }).join('');
+    }
+
+    function f5RenderAll() {
+      f5RenderKpiCards();
+      f5RenderTable();
+    }
+
+    async function loadF5ThongKeData() {
+      const loadingDiv = document.getElementById('f5-loading');
+      const loadBtn = document.getElementById('f5-load-btn');
+      try {
+        if (loadingDiv) loadingDiv.classList.remove('hidden');
+        if (loadBtn) loadBtn.disabled = true;
+        const resp = await fetch(F5_WEBHOOK_URL, { method: 'GET', headers: { 'Accept': 'application/json' } });
+        if (!resp.ok) throw new Error('HTTP ' + resp.status);
+        let raw = await resp.text();
+        let parsed = {};
+        try {
+          const json = JSON.parse(raw);
+          if (Array.isArray(json) && json.length > 0) parsed = json[0];
+          else if (json && typeof json === 'object') parsed = json;
+        } catch (_) { throw new Error('Invalid JSON'); }
+        F5_DATA = {
+          kpi_monthly_sender_totals: Array.isArray(parsed.kpi_monthly_sender_totals) ? parsed.kpi_monthly_sender_totals : [],
+          kpi_monthly_sender: Array.isArray(parsed.kpi_monthly_sender) ? parsed.kpi_monthly_sender : []
+        };
+        f5PopulateMonthFilter();
+        f5RenderAll();
+        if (typeof showToast === 'function') showToast('Đã tải dữ liệu KPI.', 'success');
+      } catch (err) {
+        console.error('[Form 5] Lỗi tải KPI:', err);
+        if (typeof showToast === 'function') showToast('Lỗi: ' + (err.message || err), 'error');
+        F5_DATA = { kpi_monthly_sender_totals: [], kpi_monthly_sender: [] };
+        f5RenderAll();
+      } finally {
+        if (loadingDiv) loadingDiv.classList.add('hidden');
+        if (loadBtn) loadBtn.disabled = false;
+      }
+    }
+
+    const f5LoadBtn = document.getElementById('f5-load-btn');
+    if (f5LoadBtn) f5LoadBtn.addEventListener('click', loadF5ThongKeData);
+    document.getElementById('f5-filter-month')?.addEventListener('change', f5RenderAll);
+
+    // Form 4: Modal Phản hồi / Ý kiến
+    let F4R_PHAN_HOI_ROW_ID = null;
+    const f4rPhanHoiModal = document.getElementById('f4r-phan-hoi-modal');
+    const f4rPhanHoiModalClose = document.getElementById('f4r-phan-hoi-modal-close');
+    function switchF4RPhanHoiTab(tabName) {
+      const tabTraoDoi = document.getElementById('f4r-tab-trao-doi');
+      const tabHuy = document.getElementById('f4r-tab-huy');
+      const panelTraoDoi = document.getElementById('f4r-panel-trao-doi');
+      const panelHuy = document.getElementById('f4r-panel-huy');
+      if (tabName === 'trao-doi') {
+        tabTraoDoi?.classList.add('tab-active');
+        tabHuy?.classList.remove('tab-active');
+        panelTraoDoi?.classList.remove('hidden');
+        panelHuy?.classList.add('hidden');
+      } else {
+        tabTraoDoi?.classList.remove('tab-active');
+        tabHuy?.classList.add('tab-active');
+        panelTraoDoi?.classList.add('hidden');
+        panelHuy?.classList.remove('hidden');
+      }
+    }
+    function isF4RDisableTabHuy(tinhTrang) {
+      const v = String(tinhTrang ?? '').trim().toLowerCase();
+      return v.includes('hoàn thành') || v.includes('hoan thanh')
+        || v.includes('đang trao đổi') || v.includes('dang trao doi');
+    }
+    function openF4RPhanHoiModal(rowId, tinhTrang) {
+      F4R_PHAN_HOI_ROW_ID = rowId;
+      const span = document.getElementById('f4r-phan-hoi-modal-id');
+      if (span) span.textContent = '(Id: ' + rowId + ')';
+      document.getElementById('f4r-ghichu-trao-doi').value = '';
+      document.getElementById('f4r-ghichu-huy').value = '';
+      switchF4RPhanHoiTab('trao-doi');
+      const tabHuy = document.getElementById('f4r-tab-huy');
+      if (tabHuy) {
+        if (isF4RDisableTabHuy(tinhTrang)) {
+          tabHuy.classList.add('hidden');
+          tabHuy.setAttribute('aria-disabled', 'true');
+        } else {
+          tabHuy.classList.remove('hidden');
+          tabHuy.removeAttribute('aria-disabled');
+        }
+      }
+      if (f4rPhanHoiModal) f4rPhanHoiModal.classList.add('open');
+    }
+    function closeF4RPhanHoiModal() {
+      F4R_PHAN_HOI_ROW_ID = null;
+      if (f4rPhanHoiModal) f4rPhanHoiModal.classList.remove('open');
+    }
+    if (f4rPhanHoiModalClose) f4rPhanHoiModalClose.addEventListener('click', closeF4RPhanHoiModal);
+    document.getElementById('f4r-tab-trao-doi')?.addEventListener('click', () => switchF4RPhanHoiTab('trao-doi'));
+    document.getElementById('f4r-tab-huy')?.addEventListener('click', () => {
+      const tabHuy = document.getElementById('f4r-tab-huy');
+      if (tabHuy?.classList.contains('hidden')) return;
+      switchF4RPhanHoiTab('huy');
+    });
+    f4rPhanHoiModal?.addEventListener('click', (e) => { if (e.target === f4rPhanHoiModal) closeF4RPhanHoiModal(); });
+    document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && f4rPhanHoiModal?.classList.contains('open')) closeF4RPhanHoiModal(); });
+    function f4rEsc(s) { return String(s ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;'); }
+    function f4rRenderAdded(items) {
+      if (!items || items.length === 0) return '';
+      return `<div class="bg-white border border-green-300 rounded-lg overflow-hidden shadow-sm">
+        <div class="bg-gradient-to-r from-green-500 to-green-600 px-4 py-3">
+          <h5 class="text-white font-semibold text-base">Thêm mới (${items.length} mục)</h5>
+        </div>
+        <div class="overflow-auto"><table class="min-w-full text-sm">
+          <thead class="bg-green-50"><tr>
+            <th class="px-4 py-2 border border-green-200 text-center font-semibold text-green-800">#</th>
+            <th class="px-4 py-2 border border-green-200 font-semibold text-green-800">Chỉ tiêu</th>
+            <th class="px-4 py-2 border border-green-200 font-semibold text-green-800">Tiêu chuẩn</th>
+            <th class="px-4 py-2 border border-green-200 font-semibold text-green-800">Dụng cụ</th>
+            <th class="px-4 py-2 border border-green-200 font-semibold text-green-800">Loại</th>
+            <th class="px-4 py-2 border border-green-200 font-semibold text-green-800">Tài liệu</th>
+          </tr></thead>
+          <tbody>${items.map((item, i) => `<tr class="hover:bg-green-50"><td class="px-4 py-3 border border-green-200 text-center">${i + 1}</td><td class="px-4 py-3 border border-green-200 font-medium">${f4rEsc(item.index || '')}</td><td class="px-4 py-3 border border-green-200">${f4rEsc(item.standard || '')}</td><td class="px-4 py-3 border border-green-200">${f4rEsc(item.tool || '')}</td><td class="px-4 py-3 border border-green-200 text-center"><span class="px-2 py-1 bg-blue-100 text-blue-700 rounded text-xs">${f4rEsc(item.type || '')}</span></td><td class="px-4 py-3 border border-green-200 text-xs">${f4rEsc(item.document || '')}</td></tr>`).join('')}
+          </tbody></table></div></div>`;
+    }
+    function f4rRenderRemoved(items) {
+      if (!items || items.length === 0) return '';
+      return `<div class="bg-white border border-red-300 rounded-lg overflow-hidden shadow-sm">
+        <div class="bg-gradient-to-r from-red-500 to-red-600 px-4 py-3">
+          <h5 class="text-white font-semibold text-base">Bị xóa (${items.length} mục)</h5>
+        </div>
+        <div class="overflow-auto"><table class="min-w-full text-sm">
+          <thead class="bg-red-50"><tr>
+            <th class="px-4 py-2 border border-red-200 text-center font-semibold text-red-800">#</th>
+            <th class="px-4 py-2 border border-red-200 font-semibold text-red-800">Chỉ tiêu</th>
+            <th class="px-4 py-2 border border-red-200 font-semibold text-red-800">Tiêu chuẩn</th>
+            <th class="px-4 py-2 border border-red-200 font-semibold text-red-800">Dụng cụ</th>
+            <th class="px-4 py-2 border border-red-200 font-semibold text-red-800">Loại</th>
+            <th class="px-4 py-2 border border-red-200 font-semibold text-red-800">Tài liệu</th>
+          </tr></thead>
+          <tbody>${items.map((item, i) => `<tr class="hover:bg-red-50"><td class="px-4 py-3 border border-red-200 text-center">${i + 1}</td><td class="px-4 py-3 border border-red-200 font-medium">${f4rEsc(item.index || '')}</td><td class="px-4 py-3 border border-red-200">${f4rEsc(item.standard || '')}</td><td class="px-4 py-3 border border-red-200">${f4rEsc(item.tool || '')}</td><td class="px-4 py-3 border border-red-200 text-center"><span class="px-2 py-1 bg-blue-100 text-blue-700 rounded text-xs">${f4rEsc(item.type || '')}</span></td><td class="px-4 py-3 border border-red-200 text-xs">${f4rEsc(item.document || '')}</td></tr>`).join('')}
+          </tbody></table></div></div>`;
+    }
+    function f4rRenderChanged(items) {
+      if (!items || items.length === 0) return '';
+      return `<div class="bg-white border border-yellow-300 rounded-lg overflow-hidden shadow-sm">
+        <div class="bg-gradient-to-r from-yellow-500 to-yellow-600 px-4 py-3">
+          <h5 class="text-white font-semibold text-base">Thay đổi (${items.length} mục)</h5>
+        </div>
+        <div class="p-4 space-y-4">${items.map((item, i) => {
+          const before = item.before || {}; const after = item.after || {};
+          const stdChg = before.standard !== after.standard; const docChg = before.document !== after.document;
+          return `<div class="border border-yellow-200 rounded-lg overflow-hidden bg-gradient-to-br from-yellow-50 to-white">
+            <div class="bg-yellow-100 px-4 py-2 border-b border-yellow-200">
+              <span class="px-2 py-1 bg-yellow-500 text-white text-xs font-semibold rounded">#${i + 1}</span>
+              <span class="font-semibold text-yellow-900 text-sm ml-2">${f4rEsc(item.index || '')}</span>
+            </div>
+            <div class="overflow-auto"><table class="min-w-full text-sm">
+              <thead class="bg-yellow-50"><tr>
+                <th class="px-4 py-2 border border-yellow-200 font-semibold text-yellow-900 w-1/6">Trường</th>
+                <th class="px-4 py-2 border border-yellow-200 font-semibold text-red-700 w-5/12">Trước (Before)</th>
+                <th class="px-4 py-2 border border-yellow-200 font-semibold text-green-700 w-5/12">Sau (After)</th>
+              </tr></thead>
+              <tbody>
+                <tr><td class="px-4 py-3 border border-yellow-200 font-medium bg-gray-50">Tiêu chuẩn</td><td class="px-4 py-3 border border-yellow-200 ${stdChg ? 'bg-red-50 font-medium text-red-800' : ''}">${f4rEsc(before.standard || '')}</td><td class="px-4 py-3 border border-yellow-200 ${stdChg ? 'bg-green-50 font-medium text-green-800' : ''}">${f4rEsc(after.standard || '')}</td></tr>
+                <tr><td class="px-4 py-3 border border-yellow-200 font-medium bg-gray-50">Dụng cụ</td><td class="px-4 py-3 border border-yellow-200">${f4rEsc(before.tool || '')}</td><td class="px-4 py-3 border border-yellow-200">${f4rEsc(after.tool || '')}</td></tr>
+                <tr><td class="px-4 py-3 border border-yellow-200 font-medium bg-gray-50">Loại</td><td class="px-4 py-3 border border-yellow-200 text-center">${before.type ? `<span class="px-2 py-1 bg-blue-100 text-blue-700 rounded text-xs">${f4rEsc(before.type)}</span>` : ''}</td><td class="px-4 py-3 border border-yellow-200 text-center">${after.type ? `<span class="px-2 py-1 bg-blue-100 text-blue-700 rounded text-xs">${f4rEsc(after.type)}</span>` : ''}</td></tr>
+                <tr><td class="px-4 py-3 border border-yellow-200 font-medium bg-gray-50">Tài liệu</td><td class="px-4 py-3 border border-yellow-200 text-xs ${docChg ? 'bg-red-50 font-medium text-red-800' : ''}">${f4rEsc(before.document || '')}</td><td class="px-4 py-3 border border-yellow-200 text-xs ${docChg ? 'bg-green-50 font-medium text-green-800' : ''}">${f4rEsc(after.document || '')}</td></tr>
+              </tbody></table></div></div>`;
+        }).join('')}</div></div>`;
+    }
+    function openF4RChiTietModal(rowId) {
+      const row = F4R_DATA.find(r => String(r.Id ?? r.id ?? '') === String(rowId));
+      const modal = document.getElementById('f4r-chi-tiet-modal');
+      const summaryEl = document.getElementById('f4r-chi-tiet-summary');
+      const bodyEl = document.getElementById('f4r-chi-tiet-body');
+      const esc = f4rEsc;
+      if (!row || !summaryEl || !bodyEl) {
+        if (typeof showToast === 'function') showToast('Không tìm thấy dữ liệu chi tiết.', 'info');
+        return;
+      }
+      const soHangMucBanDau = row['Số hạng mục ban đầu'] ?? row.soHangMucBanDau ?? row.so_hang_muc_ban_dau ?? '';
+      const soHangMucThayDoi = row['Số hạng mục thay đổi'] ?? row.soHangMucThayDoi ?? row.so_hang_muc_thay_doi ?? '';
+      const tongSoLinhKien = row['Tổng số linh kiện'] ?? row.tongSoLinhKien ?? row.tong_so_linh_kien ?? '';
+      const ketQuaRaw = row['Kết quả rà soát'] ?? row.ketQuaRaSoat ?? row.ket_qua_ra_soat ?? '';
+      let items = [];
+      try {
+        const parsed = typeof ketQuaRaw === 'string' ? JSON.parse(ketQuaRaw) : ketQuaRaw;
+        items = Array.isArray(parsed) ? parsed : (parsed && Array.isArray(parsed.records) ? parsed.records : []);
+      } catch (_) { items = []; }
+      if (items.length === 0) {
+        summaryEl.innerHTML = '';
+        bodyEl.innerHTML = '<p class="text-gray-500 text-sm py-4">Chưa có dữ liệu kết quả rà soát.</p>';
+      } else {
+        const totalCodes = items.length;
+        const totalAdded = items.reduce((s, r) => s + Number(r.added_count || 0), 0);
+        const totalRemoved = items.reduce((s, r) => s + Number(r.removed_count || 0), 0);
+        const totalChanged = items.reduce((s, r) => s + Number(r.changed_count || 0), 0);
+        const totalUnchanged = items.reduce((s, r) => s + Number(r.unchanged_count || 0), 0);
+        summaryEl.innerHTML = `
+          <div class="overflow-auto mb-6 p-4 bg-white border-2 border-gray-300 rounded-xl shadow-sm">
+            <table class="min-w-[720px] w-full text-sm border border-gray-200 rounded-lg overflow-hidden">
+              <thead class="bg-gray-50 text-gray-700">
+                <tr>
+                  <th class="px-3 py-2 border">Số hạng mục ban đầu</th>
+                  <th class="px-3 py-2 border">Số hạng mục thay đổi</th>
+                  <th class="px-3 py-2 border">Tổng số linh kiện</th>
+                  <th class="px-3 py-2 border">Thêm mới</th>
+                  <th class="px-3 py-2 border">Bị xóa</th>
+                  <th class="px-3 py-2 border">Thay đổi</th>
+                  <th class="px-3 py-2 border">Không đổi</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr class="text-center">
+                  <td class="px-3 py-2 border font-semibold text-blue-700">${esc(soHangMucBanDau) || totalCodes}</td>
+                  <td class="px-3 py-2 border font-semibold text-indigo-700">${esc(soHangMucThayDoi) || '-'}</td>
+                  <td class="px-3 py-2 border font-semibold text-sky-700">${esc(tongSoLinhKien) || totalCodes}</td>
+                  <td class="px-3 py-2 border font-semibold text-green-700">${totalAdded}</td>
+                  <td class="px-3 py-2 border font-semibold text-red-700">${totalRemoved}</td>
+                  <td class="px-3 py-2 border font-semibold text-yellow-700">${totalChanged}</td>
+                  <td class="px-3 py-2 border font-semibold text-gray-700">${totalUnchanged}</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>`;
+        let html = '';
+        html += `<div class="mb-6 p-4 bg-gray-50 border-2 border-gray-300 rounded-xl">
+          <h4 class="text-base font-semibold text-gray-800 mb-4">Thống kê theo từng mã</h4>
+          <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+          ${items.map((r) => `
+            <div class="border-2 border-gray-300 rounded-xl overflow-hidden bg-white shadow-md shadow-gray-200">
+              <div class="px-4 py-3 bg-gradient-to-r from-red-50 to-white flex items-center justify-between">
+                <div>
+                  <div class="text-sm text-gray-500">Mã: <span class="font-medium text-gray-700">${esc(r.code || '')}</span></div>
+                  <div class="text-base font-semibold text-red-800">${esc(r.name || '')}</div>
+                </div>
+                <div class="text-right">
+                  <div class="text-[11px] text-gray-500">Tỷ lệ thay đổi</div>
+                  <div class="text-lg font-bold text-red-700">${(Number(r.changed_count || 0) + Number(r.added_count || 0) + Number(r.removed_count || 0))}/${Number(r.unchanged_count || 0) + Number(r.changed_count || 0) + Number(r.added_count || 0) + Number(r.removed_count || 0) || 1}</div>
+                </div>
+              </div>
+              <div class="p-4 space-y-3">
+                <div class="grid grid-cols-4 gap-2 text-center">
+                  <div class="bg-green-50 border border-green-200 rounded-md px-2 py-2">
+                    <div class="text-[11px] text-green-700">+ Thêm</div>
+                    <div class="text-lg font-bold text-green-700">${Number(r.added_count || 0)}</div>
+                  </div>
+                  <div class="bg-red-50 border border-red-200 rounded-md px-2 py-2">
+                    <div class="text-[11px] text-red-700">- Xóa</div>
+                    <div class="text-lg font-bold text-red-700">${Number(r.removed_count || 0)}</div>
+                  </div>
+                  <div class="bg-yellow-50 border border-yellow-200 rounded-md px-2 py-2">
+                    <div class="text-[11px] text-yellow-700">Δ Đổi</div>
+                    <div class="text-lg font-bold text-yellow-700">${Number(r.changed_count || 0)}</div>
+                  </div>
+                  <div class="bg-gray-50 border border-gray-200 rounded-md px-2 py-2">
+                    <div class="text-[11px] text-gray-700">= Không đổi</div>
+                    <div class="text-lg font-bold text-gray-700">${Number(r.unchanged_count || 0)}</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          `).join('')}
+          </div>
+        </div>`;
+        html += `<div class="mb-6 p-4 bg-white border-2 border-gray-300 rounded-xl shadow-sm">
+          <h4 class="text-base font-semibold text-gray-800 mb-4">Bảng chi tiết</h4>
+          <div class="overflow-auto">
+          <table class="min-w-[860px] w-full text-sm border border-gray-200 rounded-lg overflow-hidden">
+            <thead class="bg-gray-50 text-gray-700">
+              <tr>
+                <th class="px-3 py-2 border text-center">#</th>
+                <th class="px-3 py-2 border">Mã</th>
+                <th class="px-3 py-2 border">Tên</th>
+                <th class="px-3 py-2 border text-center">+ Thêm</th>
+                <th class="px-3 py-2 border text-center">- Xóa</th>
+                <th class="px-3 py-2 border text-center">Δ Đổi</th>
+                <th class="px-3 py-2 border text-center">= Không đổi</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${items.map((r, i) => `
+                <tr class="hover:bg-gray-50">
+                  <td class="px-3 py-2 border text-center">${i + 1}</td>
+                  <td class="px-3 py-2 border font-medium">${esc(r.code || '')}</td>
+                  <td class="px-3 py-2 border">${esc(r.name || '')}</td>
+                  <td class="px-3 py-2 border text-center text-green-700 font-medium">${Number(r.added_count || 0)}</td>
+                  <td class="px-3 py-2 border text-center text-red-700 font-medium">${Number(r.removed_count || 0)}</td>
+                  <td class="px-3 py-2 border text-center text-yellow-700 font-medium">${Number(r.changed_count || 0)}</td>
+                  <td class="px-3 py-2 border text-center text-gray-700 font-medium">${Number(r.unchanged_count || 0)}</td>
+                </tr>
+              `).join('')}
+            </tbody>
+          </table>
+          </div>
+        </div>`;
+        html += `<div class="p-4 bg-white border-2 border-gray-300 rounded-xl shadow-sm">
+          <h4 class="text-lg font-semibold text-gray-800 mb-4">Chi tiết thay đổi theo từng mã</h4>
+          <div class="space-y-6">
+            ${items.map((r, idx) => {
+              const addedItems = Array.isArray(r.added) ? r.added : [];
+              const removedItems = Array.isArray(r.removed) ? r.removed : [];
+              const changedItems = Array.isArray(r.changed) ? r.changed : [];
+              const hasDetails = addedItems.length > 0 || removedItems.length > 0 || changedItems.length > 0;
+              const detailsId = `f4r-details-${idx}`;
+              if (!hasDetails) return '';
+              return `
+                <div class="border-2 border-gray-300 rounded-xl overflow-hidden bg-white shadow-md shadow-gray-200">
+                  <button onclick="document.getElementById('${detailsId}').classList.toggle('hidden'); document.getElementById('icon-${detailsId}').classList.toggle('rotate-180');" class="w-full px-5 py-4 bg-gradient-to-r from-red-50 to-white hover:from-red-100 hover:to-red-50 transition flex items-center justify-between text-left">
+                    <div>
+                      <div class="font-semibold text-red-800 text-lg">${idx + 1}. ${esc(r.code || '')} - ${esc(r.name || '')}</div>
+                      <div class="text-sm text-gray-600 mt-1">
+                        ${addedItems.length > 0 ? `<span class="text-green-700 font-medium">+${addedItems.length} thêm</span>` : ''}
+                        ${removedItems.length > 0 ? `<span class="text-red-700 font-medium ml-2">-${removedItems.length} xóa</span>` : ''}
+                        ${changedItems.length > 0 ? `<span class="text-yellow-700 font-medium ml-2">Δ${changedItems.length} đổi</span>` : ''}
+                      </div>
+                    </div>
+                    <svg id="icon-${detailsId}" class="w-5 h-5 text-gray-500 transition-transform rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                    </svg>
+                  </button>
+                  <div id="${detailsId}" class="border-t border-gray-200 bg-gray-50">
+                    <div class="p-5 space-y-5">
+                      ${f4rRenderAdded(addedItems)}${f4rRenderRemoved(removedItems)}${f4rRenderChanged(changedItems)}
+                    </div>
+                  </div>
+                </div>
+              `;
+            }).filter(h => h).join('')}
+          </div>
+        </div>`;
+        bodyEl.innerHTML = html || '<p class="text-gray-500 text-sm py-4">Không có chi tiết thay đổi.</p>';
+      }
+      if (modal) modal.classList.add('open');
+    }
+    function closeF4RChiTietModal() {
+      document.getElementById('f4r-chi-tiet-modal')?.classList.remove('open');
+    }
+    const f4rChiTietModal = document.getElementById('f4r-chi-tiet-modal');
+    document.getElementById('f4r-chi-tiet-modal-close')?.addEventListener('click', closeF4RChiTietModal);
+    f4rChiTietModal?.addEventListener('click', (e) => { if (e.target === f4rChiTietModal) closeF4RChiTietModal(); });
+    document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && f4rChiTietModal?.classList.contains('open')) closeF4RChiTietModal(); });
+    document.getElementById('f4r-table-body')?.addEventListener('click', (e) => {
+      const phanHoiBtn = e.target.closest('.f4r-phan-hoi-btn');
+      const tyLeBtn = e.target.closest('.f4r-ty-le-btn');
+      if (phanHoiBtn) { e.preventDefault(); openF4RPhanHoiModal(phanHoiBtn.dataset.f4rId || '', phanHoiBtn.dataset.f4rTinhTrang || ''); }
+      if (tyLeBtn) { e.preventDefault(); openF4RChiTietModal(tyLeBtn.dataset.f4rId || ''); }
+    });
+    async function sendF4RPhanHoi(hanhDong, ghiChu) {
+      const btn = hanhDong === 'Xem xét trao đổi lại' ? document.getElementById('f4r-btn-trao-doi') : document.getElementById('f4r-btn-huy');
+      const origText = btn?.textContent;
+      try {
+        if (btn) { btn.disabled = true; btn.textContent = 'Đang gửi...'; }
+        const payload = { Id: F4R_PHAN_HOI_ROW_ID, HanhDong: hanhDong, GhiChu: ghiChu || '' };
+        const resp = await fetch(F4R_PHAN_HOI_WEBHOOK_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+        if (!resp.ok) throw new Error('HTTP ' + resp.status);
+        if (typeof showToast === 'function') showToast('Đã gửi phản hồi thành công.', 'success');
+        closeF4RPhanHoiModal();
+      } catch (err) {
+        if (typeof showToast === 'function') showToast('Lỗi gửi: ' + (err.message || err), 'error');
+      } finally {
+        if (btn) { btn.disabled = false; btn.textContent = origText || ''; }
+      }
+    }
+    document.getElementById('f4r-btn-trao-doi')?.addEventListener('click', () => {
+      const note = document.getElementById('f4r-ghichu-trao-doi')?.value || '';
+      sendF4RPhanHoi('Xem xét trao đổi lại', note);
+    });
+    document.getElementById('f4r-btn-huy')?.addEventListener('click', () => {
+      const note = document.getElementById('f4r-ghichu-huy')?.value || '';
+      sendF4RPhanHoi('Hủy bỏ yêu cầu', note);
+    });
+
+    function buildF3TomTat() {
+      if (!F3_TEMP_JSON || !F3_TEMP_JSON.length) return [];
+      return F3_TEMP_JSON.map(group => {
+        const items = group.items || [];
+        const nameCounts = new Map();
+        const orderOfFirstOccurrence = [];
+        items.forEach(row => {
+          const n = String(row['Name 1'] ?? '').trim();
+          if (!nameCounts.has(n)) orderOfFirstOccurrence.push(n);
+          nameCounts.set(n, (nameCounts.get(n) || 0) + 1);
+        });
+        const maxCount = nameCounts.size ? Math.max(...Array.from(nameCounts.values())) : 0;
+        const namesWithMaxCount = orderOfFirstOccurrence.filter(n => nameCounts.get(n) === maxCount);
+        const namesToHighlight = new Set();
+        orderOfFirstOccurrence.forEach(n => {
+          if (nameCounts.get(n) < maxCount) namesToHighlight.add(n);
+          else if (namesWithMaxCount.length > 1 && namesWithMaxCount[1] === n) namesToHighlight.add(n);
+        });
+        const soLoi = items.filter(row => namesToHighlight.has(String(row['Name 1'] ?? '').trim())).length;
+        return { code: group.code, name: group.name || '', count: group.count, soLoi };
+      });
+    }
+    const f3SendBtn = document.getElementById('f3-send-request-btn');
+    const f3ConfirmModal = document.getElementById('f3-confirm-modal');
+    const f3ConfirmCancel = document.getElementById('f3-confirm-cancel');
+    const f3ConfirmSend = document.getElementById('f3-confirm-send');
+    function closeF3ConfirmModal() {
+      if (f3ConfirmModal) { f3ConfirmModal.classList.remove('open'); f3ConfirmModal.setAttribute('aria-hidden', 'true'); }
+    }
+    async function doF3Send() {
+      const nguoiYeuCau = (document.getElementById('f3-nguoi-yeu-cau')?.value || '').trim();
+      const emailNguoiYeuCau = (document.getElementById('f3-email-yeu-cau')?.value || '').trim();
+      const nguoiNhanRasoat = (document.getElementById('f3-nguoi-nhan')?.value || '').trim();
+      const emailNguoiNhan = (document.getElementById('f3-email-nguoi-nhan')?.value || '').trim();
+      const thoiGianGui = (document.getElementById('f3-thoi-gian-gui')?.value || '').trim();
+      f3SendBtn.disabled = true;
+      f3SendBtn.querySelector('span:last-child').textContent = 'Đang gửi...';
+      closeF3ConfirmModal();
+      try {
+        const formData = new FormData();
+        formData.append('nguoiYeuCau', nguoiYeuCau);
+        formData.append('emailNguoiYeuCau', emailNguoiYeuCau);
+        formData.append('nguoiNhanRasoat', nguoiNhanRasoat);
+        formData.append('emailNguoiNhan', emailNguoiNhan);
+        formData.append('thoiGianGui', thoiGianGui);
+        formData.append('fileName', F3_TEMP_FILE.name || '');
+        formData.append('data', JSON.stringify(buildF3TomTat()));
+        formData.append('file', F3_TEMP_FILE);
+        const resp = await fetch(F3_WEBHOOK_URL, { method: 'POST', body: formData });
+        if (resp.ok) {
+          if (typeof showToast === 'function') showToast('Đã gửi yêu cầu rà soát thành công.', 'success');
+          else alert('Đã gửi yêu cầu rà soát thành công.');
+        } else throw new Error('HTTP ' + resp.status);
+      } catch (err) {
+        console.error('[Form 3] Lỗi gửi yêu cầu:', err);
+        if (typeof showToast === 'function') showToast('Gửi thất bại: ' + (err.message || err), 'error');
+        else alert('Gửi thất bại: ' + (err.message || err));
+      } finally {
+        f3SendBtn.disabled = false;
+        f3SendBtn.querySelector('span:last-child').textContent = 'Gửi yêu cầu';
+      }
+    }
+    if (f3SendBtn) {
+      f3SendBtn.addEventListener('click', function() {
+        const nguoiYeuCau = (document.getElementById('f3-nguoi-yeu-cau')?.value || '').trim();
+        const emailNguoiYeuCau = (document.getElementById('f3-email-yeu-cau')?.value || '').trim();
+        const nguoiNhanRasoat = (document.getElementById('f3-nguoi-nhan')?.value || '').trim();
+        const thoiGianGui = (document.getElementById('f3-thoi-gian-gui')?.value || '').trim();
+        const errors = [];
+        if (!nguoiYeuCau) errors.push('Người yêu cầu');
+        if (!emailNguoiYeuCau) errors.push('Email người yêu cầu');
+        if (!nguoiNhanRasoat) errors.push('Người nhận rà soát');
+        if (!thoiGianGui) errors.push('Thời gian gửi');
+        if (!F3_TEMP_JSON || !F3_TEMP_JSON.length) errors.push('Bảng tóm tắt (cần tải lên file Excel)');
+        if (!F3_TEMP_FILE) errors.push('File Excel');
+        if (errors.length > 0) {
+          const msg = 'Vui lòng điền đầy đủ: ' + errors.join(', ');
+          if (typeof showToast === 'function') showToast(msg, 'error');
+          else alert(msg);
+          return;
+        }
+        if (f3ConfirmModal) {
+          f3ConfirmModal.classList.add('open');
+          f3ConfirmModal.setAttribute('aria-hidden', 'false');
+        }
+      });
+    }
+    if (f3ConfirmCancel) f3ConfirmCancel.addEventListener('click', closeF3ConfirmModal);
+    if (f3ConfirmSend) f3ConfirmSend.addEventListener('click', doF3Send);
+    if (f3ConfirmModal) {
+      f3ConfirmModal.addEventListener('click', (e) => { if (e.target === f3ConfirmModal) closeF3ConfirmModal(); });
+      document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && f3ConfirmModal.classList.contains('open')) closeF3ConfirmModal(); });
+    }
+
+    // Form 3: Resize handle - kéo để thay đổi chiều cao vùng bảng
+    (function initF3Resize() {
+      const handle = document.getElementById('f3-resize-handle');
+      const preview = document.getElementById('f3-table-preview');
+      if (!handle || !preview) return;
+      let startY = 0, startH = 0;
+      handle.addEventListener('mousedown', function(e) {
+        e.preventDefault();
+        startY = e.clientY;
+        startH = preview.offsetHeight;
+        const onMove = (ev) => {
+          const dy = ev.clientY - startY;
+          const newH = Math.max(200, Math.min(window.innerHeight - 150, startH + dy));
+          preview.style.height = newH + 'px';
+          preview.style.flex = 'none';
+        };
+        const onUp = () => {
+          document.removeEventListener('mousemove', onMove);
+          document.removeEventListener('mouseup', onUp);
+          document.body.style.cursor = '';
+          document.body.style.userSelect = '';
+        };
+        document.body.style.cursor = 'ns-resize';
+        document.body.style.userSelect = 'none';
+        document.addEventListener('mousemove', onMove);
+        document.addEventListener('mouseup', onUp);
+      });
+    })();
 
     // Set default current local date+time for date fields on load
     function setCurrentDateTime(id) {
@@ -774,14 +2094,20 @@
                   }
                 },20000);
               }
-              // Reset form after submit
-              this.reset();
-              // restore current datetime for readonly field
-              const dtEl = document.getElementById('testRequestDate');
-              if (dtEl) {
-                const now = new Date();
-                const tz = now.getTimezoneOffset() * 60000;
-                dtEl.value = new Date(now.getTime() - tz).toISOString().slice(0, 16);
+              const keepData = document.getElementById('testRequestKeepData')?.checked;
+              if (!keepData) {
+                this.reset();
+                const dtEl = document.getElementById('testRequestDate');
+                if (dtEl) {
+                  const now = new Date();
+                  const tz = now.getTimezoneOffset() * 60000;
+                  dtEl.value = new Date(now.getTime() - tz).toISOString().slice(0, 16);
+                }
+                testRequestUploads.length = 0;
+                const uploadList = document.getElementById('testRequestUploadList');
+                if (uploadList) uploadList.innerHTML = '';
+                const fileInput = document.getElementById('testRequestFiles');
+                if (fileInput) fileInput.value = '';
               }
             } else {
               const text = await resp.text();
@@ -1039,22 +2365,24 @@
         });
       }
 
-      // Sắp xếp theo ngày yêu cầu từ gần đến xa (bất kể trạng thái)
+      // Sắp xếp: Doing ưu tiên lên đầu, sau đó theo ngày yêu cầu mới nhất
       filteredData.sort((a, b) => {
-        // Hàm lấy ngày yêu cầu
+        const getStatus = (item) => String(getV(item, ['Kết quả', 'status', 'trangthai', 'trang_thai', 'trạng thái']) || '').toLowerCase();
+        const isDoing = (item) => {
+          const s = getStatus(item);
+          return s.includes('doing') || s.includes('đang');
+        };
+        const aDoing = isDoing(a);
+        const bDoing = isDoing(b);
+        if (aDoing && !bDoing) return -1;
+        if (!aDoing && bDoing) return 1;
         const getRequestDate = (item) => {
           const requestDate = getV(item, ['Ngày yêu cầu của các bên', 'requestdate', 'ngayyeucau', 'ngay_yeu_cau', 'submissiondate', 'ngaygui', 'ngày yêu cầu']);
-          if (!requestDate) return new Date(0); // Nếu không có ngày, đặt ở cuối
-          
+          if (!requestDate) return new Date(0);
           const date = new Date(requestDate);
           return isNaN(date.getTime()) ? new Date(0) : date;
         };
-        
-        const dateA = getRequestDate(a);
-        const dateB = getRequestDate(b);
-        
-        // Sắp xếp theo ngày từ gần đến xa (mới nhất lên đầu)
-        return dateB.getTime() - dateA.getTime();
+        return getRequestDate(b).getTime() - getRequestDate(a).getTime();
       });
 
       // Render lại bảng với dữ liệu đã lọc
@@ -1236,8 +2564,11 @@
         // Thêm cột Ngày hoàn thành thực tế
         addTd(tr, getV(item, ['Ngày hoàn thành thực tế', 'completiondate', 'completeddate', 'ngayhoanthanh', 'ngay_hoan_thanh', 'completion', 'done_date', 'ngày hoàn thành']));
 
-        addTd(tr, code);
+        addTd(tr, getV(item, ['Ngày yêu cầu của các bên', 'Ngày yêu cầu', 'requestdate', 'ngayyeucau', 'ngay_yeu_cau', 'submissiondate', 'ngaygui']));
+        addTd(tr, getV(item, ['Hạn mong muốn của các bên', 'Hạn mong muốn', 'wishdue', 'hanmongmuon', 'han_mong_muon', 'desireddue']));
+
         addTd(tr, tname);
+        addTd(tr, code);
         
         // File đính kèm - hiển thị dưới dạng nút link
         const tdFile = document.createElement('td');
@@ -1279,8 +2610,6 @@
         
         addTd(tr, getV(item, ['Người yêu cầu', 'requester', 'nguoiyeucau', 'nguoi_yeu_cau', 'assigner', 'người yêu cầu']));
         addTd(tr, getV(item, ['Người thực hiện', 'assignee', 'nguoi_thuc_hien', 'người thực hiện', 'employee', 'nhanvien']));
-        addTd(tr, getV(item, ['Ngày yêu cầu của các bên', 'Ngày yêu cầu', 'requestdate', 'ngayyeucau', 'ngay_yeu_cau', 'submissiondate', 'ngaygui']));
-        addTd(tr, getV(item, ['Hạn mong muốn của các bên', 'Hạn mong muốn', 'wishdue', 'hanmongmuon', 'han_mong_muon', 'desireddue']));
         addTd(tr, getV(item, ['Mục đích đánh giá', 'purpose', 'mucdich', 'muc_dich', 'mục đích đánh giá', 'muc dich danh gia', 'mucdichdanhgia']));
         addTd(tr, getV(item, ['Ghi chú của yêu cầu', 'Ghi chú', 'note', 'ghi_chu', 'ghichu']));
 
@@ -1660,7 +2989,7 @@
           console.log('[Form2 Debug] JSONP failed:', e.message);
         }
 
-        // Fallback: Thử fetch trực tiếp như Form 5
+        // Fallback: Thử fetch trực tiếp như Form 0
         const urlProd = base.includes('/webhook/') ? base : base.replace('/webhook-test/', '/webhook/');
         const urlTest = base.includes('/webhook-test/') ? base : base.replace('/webhook/', '/webhook-test/');
         const urls = [urlTest, urlProd];
@@ -2223,12 +3552,20 @@
         return;
       }
 
-      // Ưu tiên sắp xếp: tên trong FORM2_NAMES trước, sau đó các tên mới theo alpha
-      const preferredSet = new Set(FORM2_NAMES);
+      // Sắp xếp: FORM2_NAMES (trừ Nhân Viên Mới 1/2) trước, tên mới theo alpha, "Nhân Viên Mới 1" và "Nhân viên mới 2" luôn cuối
+      const lastNamesSet = new Set(['Nhân Viên Mới 1', 'Nhân viên mới 2', 'Nhân Viên Mới 2']);
+      const preferredSet = new Set(FORM2_NAMES.filter(n => !lastNamesSet.has(n)));
+      const isLast = (name) => lastNamesSet.has(name) || /nhân\s*viên\s*mới\s*[12]/i.test((name||'').trim());
+      const lastOrder = (name) => (/mới\s*1/i.test(name||'') ? 0 : 1); // Mới 1 trước Mới 2
       allNames.sort((a,b)=>{
+        const aLast = isLast(a) ? 1 : 0;
+        const bLast = isLast(b) ? 1 : 0;
+        if (aLast !== bLast) return aLast - bLast;
+        if (aLast) return lastOrder(a) - lastOrder(b);
         const aPref = preferredSet.has(a) ? 0 : 1;
         const bPref = preferredSet.has(b) ? 0 : 1;
         if (aPref !== bPref) return aPref - bPref;
+        if (aPref === 0) return FORM2_NAMES.indexOf(a) - FORM2_NAMES.indexOf(b);
         return a.localeCompare(b, 'vi');
       });
 
@@ -2248,11 +3585,12 @@
           naPct: "0",
           tasks: []
         };
+        const escapedName = (stat.name || '').replace(/'/g, "\\'");
         const tr = document.createElement('tr');
         tr.innerHTML = `
-          <td class="px-3 py-2 font-medium cursor-pointer hover:text-primary-blue" onclick="openF2P1DetailModal('${stat.name}')">${stat.name}</td>
-          <td class="px-3 py-2 text-center font-semibold text-blue-600">${stat.totalTasks}</td>
-          <td class="px-3 py-2 text-center">${stat.done}</td>
+          <td class="px-3 py-2 font-medium cursor-pointer hover:text-primary-blue" onclick="openF2P1DetailModal('${escapedName}')">${stat.name}</td>
+          <td class="px-3 py-2 text-center font-semibold text-blue-600 cursor-pointer hover:bg-blue-50 hover:underline" onclick="openF2DoingModal('${escapedName}')" title="Xem chi tiết tác vụ đang thực hiện">${stat.totalTasks}</td>
+          <td class="px-3 py-2 text-center font-semibold text-green-600 cursor-pointer hover:bg-green-50 hover:underline" onclick="openF2DoneModal('${escapedName}')" title="Xem chi tiết tác vụ Done trong tháng">${stat.done}</td>
           <td class="px-3 py-2 text-center text-green-600">${stat.ahead}</td>
           <td class="px-3 py-2 text-center text-blue-600">${stat.ontime}</td>
           <td class="px-3 py-2 text-center text-red-600">${stat.late}</td>
@@ -2397,6 +3735,115 @@
       modal.setAttribute('aria-hidden', 'true');
     }
 
+    function openF2DoingModal(employeeName) {
+      const modal = document.getElementById('f2-doing-modal');
+      const nameSpan = document.getElementById('f2-doing-name');
+      const body = document.getElementById('f2-doing-body');
+      if (nameSpan) nameSpan.textContent = employeeName;
+      const employeeData = F2_EMPLOYEE_STATS[employeeName];
+      if (!employeeData || !employeeData.tasks || employeeData.tasks.length === 0) {
+        body.innerHTML = '<tr><td class="px-3 py-3 text-center text-gray-500" colspan="7">Không có tác vụ đang thực hiện</td></tr>';
+        modal.classList.add('open');
+        modal.setAttribute('aria-hidden', 'false');
+        return;
+      }
+      const doingTasks = (employeeData.tasks || []).filter(task => {
+        const statusLower = String(task.status || '').toLowerCase();
+        const isDoing = statusLower.includes('doing') || statusLower.includes('đang');
+        const isCancelled = statusLower.includes('cancel') || statusLower.includes('hủy') || statusLower.includes('huỷ');
+        return isDoing && !isCancelled;
+      });
+      if (doingTasks.length === 0) {
+        body.innerHTML = '<tr><td class="px-3 py-3 text-center text-gray-500" colspan="7">Không có tác vụ đang thực hiện</td></tr>';
+        modal.classList.add('open');
+        modal.setAttribute('aria-hidden', 'false');
+        return;
+      }
+      body.innerHTML = '';
+      doingTasks.forEach(task => {
+        const statusLower = (task.status || '').toLowerCase();
+        const statusBadge = `<span class="px-2 py-1 rounded text-xs font-medium bg-blue-100 text-blue-800">${task.status || '-'}</span>`;
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td class="px-3 py-2">${statusBadge}</td>
+          <td class="px-3 py-2">${task.code || '-'}</td>
+          <td class="px-3 py-2">${task.taskName || '-'}</td>
+          <td class="px-3 py-2">${task.requester || '-'}</td>
+          <td class="px-3 py-2">${task.requestDate || '-'}</td>
+          <td class="px-3 py-2">${task.wishDue || '-'}</td>
+          <td class="px-3 py-2">${task.note || '-'}</td>
+        `;
+        body.appendChild(tr);
+      });
+      modal.classList.add('open');
+      modal.setAttribute('aria-hidden', 'false');
+    }
+
+    function closeF2DoingModal() {
+      const modal = document.getElementById('f2-doing-modal');
+      modal.classList.remove('open');
+      modal.setAttribute('aria-hidden', 'true');
+    }
+
+    function openF2DoneModal(employeeName) {
+      const modal = document.getElementById('f2-done-modal');
+      const nameSpan = document.getElementById('f2-done-name');
+      const body = document.getElementById('f2-done-body');
+      if (nameSpan) nameSpan.textContent = employeeName;
+      const employeeData = F2_EMPLOYEE_STATS[employeeName];
+      if (!employeeData || !employeeData.tasks || employeeData.tasks.length === 0) {
+        body.innerHTML = '<tr><td class="px-3 py-3 text-center text-gray-500" colspan="8">Không có tác vụ Done trong tháng</td></tr>';
+        modal.classList.add('open');
+        modal.setAttribute('aria-hidden', 'false');
+        return;
+      }
+      const doneTasks = (employeeData.tasks || []).filter(task => {
+        const statusLower = String(task.status || '').toLowerCase();
+        const isDone = statusLower.includes('hoàn') || statusLower.includes('done');
+        const isCancelled = statusLower.includes('cancel') || statusLower.includes('hủy') || statusLower.includes('huỷ');
+        if (!isDone || isCancelled) return false;
+        const comp = task.completionDate;
+        if (!comp) return false;
+        const compDate = parseDateFlexible(comp);
+        if (isNaN(compDate.getTime())) return false;
+        if (F2_MONTH_FILTER) {
+          const ym = `${compDate.getFullYear()}-${String(compDate.getMonth()+1).padStart(2,'0')}`;
+          return ym === F2_MONTH_FILTER;
+        }
+        return true;
+      });
+      if (doneTasks.length === 0) {
+        body.innerHTML = '<tr><td class="px-3 py-3 text-center text-gray-500" colspan="8">Không có tác vụ Done trong tháng' + (F2_MONTH_FILTER ? ' ' + F2_MONTH_FILTER : '') + '</td></tr>';
+        modal.classList.add('open');
+        modal.setAttribute('aria-hidden', 'false');
+        return;
+      }
+      body.innerHTML = '';
+      doneTasks.forEach(task => {
+        const statusBadge = `<span class="px-2 py-1 rounded text-xs font-medium bg-green-100 text-green-800">${task.status || '-'}</span>`;
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td class="px-3 py-2">${statusBadge}</td>
+          <td class="px-3 py-2">${task.completionDate || '-'}</td>
+          <td class="px-3 py-2">${task.code || '-'}</td>
+          <td class="px-3 py-2">${task.taskName || '-'}</td>
+          <td class="px-3 py-2">${task.requester || '-'}</td>
+          <td class="px-3 py-2">${task.requestDate || '-'}</td>
+          <td class="px-3 py-2">${task.wishDue || '-'}</td>
+          <td class="px-3 py-2">${task.note || '-'}</td>
+        `;
+        body.appendChild(tr);
+      });
+      modal.classList.add('open');
+      modal.setAttribute('aria-hidden', 'false');
+    }
+
+    function closeF2DoneModal() {
+      const modal = document.getElementById('f2-done-modal');
+      modal.classList.remove('open');
+      modal.setAttribute('aria-hidden', 'true');
+    }
+
     // Form 2: Modal event listeners
     const f2P1DetailCloseBtn = document.getElementById('f2-p1-detail-close');
     if (f2P1DetailCloseBtn) {
@@ -2410,9 +3857,29 @@
       });
     }
 
+    const f2DoingCloseBtn = document.getElementById('f2-doing-close');
+    if (f2DoingCloseBtn) f2DoingCloseBtn.addEventListener('click', closeF2DoingModal);
+    const f2DoingModal = document.getElementById('f2-doing-modal');
+    if (f2DoingModal) {
+      f2DoingModal.addEventListener('click', (e) => {
+        if (e.target === f2DoingModal) closeF2DoingModal();
+      });
+    }
+
+    const f2DoneCloseBtn = document.getElementById('f2-done-close');
+    if (f2DoneCloseBtn) f2DoneCloseBtn.addEventListener('click', closeF2DoneModal);
+    const f2DoneModal = document.getElementById('f2-done-modal');
+    if (f2DoneModal) {
+      f2DoneModal.addEventListener('click', (e) => {
+        if (e.target === f2DoneModal) closeF2DoneModal();
+      });
+    }
+
     document.addEventListener('keydown', (e) => {
-      if (e.key === 'Escape' && f2P1DetailModal.classList.contains('open')) {
-        closeF2P1DetailModal();
+      if (e.key === 'Escape') {
+        if (f2P1DetailModal && f2P1DetailModal.classList.contains('open')) closeF2P1DetailModal();
+        else if (f2DoingModal && f2DoingModal.classList.contains('open')) closeF2DoingModal();
+        else if (f2DoneModal && f2DoneModal.classList.contains('open')) closeF2DoneModal();
       }
     });
 
@@ -2422,14 +3889,14 @@
     }, 100);
 
     // ===== FORM 3 - QUẢN LÝ DỰ ÁN =====
-    let F3_EXCEL_FILE = null;
-    let F3_ALL_DATA = { epics: [] };
-    let F3_FILTERED_DATA = { epics: [] };
-    let F3_EXPANDED_EPICS = new Set();
-    let F3_EXPANDED_STORIES = new Set();
-    let F3_CURRENT_SUBTASK_ID = null; // Lưu ID subtask đang được chỉnh sửa
-    const F3_WEBHOOK_URL = 'https://xcqiyibqs.tino.page/webhook/f3_QLDANCTN2';
-    const F3_DECLARATION_WEBHOOK_URL = 'https://iatzhxxuk.tino.page/webhook/f3KhaibaosubtaskNCTN2';
+    let F4_EXCEL_FILE = null;
+    let F4_ALL_DATA = { epics: [] };
+    let F4_FILTERED_DATA = { epics: [] };
+    let F4_EXPANDED_EPICS = new Set();
+    let F4_EXPANDED_STORIES = new Set();
+    let F4_CURRENT_SUBTASK_ID = null; // Lưu ID subtask đang được chỉnh sửa
+    const F4_WEBHOOK_URL = 'https://xcqiyibqs.tino.page/webhook/f3_QLDANCTN2';
+    const F4_DECLARATION_WEBHOOK_URL = 'https://iatzhxxuk.tino.page/webhook/f3KhaibaosubtaskNCTN2';
 
     // Hàm escape HTML để tránh XSS
     function escapeHtml(text) {
@@ -2439,7 +3906,7 @@
       return div.innerHTML;
     }
 
-    function formatF3Date(dateString) {
+    function formatF4Date(dateString) {
       if (!dateString) return '-';
       try {
         const date = new Date(dateString);
@@ -2461,7 +3928,7 @@
       return Math.round(bytes / Math.pow(k, i) * 100) / 100 + ' ' + sizes[i];
     }
 
-    function getF3StatusBadge(status) {
+    function getF4StatusBadge(status) {
       if (!status) return '<span class="px-2 py-1 rounded text-xs font-medium bg-gray-100 text-gray-700">-</span>';
       const statusStr = String(status).trim();
       const statusLower = statusStr.toLowerCase();
@@ -2479,7 +3946,7 @@
 
     // Xử lý dữ liệu từ API thành cấu trúc phân cấp Epic → Story → Subtask
     // Dữ liệu mới có thể là mảng các object hoặc object có epics
-    function organizeF3Data(data) {
+    function organizeF4Data(data) {
       let allEpics = [];
 
       // Xử lý nếu data là mảng các object (mỗi object có epics)
@@ -2496,7 +3963,7 @@
       }
       // Nếu không có epics, thử xử lý dữ liệu phẳng (fallback)
       else {
-        return organizeF3DataFlat(data);
+        return organizeF4DataFlat(data);
       }
 
       // Map tất cả epics thành cấu trúc chuẩn
@@ -2575,7 +4042,7 @@
     }
 
     // Fallback: Xử lý dữ liệu phẳng (tương thích ngược)
-    function organizeF3DataFlat(data) {
+    function organizeF4DataFlat(data) {
       const epicsMap = new Map();
       
       const flatData = Array.isArray(data) ? data : (data?.data || data?.results || data?.items || []);
@@ -2679,7 +4146,7 @@
     }
 
     // Render một hàng trong bảng
-    function renderF3Row(item, level = 0, isExpanded = false, hasChildren = false) {
+    function renderF4Row(item, level = 0, isExpanded = false, hasChildren = false) {
       const indent = level * 24;
       const isEpic = item.type === 'epic';
       const isStory = item.type === 'story';
@@ -2696,11 +4163,11 @@
 
       let actionButton = '-';
       if (isSubtask) {
-        actionButton = `<button type="button" class="f3-edit-btn px-2 py-1 text-xs bg-blue-100 text-blue-700 rounded hover:bg-blue-200 transition-colors cursor-pointer" data-id="${escapeHtml(item.id)}">Thay đổi</button>`;
+        actionButton = `<button type="button" class="f4-edit-btn px-2 py-1 text-xs bg-blue-100 text-blue-700 rounded hover:bg-blue-200 transition-colors cursor-pointer" data-id="${escapeHtml(item.id)}">Thay đổi</button>`;
       } else if (isStory) {
-        actionButton = `<button type="button" class="f3-add-subtask-btn px-2 py-1 text-xs bg-green-100 text-green-700 rounded hover:bg-green-200 transition-colors cursor-pointer" data-id="${escapeHtml(item.id)}" data-epic-id="${escapeHtml(item.epicId || '')}">Thêm Subtask</button>`;
+        actionButton = `<button type="button" class="f4-add-subtask-btn px-2 py-1 text-xs bg-green-100 text-green-700 rounded hover:bg-green-200 transition-colors cursor-pointer" data-id="${escapeHtml(item.id)}" data-epic-id="${escapeHtml(item.epicId || '')}">Thêm Subtask</button>`;
       } else if (isEpic) {
-        actionButton = `<button type="button" class="f3-add-story-btn px-2 py-1 text-xs bg-purple-100 text-purple-700 rounded hover:bg-purple-200 transition-colors cursor-pointer" data-id="${escapeHtml(item.id)}">Thêm Story</button>`;
+        actionButton = `<button type="button" class="f4-add-story-btn px-2 py-1 text-xs bg-purple-100 text-purple-700 rounded hover:bg-purple-200 transition-colors cursor-pointer" data-id="${escapeHtml(item.id)}">Thêm Story</button>`;
       }
 
       return `
@@ -2713,10 +4180,10 @@
             ${actionButton}
           </div>
           <div class="col-span-2 flex items-center text-sm text-gray-700">${escapeHtml(item.assignee || '-')}</div>
-          <div class="col-span-1 flex items-center">${getF3StatusBadge(item.status)}</div>
-          <div class="col-span-1 flex items-center text-sm text-gray-600">${formatF3Date(item.startDate)}</div>
-          <div class="col-span-1 flex items-center text-sm text-gray-600">${formatF3Date(item.dueDate)}</div>
-          <div class="col-span-1 flex items-center text-sm text-gray-600">${formatF3Date(item.completedDate)}</div>
+          <div class="col-span-1 flex items-center">${getF4StatusBadge(item.status)}</div>
+          <div class="col-span-1 flex items-center text-sm text-gray-600">${formatF4Date(item.startDate)}</div>
+          <div class="col-span-1 flex items-center text-sm text-gray-600">${formatF4Date(item.dueDate)}</div>
+          <div class="col-span-1 flex items-center text-sm text-gray-600">${formatF4Date(item.completedDate)}</div>
           <div class="col-span-1 flex items-center text-sm text-gray-700">
             ${item.jiraKey && item.jiraKey !== '' 
               ? `<a href="${escapeHtml(item.jiraLink || '#')}" target="_blank" class="text-xs font-medium text-primary-blue hover:underline">${escapeHtml(item.jiraKey)}</a>` 
@@ -2728,11 +4195,11 @@
     }
 
     // Render toàn bộ bảng
-    function renderF3Table() {
-      const tbody = document.getElementById('f3-table-body');
+    function renderF4Table() {
+      const tbody = document.getElementById('f4-table-body');
       if (!tbody) return;
 
-      if (!F3_FILTERED_DATA || !F3_FILTERED_DATA.epics || F3_FILTERED_DATA.epics.length === 0) {
+      if (!F4_FILTERED_DATA || !F4_FILTERED_DATA.epics || F4_FILTERED_DATA.epics.length === 0) {
         tbody.innerHTML = `
           <div class="px-6 py-8 text-center text-[#6b6189]">
             <div class="flex flex-col items-center gap-2">
@@ -2745,18 +4212,18 @@
       }
 
       let html = '';
-      F3_FILTERED_DATA.epics.forEach(epic => {
-        const epicExpanded = F3_EXPANDED_EPICS.has(epic.id);
-        html += renderF3Row(epic, 0, epicExpanded, epic.stories && epic.stories.length > 0);
+      F4_FILTERED_DATA.epics.forEach(epic => {
+        const epicExpanded = F4_EXPANDED_EPICS.has(epic.id);
+        html += renderF4Row(epic, 0, epicExpanded, epic.stories && epic.stories.length > 0);
         
         if (epicExpanded && epic.stories) {
           epic.stories.forEach(story => {
-            const storyExpanded = F3_EXPANDED_STORIES.has(story.id);
-            html += renderF3Row(story, 1, storyExpanded, story.subtasks && story.subtasks.length > 0);
+            const storyExpanded = F4_EXPANDED_STORIES.has(story.id);
+            html += renderF4Row(story, 1, storyExpanded, story.subtasks && story.subtasks.length > 0);
             
             if (storyExpanded && story.subtasks) {
               story.subtasks.forEach(subtask => {
-                html += renderF3Row(subtask, 2, false, false);
+                html += renderF4Row(subtask, 2, false, false);
               });
             }
           });
@@ -2771,12 +4238,12 @@
         if (expandIcon) {
           expandIcon.addEventListener('click', () => {
             const epicId = row.getAttribute('data-id');
-            if (F3_EXPANDED_EPICS.has(epicId)) {
-              F3_EXPANDED_EPICS.delete(epicId);
+            if (F4_EXPANDED_EPICS.has(epicId)) {
+              F4_EXPANDED_EPICS.delete(epicId);
             } else {
-              F3_EXPANDED_EPICS.add(epicId);
+              F4_EXPANDED_EPICS.add(epicId);
             }
-            renderF3Table();
+            renderF4Table();
           });
         }
       });
@@ -2786,82 +4253,82 @@
         if (expandIcon) {
           expandIcon.addEventListener('click', () => {
             const storyId = row.getAttribute('data-id');
-            if (F3_EXPANDED_STORIES.has(storyId)) {
-              F3_EXPANDED_STORIES.delete(storyId);
+            if (F4_EXPANDED_STORIES.has(storyId)) {
+              F4_EXPANDED_STORIES.delete(storyId);
             } else {
-              F3_EXPANDED_STORIES.add(storyId);
+              F4_EXPANDED_STORIES.add(storyId);
             }
-            renderF3Table();
+            renderF4Table();
           });
         }
       });
 
       // Sử dụng event delegation cho các button động
       // Xóa các listener cũ nếu có
-      const oldHandler = tbody._f3ButtonHandler;
+      const oldHandler = tbody._f4ButtonHandler;
       if (oldHandler) {
         tbody.removeEventListener('click', oldHandler);
       }
 
       // Tạo handler mới
       const buttonHandler = (e) => {
-        const target = e.target.closest('.f3-edit-btn, .f3-add-story-btn, .f3-add-subtask-btn');
+        const target = e.target.closest('.f4-edit-btn, .f4-add-story-btn, .f4-add-subtask-btn');
         if (!target) return;
 
         e.preventDefault();
         e.stopPropagation();
 
-        if (target.classList.contains('f3-edit-btn')) {
+        if (target.classList.contains('f4-edit-btn')) {
           const itemId = target.getAttribute('data-id');
           if (itemId) {
-            openF3DeclarationModal(itemId);
+            openF4DeclarationModal(itemId);
           }
-        } else if (target.classList.contains('f3-add-story-btn')) {
+        } else if (target.classList.contains('f4-add-story-btn')) {
           const epicId = target.getAttribute('data-id');
           if (epicId) {
-            openF3AddStoryModal(epicId);
+            openF4AddStoryModal(epicId);
           }
-        } else if (target.classList.contains('f3-add-subtask-btn')) {
+        } else if (target.classList.contains('f4-add-subtask-btn')) {
           const storyId = target.getAttribute('data-id');
           const epicId = target.getAttribute('data-epic-id');
           if (storyId && epicId) {
-            openF3AddSubtaskModal(epicId, storyId);
+            openF4AddSubtaskModal(epicId, storyId);
           }
         }
       };
 
       // Lưu handler để có thể xóa sau
-      tbody._f3ButtonHandler = buttonHandler;
+      tbody._f4ButtonHandler = buttonHandler;
       tbody.addEventListener('click', buttonHandler);
     }
 
     // Mở modal thêm Story
-    function openF3AddStoryModal(epicId) {
-      const result = findF3ItemById(epicId);
+    function openF4AddStoryModal(epicId) {
+      const result = findF4ItemById(epicId);
       if (!result || result.type !== 'epic') {
         showToast('Không tìm thấy Epic', 'error');
         return;
       }
 
       const epic = result.item;
-      const modal = document.getElementById('modal-f3-add-story');
+      const modal = document.getElementById('modal-f4-add-story');
       
       if (modal) {
-        document.getElementById('modal-f3-add-story-epic-id').value = epicId;
-        document.getElementById('modal-f3-add-story-epic-name').textContent = epic.name || '';
+        document.getElementById('modal-f4-add-story-epic-id').value = epicId;
+        document.getElementById('modal-f4-add-story-epic-name').textContent = epic.name || '';
         
         // Tự động sinh Story Code (có thể tùy chỉnh logic này)
         const storyCode = `STORY-${Date.now().toString().slice(-6)}`;
-        document.getElementById('modal-f3-add-story-code').value = storyCode;
+        document.getElementById('modal-f4-add-story-code').value = storyCode;
         
         // Reset các trường khác
-        document.getElementById('modal-f3-add-story-name').value = '';
-        document.getElementById('modal-f3-add-story-assignee').value = '';
-        document.getElementById('modal-f3-add-story-start-date').value = '';
-        document.getElementById('modal-f3-add-story-due-date').value = '';
-        document.getElementById('modal-f3-add-story-jira-key').value = '';
-        document.getElementById('modal-f3-add-story-jira-link').value = '';
-        document.getElementById('modal-f3-add-story-note').value = '';
+        document.getElementById('modal-f4-add-story-name').value = '';
+        document.getElementById('modal-f4-add-story-assignee').value = '';
+        document.getElementById('modal-f4-add-story-start-date').value = '';
+        document.getElementById('modal-f4-add-story-due-date').value = '';
+        document.getElementById('modal-f4-add-story-jira-key').value = '';
+        document.getElementById('modal-f4-add-story-jira-link').value = '';
+        document.getElementById('modal-f4-add-story-note').value = '';
         
         modal.classList.remove('hidden');
         modal.style.display = 'flex';
@@ -2869,9 +4336,9 @@
     }
 
     // Mở modal thêm Subtask
-    function openF3AddSubtaskModal(epicId, storyId) {
-      const epicResult = findF3ItemById(epicId);
-      const storyResult = findF3ItemById(storyId);
+    function openF4AddSubtaskModal(epicId, storyId) {
+      const epicResult = findF4ItemById(epicId);
+      const storyResult = findF4ItemById(storyId);
       
       if (!epicResult || epicResult.type !== 'epic') {
         showToast('Không tìm thấy Epic', 'error');
@@ -2885,26 +4352,26 @@
 
       const epic = epicResult.item;
       const story = storyResult.item;
-      const modal = document.getElementById('modal-f3-add-subtask');
+      const modal = document.getElementById('modal-f4-add-subtask');
       
       if (modal) {
-        document.getElementById('modal-f3-add-subtask-epic-id').value = epicId;
-        document.getElementById('modal-f3-add-subtask-epic-name').textContent = epic.name || '';
-        document.getElementById('modal-f3-add-subtask-story-id').value = storyId;
-        document.getElementById('modal-f3-add-subtask-story-name').textContent = story.name || '';
+        document.getElementById('modal-f4-add-subtask-epic-id').value = epicId;
+        document.getElementById('modal-f4-add-subtask-epic-name').textContent = epic.name || '';
+        document.getElementById('modal-f4-add-subtask-story-id').value = storyId;
+        document.getElementById('modal-f4-add-subtask-story-name').textContent = story.name || '';
         
         // Tự động sinh Task Code (có thể tùy chỉnh logic này)
         const taskCode = `TASK-${Date.now().toString().slice(-6)}`;
-        document.getElementById('modal-f3-add-subtask-task-code').value = taskCode;
+        document.getElementById('modal-f4-add-subtask-task-code').value = taskCode;
         
         // Reset các trường khác
-        document.getElementById('modal-f3-add-subtask-name').value = '';
-        document.getElementById('modal-f3-add-subtask-assignee').value = '';
-        document.getElementById('modal-f3-add-subtask-start-date').value = '';
-        document.getElementById('modal-f3-add-subtask-due-date').value = '';
-        document.getElementById('modal-f3-add-subtask-jira-key').value = '';
-        document.getElementById('modal-f3-add-subtask-jira-link').value = '';
-        document.getElementById('modal-f3-add-subtask-note').value = '';
+        document.getElementById('modal-f4-add-subtask-name').value = '';
+        document.getElementById('modal-f4-add-subtask-assignee').value = '';
+        document.getElementById('modal-f4-add-subtask-start-date').value = '';
+        document.getElementById('modal-f4-add-subtask-due-date').value = '';
+        document.getElementById('modal-f4-add-subtask-jira-key').value = '';
+        document.getElementById('modal-f4-add-subtask-jira-link').value = '';
+        document.getElementById('modal-f4-add-subtask-note').value = '';
         
         modal.classList.remove('hidden');
         modal.style.display = 'flex';
@@ -2912,8 +4379,8 @@
     }
 
     // Tìm item theo ID trong cấu trúc dữ liệu
-    function findF3ItemById(itemId) {
-      for (const epic of F3_ALL_DATA.epics || []) {
+    function findF4ItemById(itemId) {
+      for (const epic of F4_ALL_DATA.epics || []) {
         if (epic.id === itemId) return { item: epic, type: 'epic' };
         for (const story of epic.stories || []) {
           if (story.id === itemId) return { item: story, type: 'story' };
@@ -2926,8 +4393,8 @@
     }
 
     // Mở modal cập nhật thông tin
-    function openF3DeclarationModal(itemId) {
-      const result = findF3ItemById(itemId);
+    function openF4DeclarationModal(itemId) {
+      const result = findF4ItemById(itemId);
       if (!result) {
         showToast('Không tìm thấy tác vụ', 'error');
         return;
@@ -2941,17 +4408,17 @@
         return;
       }
 
-      const modal = document.getElementById('modal-f3-declaration');
+      const modal = document.getElementById('modal-f4-declaration');
       
       if (modal) {
-        F3_CURRENT_SUBTASK_ID = itemId;
-        document.getElementById('modal-f3-declaration-epic').value = epic ? epic.name : '';
-        document.getElementById('modal-f3-declaration-story').value = story ? story.name : '';
-        document.getElementById('modal-f3-declaration-subtask').value = item.name || '';
-        document.getElementById('modal-f3-declaration-status').value = item.status || '';
-        document.getElementById('modal-f3-declaration-jira-key').value = item.jiraKey || '';
-        document.getElementById('modal-f3-declaration-jira-link').value = item.jiraLink || '';
-        document.getElementById('modal-f3-declaration-note').value = item.note || '';
+        F4_CURRENT_SUBTASK_ID = itemId;
+        document.getElementById('modal-f4-declaration-epic').value = epic ? epic.name : '';
+        document.getElementById('modal-f4-declaration-story').value = story ? story.name : '';
+        document.getElementById('modal-f4-declaration-subtask').value = item.name || '';
+        document.getElementById('modal-f4-declaration-status').value = item.status || '';
+        document.getElementById('modal-f4-declaration-jira-key').value = item.jiraKey || '';
+        document.getElementById('modal-f4-declaration-jira-link').value = item.jiraLink || '';
+        document.getElementById('modal-f4-declaration-note').value = item.note || '';
         
         modal.classList.remove('hidden');
         modal.style.display = 'flex';
@@ -2959,16 +4426,16 @@
     }
 
     // POST: Cập nhật thông tin Subtask (Khai báo)
-    async function updateF3Subtask(subtaskId, data) {
+    async function updateF4Subtask(subtaskId, data) {
       try {
         // Đảm bảo không có subtask_id trong data, chỉ có Id
         const cleanData = { ...data };
         delete cleanData.subtask_id; // Xóa subtask_id nếu có
         
-        console.log('[Form 3] Sending to webhook:', F3_DECLARATION_WEBHOOK_URL);
-        console.log('[Form 3] Payload:', cleanData);
+        console.log('[Form 4] Sending to webhook:', F4_DECLARATION_WEBHOOK_URL);
+        console.log('[Form 4] Payload:', cleanData);
         
-        const response = await fetch(F3_DECLARATION_WEBHOOK_URL, {
+        const response = await fetch(F4_DECLARATION_WEBHOOK_URL, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -2984,15 +4451,15 @@
         const result = await response.json();
         return result;
       } catch (error) {
-        console.error('[Form 3] Error updating subtask:', error);
+        console.error('[Form 4] Error updating subtask:', error);
         throw error;
       }
     }
 
     // POST: Tạo Story mới
-    async function createF3Story(data) {
+    async function createF4Story(data) {
       try {
-        const response = await fetch(F3_WEBHOOK_URL, {
+        const response = await fetch(F4_WEBHOOK_URL, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -3011,15 +4478,15 @@
         const result = await response.json();
         return result;
       } catch (error) {
-        console.error('[Form 3] Error creating story:', error);
+        console.error('[Form 4] Error creating story:', error);
         throw error;
       }
     }
 
     // POST: Tạo Subtask mới
-    async function createF3Subtask(data) {
+    async function createF4Subtask(data) {
       try {
-        const response = await fetch(F3_WEBHOOK_URL, {
+        const response = await fetch(F4_WEBHOOK_URL, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -3038,17 +4505,17 @@
         const result = await response.json();
         return result;
       } catch (error) {
-        console.error('[Form 3] Error creating subtask:', error);
+        console.error('[Form 4] Error creating subtask:', error);
         throw error;
       }
     }
 
     // Lọc dữ liệu
-    function filterF3Data() {
-      const searchTerm = (document.getElementById('f3-search-input')?.value || '').toLowerCase();
-      const statusFilter = document.getElementById('f3-filter-status')?.value || '';
-      const assigneeFilter = document.getElementById('f3-filter-assignee')?.value || '';
-      const levelFilter = document.getElementById('f3-filter-level')?.value || 'all';
+    function filterF4Data() {
+      const searchTerm = (document.getElementById('f4-search-input')?.value || '').toLowerCase();
+      const statusFilter = document.getElementById('f4-filter-status')?.value || '';
+      const assigneeFilter = document.getElementById('f4-filter-assignee')?.value || '';
+      const levelFilter = document.getElementById('f4-filter-level')?.value || 'all';
 
       // Kiểm tra item có match với filter không (không bao gồm level filter)
       const matchesFilters = (item) => {
@@ -3138,7 +4605,7 @@
 
       // Áp dụng filter từ dưới lên (subtask -> story -> epic)
       // Đảm bảo chỉ giữ lại các subtask match, sau đó filter story, cuối cùng filter epic
-      const filteredEpics = (F3_ALL_DATA.epics || []).map(epic => {
+      const filteredEpics = (F4_ALL_DATA.epics || []).map(epic => {
         // Filter stories và subtasks của chúng
         const filteredStories = (epic.stories || []).map(story => {
           // Luôn filter subtasks trước
@@ -3151,19 +4618,19 @@
         return { ...epic, stories: filteredStories };
       }).filter(filterEpic); // Cuối cùng filter epics
 
-      F3_FILTERED_DATA = { epics: filteredEpics };
+      F4_FILTERED_DATA = { epics: filteredEpics };
       
       // Render lại bảng với dữ liệu đã filter
-      renderF3Table();
+      renderF4Table();
     }
 
     // Cập nhật danh sách assignee trong filter
-    function updateF3AssigneeFilter() {
-      const assigneeSelect = document.getElementById('f3-filter-assignee');
+    function updateF4AssigneeFilter() {
+      const assigneeSelect = document.getElementById('f4-filter-assignee');
       if (!assigneeSelect) return;
 
       const assignees = new Set();
-      (F3_ALL_DATA.epics || []).forEach(epic => {
+      (F4_ALL_DATA.epics || []).forEach(epic => {
         if (epic.assignee) assignees.add(epic.assignee);
         (epic.stories || []).forEach(story => {
           if (story.assignee) assignees.add(story.assignee);
@@ -3184,11 +4651,11 @@
       assigneeSelect.value = currentValue;
     }
 
-    async function loadF3Data() {
-      const loadingDiv = document.getElementById('f3-loading');
-      const loadBtn = document.getElementById('f3-load-data-btn');
-      const tbody = document.getElementById('f3-table-body');
-      const webhookUrl = F3_WEBHOOK_URL;
+    async function loadF4Data() {
+      const loadingDiv = document.getElementById('f4-loading');
+      const loadBtn = document.getElementById('f4-load-data-btn');
+      const tbody = document.getElementById('f4-table-body');
+      const webhookUrl = F4_WEBHOOK_URL;
       try {
         if (loadingDiv) loadingDiv.classList.remove('hidden');
         if (loadBtn) loadBtn.disabled = true;
@@ -3200,14 +4667,14 @@
         let data = JSON.parse(responseText);
         
         // Tổ chức dữ liệu thành cấu trúc phân cấp
-        // Dữ liệu mới đã có cấu trúc { epics: [...] }, hàm organizeF3Data sẽ xử lý
-        F3_ALL_DATA = organizeF3Data(data);
-        F3_FILTERED_DATA = F3_ALL_DATA;
+        // Dữ liệu mới đã có cấu trúc { epics: [...] }, hàm organizeF4Data sẽ xử lý
+        F4_ALL_DATA = organizeF4Data(data);
+        F4_FILTERED_DATA = F4_ALL_DATA;
         
         // Đếm tổng số bản ghi để hiển thị thông báo
         let totalRecords = 0;
-        if (F3_ALL_DATA.epics && Array.isArray(F3_ALL_DATA.epics)) {
-          F3_ALL_DATA.epics.forEach(epic => {
+        if (F4_ALL_DATA.epics && Array.isArray(F4_ALL_DATA.epics)) {
+          F4_ALL_DATA.epics.forEach(epic => {
             totalRecords++; // Đếm epic
             if (epic.stories && Array.isArray(epic.stories)) {
               epic.stories.forEach(story => {
@@ -3221,24 +4688,24 @@
         }
         
         // Tự động mở tất cả Epic và Story
-        F3_EXPANDED_EPICS.clear();
-        F3_EXPANDED_STORIES.clear();
-        (F3_ALL_DATA.epics || []).forEach(epic => {
-          F3_EXPANDED_EPICS.add(epic.id);
+        F4_EXPANDED_EPICS.clear();
+        F4_EXPANDED_STORIES.clear();
+        (F4_ALL_DATA.epics || []).forEach(epic => {
+          F4_EXPANDED_EPICS.add(epic.id);
           (epic.stories || []).forEach(story => {
-            F3_EXPANDED_STORIES.add(story.id);
+            F4_EXPANDED_STORIES.add(story.id);
           });
         });
         
         // Cập nhật filter assignee
-        updateF3AssigneeFilter();
+        updateF4AssigneeFilter();
         
         // Render bảng
-        renderF3Table();
+        renderF4Table();
         
         showToast(`Đã tải ${totalRecords} bản ghi`, 'success');
       } catch (error) {
-        console.error('[Form 3] Error loading data:', error);
+        console.error('[Form 4] Error loading data:', error);
         if (tbody) tbody.innerHTML = `<div class="px-6 py-8 text-center text-red-500">Lỗi: ${escapeHtml(error.message)}</div>`;
         showToast('Lỗi khi tải dữ liệu: ' + error.message, 'error');
       } finally {
@@ -3247,114 +4714,114 @@
       }
     }
 
-    function exportF3ToExcel() {
+    function exportF4ToExcel() {
       showToast('Chức năng xuất Excel đang được phát triển. Vui lòng cài đặt thư viện SheetJS (XLSX).', 'info');
     }
 
     // Hàm đóng modal declaration
-    function closeF3DeclarationModal() {
-      const modalF3Declaration = document.getElementById('modal-f3-declaration');
-      if (modalF3Declaration) {
-        modalF3Declaration.classList.add('hidden');
-        modalF3Declaration.style.display = 'none';
-        F3_CURRENT_SUBTASK_ID = null;
+    function closeF4DeclarationModal() {
+      const modalF4Declaration = document.getElementById('modal-f4-declaration');
+      if (modalF4Declaration) {
+        modalF4Declaration.classList.add('hidden');
+        modalF4Declaration.style.display = 'none';
+        F4_CURRENT_SUBTASK_ID = null;
       }
     }
 
-    // Khởi tạo Form 3 Event Listeners
-    function initF3EventListeners() {
-      // Form 3 Event Listeners
-      const f3LoadBtn = document.getElementById('f3-load-data-btn');
-      const f3ExportBtn = document.getElementById('f3-export-btn');
-      const f3SearchInput = document.getElementById('f3-search-input');
-      const f3FilterStatus = document.getElementById('f3-filter-status');
-      const f3FilterAssignee = document.getElementById('f3-filter-assignee');
-      const f3FilterLevel = document.getElementById('f3-filter-level');
+    // Khởi tạo Form 4 Event Listeners
+    function initF4EventListeners() {
+      // Form 4 Event Listeners
+      const f4LoadBtn = document.getElementById('f4-load-data-btn');
+      const f4ExportBtn = document.getElementById('f4-export-btn');
+      const f4SearchInput = document.getElementById('f4-search-input');
+      const f4FilterStatus = document.getElementById('f4-filter-status');
+      const f4FilterAssignee = document.getElementById('f4-filter-assignee');
+      const f4FilterLevel = document.getElementById('f4-filter-level');
       
-      if (f3LoadBtn) f3LoadBtn.addEventListener('click', loadF3Data);
-      if (f3ExportBtn) f3ExportBtn.addEventListener('click', exportF3ToExcel);
+      if (f4LoadBtn) f4LoadBtn.addEventListener('click', loadF4Data);
+      if (f4ExportBtn) f4ExportBtn.addEventListener('click', exportF4ToExcel);
       
       // Debounce cho search input để tránh filter quá nhiều lần
       let searchTimeout = null;
-      if (f3SearchInput) {
-        f3SearchInput.addEventListener('input', (e) => {
+      if (f4SearchInput) {
+        f4SearchInput.addEventListener('input', (e) => {
           clearTimeout(searchTimeout);
           searchTimeout = setTimeout(() => {
-            filterF3Data();
+            filterF4Data();
           }, 300); // Đợi 300ms sau khi người dùng ngừng gõ
         });
         
         // Cho phép Enter để filter ngay lập tức
-        f3SearchInput.addEventListener('keydown', (e) => {
+        f4SearchInput.addEventListener('keydown', (e) => {
           if (e.key === 'Enter') {
             clearTimeout(searchTimeout);
-            filterF3Data();
+            filterF4Data();
           }
         });
       }
       
       // Các filter khác áp dụng ngay lập tức
-      if (f3FilterStatus) {
-        f3FilterStatus.addEventListener('change', () => {
-          filterF3Data();
+      if (f4FilterStatus) {
+        f4FilterStatus.addEventListener('change', () => {
+          filterF4Data();
         });
       }
-      if (f3FilterAssignee) {
-        f3FilterAssignee.addEventListener('change', () => {
-          filterF3Data();
+      if (f4FilterAssignee) {
+        f4FilterAssignee.addEventListener('change', () => {
+          filterF4Data();
         });
       }
-      if (f3FilterLevel) {
-        f3FilterLevel.addEventListener('change', () => {
-          filterF3Data();
+      if (f4FilterLevel) {
+        f4FilterLevel.addEventListener('change', () => {
+          filterF4Data();
         });
       }
 
       // Modal Declaration event listeners
-      const modalF3Declaration = document.getElementById('modal-f3-declaration');
-      const modalF3DeclarationClose = document.getElementById('modal-f3-declaration-close');
-      const modalF3DeclarationCancel = document.getElementById('modal-f3-declaration-cancel');
-      const modalF3DeclarationSubmit = document.getElementById('modal-f3-declaration-submit');
-      const modalF3DeclarationOverlay = document.getElementById('modal-f3-declaration-overlay');
-      const modalF3DeclarationContent = document.getElementById('modal-f3-declaration-content');
+      const modalF4Declaration = document.getElementById('modal-f4-declaration');
+      const modalF4DeclarationClose = document.getElementById('modal-f4-declaration-close');
+      const modalF4DeclarationCancel = document.getElementById('modal-f4-declaration-cancel');
+      const modalF4DeclarationSubmit = document.getElementById('modal-f4-declaration-submit');
+      const modalF4DeclarationOverlay = document.getElementById('modal-f4-declaration-overlay');
+      const modalF4DeclarationContent = document.getElementById('modal-f4-declaration-content');
       
       // Ngăn click vào content đóng modal
-      if (modalF3DeclarationContent) {
-        modalF3DeclarationContent.addEventListener('click', (e) => {
+      if (modalF4DeclarationContent) {
+        modalF4DeclarationContent.addEventListener('click', (e) => {
           e.stopPropagation();
         });
       }
       
-      if (modalF3DeclarationClose) {
-        modalF3DeclarationClose.addEventListener('click', (e) => {
+      if (modalF4DeclarationClose) {
+        modalF4DeclarationClose.addEventListener('click', (e) => {
           e.preventDefault();
           e.stopPropagation();
-          closeF3DeclarationModal();
+          closeF4DeclarationModal();
         });
       }
       
-      if (modalF3DeclarationCancel) {
-        modalF3DeclarationCancel.addEventListener('click', (e) => {
+      if (modalF4DeclarationCancel) {
+        modalF4DeclarationCancel.addEventListener('click', (e) => {
           e.preventDefault();
           e.stopPropagation();
-          closeF3DeclarationModal();
+          closeF4DeclarationModal();
         });
       }
       
-      if (modalF3DeclarationSubmit) {
-        modalF3DeclarationSubmit.addEventListener('click', async (e) => {
+      if (modalF4DeclarationSubmit) {
+        modalF4DeclarationSubmit.addEventListener('click', async (e) => {
           e.preventDefault();
           e.stopPropagation();
           
-          if (!F3_CURRENT_SUBTASK_ID) {
+          if (!F4_CURRENT_SUBTASK_ID) {
             showToast('Không tìm thấy Subtask cần cập nhật', 'error');
             return;
           }
 
-          const status = document.getElementById('modal-f3-declaration-status')?.value;
-          const jiraKey = document.getElementById('modal-f3-declaration-jira-key')?.value;
-          const jiraLink = document.getElementById('modal-f3-declaration-jira-link')?.value;
-          const note = document.getElementById('modal-f3-declaration-note')?.value;
+          const status = document.getElementById('modal-f4-declaration-status')?.value;
+          const jiraKey = document.getElementById('modal-f4-declaration-jira-key')?.value;
+          const jiraLink = document.getElementById('modal-f4-declaration-jira-link')?.value;
+          const note = document.getElementById('modal-f4-declaration-note')?.value;
 
           if (!status || !jiraKey) {
             showToast('Vui lòng điền đầy đủ thông tin bắt buộc (Trạng thái, Mã Jira)', 'error');
@@ -3362,11 +4829,11 @@
           }
 
           try {
-            modalF3DeclarationSubmit.disabled = true;
-            const originalText = modalF3DeclarationSubmit.textContent;
-            modalF3DeclarationSubmit.textContent = 'Đang lưu...';
+            modalF4DeclarationSubmit.disabled = true;
+            const originalText = modalF4DeclarationSubmit.textContent;
+            modalF4DeclarationSubmit.textContent = 'Đang lưu...';
 
-            const result = findF3ItemById(F3_CURRENT_SUBTASK_ID);
+            const result = findF4ItemById(F4_CURRENT_SUBTASK_ID);
             if (!result) {
               throw new Error('Không tìm thấy Subtask');
             }
@@ -3389,10 +4856,10 @@
             const serverId = item.serverId;
             
             if (!serverId) {
-              console.error('[Form 3] ServerId not found:', item);
+              console.error('[Form 4] ServerId not found:', item);
               showToast('Không tìm thấy Id từ server. Vui lòng tải lại dữ liệu.', 'error');
-              modalF3DeclarationSubmit.disabled = false;
-              modalF3DeclarationSubmit.textContent = 'Lưu thay đổi';
+              modalF4DeclarationSubmit.disabled = false;
+              modalF4DeclarationSubmit.textContent = 'Lưu thay đổi';
               return;
             }
             
@@ -3414,149 +4881,149 @@
               completed_date: item.completedDate || ''
             };
             
-            console.log('[Form 3] Sending payload:', payload);
+            console.log('[Form 4] Sending payload:', payload);
             
-            await updateF3Subtask(F3_CURRENT_SUBTASK_ID, payload);
+            await updateF4Subtask(F4_CURRENT_SUBTASK_ID, payload);
 
-            // Cập nhật dữ liệu local ngay lập tức trong F3_ALL_DATA
-            const updatedResult = findF3ItemById(F3_CURRENT_SUBTASK_ID);
+            // Cập nhật dữ liệu local ngay lập tức trong F4_ALL_DATA
+            const updatedResult = findF4ItemById(F4_CURRENT_SUBTASK_ID);
             if (updatedResult && updatedResult.item) {
               // Lưu giá trị cũ để debug
               const oldJiraKey = updatedResult.item.jiraKey;
               
-              // Cập nhật trực tiếp vào object trong F3_ALL_DATA
+              // Cập nhật trực tiếp vào object trong F4_ALL_DATA
               updatedResult.item.status = status;
               updatedResult.item.jiraKey = jiraKey || '';
               updatedResult.item.jiraLink = jiraLink || '';
               updatedResult.item.note = note || '';
               
-              console.log('[Form 3] Cập nhật dữ liệu local:');
-              console.log('  - Subtask ID:', F3_CURRENT_SUBTASK_ID);
+              console.log('[Form 4] Cập nhật dữ liệu local:');
+              console.log('  - Subtask ID:', F4_CURRENT_SUBTASK_ID);
               console.log('  - jiraKey cũ:', oldJiraKey);
               console.log('  - jiraKey mới:', updatedResult.item.jiraKey);
               console.log('  - status:', updatedResult.item.status);
               console.log('  - Item object:', updatedResult.item);
               
-              // Áp dụng lại filter để tạo lại F3_FILTERED_DATA từ F3_ALL_DATA đã cập nhật
-              // Hàm filterF3Data() sẽ tự động gọi renderF3Table() ở cuối
-              filterF3Data();
+              // Áp dụng lại filter để tạo lại F4_FILTERED_DATA từ F4_ALL_DATA đã cập nhật
+              // Hàm filterF4Data() sẽ tự động gọi renderF4Table() ở cuối
+              filterF4Data();
             } else {
-              console.error('[Form 3] Không tìm thấy item để cập nhật:', F3_CURRENT_SUBTASK_ID);
-              console.error('[Form 3] F3_ALL_DATA:', F3_ALL_DATA);
+              console.error('[Form 4] Không tìm thấy item để cập nhật:', F4_CURRENT_SUBTASK_ID);
+              console.error('[Form 4] F4_ALL_DATA:', F4_ALL_DATA);
               // Nếu không tìm thấy, vẫn render lại để đảm bảo UI được cập nhật
-              renderF3Table();
+              renderF4Table();
             }
 
             showToast('Cập nhật thông tin thành công', 'success');
             
             // Đóng modal
-            closeF3DeclarationModal();
+            closeF4DeclarationModal();
 
             // Tải lại dữ liệu từ server để đồng bộ (chạy ngầm)
-            loadF3Data().catch(err => {
+            loadF4Data().catch(err => {
               console.error('Lỗi khi tải lại dữ liệu:', err);
             });
           } catch (error) {
-            console.error('[Form 3] Error updating subtask:', error);
+            console.error('[Form 4] Error updating subtask:', error);
             showToast('Lỗi khi cập nhật: ' + error.message, 'error');
           } finally {
-            modalF3DeclarationSubmit.disabled = false;
-            modalF3DeclarationSubmit.textContent = 'Lưu thay đổi';
+            modalF4DeclarationSubmit.disabled = false;
+            modalF4DeclarationSubmit.textContent = 'Lưu thay đổi';
           }
         });
       }
 
       // Modal overlay click để đóng modal
-      if (modalF3DeclarationOverlay) {
-        modalF3DeclarationOverlay.addEventListener('click', (e) => {
+      if (modalF4DeclarationOverlay) {
+        modalF4DeclarationOverlay.addEventListener('click', (e) => {
           e.preventDefault();
-          closeF3DeclarationModal();
+          closeF4DeclarationModal();
         });
       }
 
       // Click vào modal container để đóng
-      if (modalF3Declaration) {
-        modalF3Declaration.addEventListener('click', (e) => {
-          if (e.target === modalF3Declaration) {
-            closeF3DeclarationModal();
+      if (modalF4Declaration) {
+        modalF4Declaration.addEventListener('click', (e) => {
+          if (e.target === modalF4Declaration) {
+            closeF4DeclarationModal();
           }
         });
       }
 
       // Modal Add Story
-      const modalF3AddStory = document.getElementById('modal-f3-add-story');
-      const modalF3AddStoryClose = document.getElementById('modal-f3-add-story-close');
-      const modalF3AddStoryCancel = document.getElementById('modal-f3-add-story-cancel');
-      const modalF3AddStorySubmit = document.getElementById('modal-f3-add-story-submit');
-      const modalF3AddStoryOverlay = document.getElementById('modal-f3-add-story-overlay');
-      const modalF3AddStoryContent = document.getElementById('modal-f3-add-story-content');
+      const modalF4AddStory = document.getElementById('modal-f4-add-story');
+      const modalF4AddStoryClose = document.getElementById('modal-f4-add-story-close');
+      const modalF4AddStoryCancel = document.getElementById('modal-f4-add-story-cancel');
+      const modalF4AddStorySubmit = document.getElementById('modal-f4-add-story-submit');
+      const modalF4AddStoryOverlay = document.getElementById('modal-f4-add-story-overlay');
+      const modalF4AddStoryContent = document.getElementById('modal-f4-add-story-content');
       
-      const closeModalF3AddStory = () => {
-        const modal = document.getElementById('modal-f3-add-story');
+      const closeModalF4AddStory = () => {
+        const modal = document.getElementById('modal-f4-add-story');
         if (modal) {
           modal.classList.add('hidden');
           modal.style.display = 'none';
         }
       };
 
-      if (modalF3AddStoryContent) {
-        modalF3AddStoryContent.addEventListener('click', (e) => {
+      if (modalF4AddStoryContent) {
+        modalF4AddStoryContent.addEventListener('click', (e) => {
           e.stopPropagation();
         });
       }
 
-      if (modalF3AddStoryClose) {
-        modalF3AddStoryClose.addEventListener('click', (e) => {
+      if (modalF4AddStoryClose) {
+        modalF4AddStoryClose.addEventListener('click', (e) => {
           e.preventDefault();
           e.stopPropagation();
-          closeModalF3AddStory();
+          closeModalF4AddStory();
         });
       }
 
-      if (modalF3AddStoryCancel) {
-        modalF3AddStoryCancel.addEventListener('click', (e) => {
+      if (modalF4AddStoryCancel) {
+        modalF4AddStoryCancel.addEventListener('click', (e) => {
           e.preventDefault();
           e.stopPropagation();
-          closeModalF3AddStory();
+          closeModalF4AddStory();
         });
       }
 
-      if (modalF3AddStoryOverlay) {
-        modalF3AddStoryOverlay.addEventListener('click', (e) => {
+      if (modalF4AddStoryOverlay) {
+        modalF4AddStoryOverlay.addEventListener('click', (e) => {
           e.preventDefault();
-          closeModalF3AddStory();
+          closeModalF4AddStory();
         });
       }
 
-      if (modalF3AddStory) {
-        modalF3AddStory.addEventListener('click', (e) => {
-          if (e.target === modalF3AddStory) {
-            closeModalF3AddStory();
+      if (modalF4AddStory) {
+        modalF4AddStory.addEventListener('click', (e) => {
+          if (e.target === modalF4AddStory) {
+            closeModalF4AddStory();
           }
         });
       }
       
-      if (modalF3AddStorySubmit) {
-        modalF3AddStorySubmit.addEventListener('click', async (e) => {
+      if (modalF4AddStorySubmit) {
+        modalF4AddStorySubmit.addEventListener('click', async (e) => {
           e.preventDefault();
           e.stopPropagation();
           
-          const form = document.getElementById('modal-f3-add-story-form');
+          const form = document.getElementById('modal-f4-add-story-form');
           if (!form || !form.checkValidity()) {
             form?.reportValidity();
             return;
           }
 
-          const epicId = document.getElementById('modal-f3-add-story-epic-id')?.value;
-          const epicName = document.getElementById('modal-f3-add-story-epic-name')?.textContent || '';
-          const storyName = document.getElementById('modal-f3-add-story-name')?.value;
-          const storyCode = document.getElementById('modal-f3-add-story-code')?.value || '';
-          const assignee = document.getElementById('modal-f3-add-story-assignee')?.value;
-          const startDate = document.getElementById('modal-f3-add-story-start-date')?.value;
-          const dueDate = document.getElementById('modal-f3-add-story-due-date')?.value;
-          const jiraKey = document.getElementById('modal-f3-add-story-jira-key')?.value;
-          const jiraLink = document.getElementById('modal-f3-add-story-jira-link')?.value || '';
-          const note = document.getElementById('modal-f3-add-story-note')?.value || '';
+          const epicId = document.getElementById('modal-f4-add-story-epic-id')?.value;
+          const epicName = document.getElementById('modal-f4-add-story-epic-name')?.textContent || '';
+          const storyName = document.getElementById('modal-f4-add-story-name')?.value;
+          const storyCode = document.getElementById('modal-f4-add-story-code')?.value || '';
+          const assignee = document.getElementById('modal-f4-add-story-assignee')?.value;
+          const startDate = document.getElementById('modal-f4-add-story-start-date')?.value;
+          const dueDate = document.getElementById('modal-f4-add-story-due-date')?.value;
+          const jiraKey = document.getElementById('modal-f4-add-story-jira-key')?.value;
+          const jiraLink = document.getElementById('modal-f4-add-story-jira-link')?.value || '';
+          const note = document.getElementById('modal-f4-add-story-note')?.value || '';
 
           if (!storyName || !assignee || !startDate || !dueDate || !jiraKey) {
             showToast('Vui lòng điền đầy đủ thông tin bắt buộc', 'error');
@@ -3564,11 +5031,11 @@
           }
 
           try {
-            modalF3AddStorySubmit.disabled = true;
-            const originalText = modalF3AddStorySubmit.textContent;
-            modalF3AddStorySubmit.textContent = 'Đang thêm...';
+            modalF4AddStorySubmit.disabled = true;
+            const originalText = modalF4AddStorySubmit.textContent;
+            modalF4AddStorySubmit.textContent = 'Đang thêm...';
 
-            await createF3Story({
+            await createF4Story({
               level: 'story',
               epic_id: epicId,
               epic_name: epicName,
@@ -3586,97 +5053,97 @@
             showToast('Thêm Story thành công', 'success');
             
             // Đóng modal và reset form
-            closeModalF3AddStory();
+            closeModalF4AddStory();
             if (form) form.reset();
 
             // Tải lại dữ liệu
-            await loadF3Data();
+            await loadF4Data();
           } catch (error) {
-            console.error('[Form 3] Error creating story:', error);
+            console.error('[Form 4] Error creating story:', error);
             showToast('Lỗi khi thêm Story: ' + error.message, 'error');
           } finally {
-            modalF3AddStorySubmit.disabled = false;
-            modalF3AddStorySubmit.textContent = 'Thêm Story';
+            modalF4AddStorySubmit.disabled = false;
+            modalF4AddStorySubmit.textContent = 'Thêm Story';
           }
         });
       }
 
       // Modal Add Subtask
-      const modalF3AddSubtask = document.getElementById('modal-f3-add-subtask');
-      const modalF3AddSubtaskClose = document.getElementById('modal-f3-add-subtask-close');
-      const modalF3AddSubtaskCancel = document.getElementById('modal-f3-add-subtask-cancel');
-      const modalF3AddSubtaskSubmit = document.getElementById('modal-f3-add-subtask-submit');
-      const modalF3AddSubtaskOverlay = document.getElementById('modal-f3-add-subtask-overlay');
-      const modalF3AddSubtaskContent = document.getElementById('modal-f3-add-subtask-content');
+      const modalF4AddSubtask = document.getElementById('modal-f4-add-subtask');
+      const modalF4AddSubtaskClose = document.getElementById('modal-f4-add-subtask-close');
+      const modalF4AddSubtaskCancel = document.getElementById('modal-f4-add-subtask-cancel');
+      const modalF4AddSubtaskSubmit = document.getElementById('modal-f4-add-subtask-submit');
+      const modalF4AddSubtaskOverlay = document.getElementById('modal-f4-add-subtask-overlay');
+      const modalF4AddSubtaskContent = document.getElementById('modal-f4-add-subtask-content');
       
-      const closeModalF3AddSubtask = () => {
-        const modal = document.getElementById('modal-f3-add-subtask');
+      const closeModalF4AddSubtask = () => {
+        const modal = document.getElementById('modal-f4-add-subtask');
         if (modal) {
           modal.classList.add('hidden');
           modal.style.display = 'none';
         }
       };
 
-      if (modalF3AddSubtaskContent) {
-        modalF3AddSubtaskContent.addEventListener('click', (e) => {
+      if (modalF4AddSubtaskContent) {
+        modalF4AddSubtaskContent.addEventListener('click', (e) => {
           e.stopPropagation();
         });
       }
 
-      if (modalF3AddSubtaskClose) {
-        modalF3AddSubtaskClose.addEventListener('click', (e) => {
+      if (modalF4AddSubtaskClose) {
+        modalF4AddSubtaskClose.addEventListener('click', (e) => {
           e.preventDefault();
           e.stopPropagation();
-          closeModalF3AddSubtask();
+          closeModalF4AddSubtask();
         });
       }
 
-      if (modalF3AddSubtaskCancel) {
-        modalF3AddSubtaskCancel.addEventListener('click', (e) => {
+      if (modalF4AddSubtaskCancel) {
+        modalF4AddSubtaskCancel.addEventListener('click', (e) => {
           e.preventDefault();
           e.stopPropagation();
-          closeModalF3AddSubtask();
+          closeModalF4AddSubtask();
         });
       }
 
-      if (modalF3AddSubtaskOverlay) {
-        modalF3AddSubtaskOverlay.addEventListener('click', (e) => {
+      if (modalF4AddSubtaskOverlay) {
+        modalF4AddSubtaskOverlay.addEventListener('click', (e) => {
           e.preventDefault();
-          closeModalF3AddSubtask();
+          closeModalF4AddSubtask();
         });
       }
 
-      if (modalF3AddSubtask) {
-        modalF3AddSubtask.addEventListener('click', (e) => {
-          if (e.target === modalF3AddSubtask) {
-            closeModalF3AddSubtask();
+      if (modalF4AddSubtask) {
+        modalF4AddSubtask.addEventListener('click', (e) => {
+          if (e.target === modalF4AddSubtask) {
+            closeModalF4AddSubtask();
           }
         });
       }
       
-      if (modalF3AddSubtaskSubmit) {
-        modalF3AddSubtaskSubmit.addEventListener('click', async (e) => {
+      if (modalF4AddSubtaskSubmit) {
+        modalF4AddSubtaskSubmit.addEventListener('click', async (e) => {
           e.preventDefault();
           e.stopPropagation();
           
-          const form = document.getElementById('modal-f3-add-subtask-form');
+          const form = document.getElementById('modal-f4-add-subtask-form');
           if (!form || !form.checkValidity()) {
             form?.reportValidity();
             return;
           }
 
-          const epicId = document.getElementById('modal-f3-add-subtask-epic-id')?.value;
-          const epicName = document.getElementById('modal-f3-add-subtask-epic-name')?.textContent || '';
-          const storyId = document.getElementById('modal-f3-add-subtask-story-id')?.value;
-          const storyName = document.getElementById('modal-f3-add-subtask-story-name')?.textContent || '';
-          const subtaskName = document.getElementById('modal-f3-add-subtask-name')?.value;
-          const taskCode = document.getElementById('modal-f3-add-subtask-task-code')?.value || '';
-          const assignee = document.getElementById('modal-f3-add-subtask-assignee')?.value;
-          const startDate = document.getElementById('modal-f3-add-subtask-start-date')?.value;
-          const dueDate = document.getElementById('modal-f3-add-subtask-due-date')?.value;
-          const jiraKey = document.getElementById('modal-f3-add-subtask-jira-key')?.value;
-          const jiraLink = document.getElementById('modal-f3-add-subtask-jira-link')?.value || '';
-          const note = document.getElementById('modal-f3-add-subtask-note')?.value || '';
+          const epicId = document.getElementById('modal-f4-add-subtask-epic-id')?.value;
+          const epicName = document.getElementById('modal-f4-add-subtask-epic-name')?.textContent || '';
+          const storyId = document.getElementById('modal-f4-add-subtask-story-id')?.value;
+          const storyName = document.getElementById('modal-f4-add-subtask-story-name')?.textContent || '';
+          const subtaskName = document.getElementById('modal-f4-add-subtask-name')?.value;
+          const taskCode = document.getElementById('modal-f4-add-subtask-task-code')?.value || '';
+          const assignee = document.getElementById('modal-f4-add-subtask-assignee')?.value;
+          const startDate = document.getElementById('modal-f4-add-subtask-start-date')?.value;
+          const dueDate = document.getElementById('modal-f4-add-subtask-due-date')?.value;
+          const jiraKey = document.getElementById('modal-f4-add-subtask-jira-key')?.value;
+          const jiraLink = document.getElementById('modal-f4-add-subtask-jira-link')?.value || '';
+          const note = document.getElementById('modal-f4-add-subtask-note')?.value || '';
 
           if (!subtaskName || !assignee || !startDate || !dueDate || !jiraKey) {
             showToast('Vui lòng điền đầy đủ thông tin bắt buộc', 'error');
@@ -3684,11 +5151,11 @@
           }
 
           try {
-            modalF3AddSubtaskSubmit.disabled = true;
-            const originalText = modalF3AddSubtaskSubmit.textContent;
-            modalF3AddSubtaskSubmit.textContent = 'Đang thêm...';
+            modalF4AddSubtaskSubmit.disabled = true;
+            const originalText = modalF4AddSubtaskSubmit.textContent;
+            modalF4AddSubtaskSubmit.textContent = 'Đang thêm...';
 
-            await createF3Subtask({
+            await createF4Subtask({
               level: 'subtask',
               epic_id: epicId,
               epic_name: epicName,
@@ -3708,17 +5175,17 @@
             showToast('Thêm Sub-task thành công', 'success');
             
             // Đóng modal và reset form
-            closeModalF3AddSubtask();
+            closeModalF4AddSubtask();
             if (form) form.reset();
 
             // Tải lại dữ liệu
-            await loadF3Data();
+            await loadF4Data();
           } catch (error) {
-            console.error('[Form 3] Error creating subtask:', error);
+            console.error('[Form 4] Error creating subtask:', error);
             showToast('Lỗi khi thêm Sub-task: ' + error.message, 'error');
           } finally {
-            modalF3AddSubtaskSubmit.disabled = false;
-            modalF3AddSubtaskSubmit.textContent = 'Thêm Sub-task';
+            modalF4AddSubtaskSubmit.disabled = false;
+            modalF4AddSubtaskSubmit.textContent = 'Thêm Sub-task';
           }
         });
       }
@@ -3726,46 +5193,46 @@
 
     // Gọi khởi tạo khi DOM sẵn sàng
     if (document.readyState === 'loading') {
-      document.addEventListener('DOMContentLoaded', initF3EventListeners);
+      document.addEventListener('DOMContentLoaded', initF4EventListeners);
     } else {
-      initF3EventListeners();
+      initF4EventListeners();
     }
 
   </script>
 
   <!-- MODAL SYSTEM - FORM 3: DECLARATION (Khai báo thay đổi) -->
   <!-- ============================================ -->
-  <div id="modal-f3-declaration" class="modal-container modal-f3-declaration fixed inset-0 z-50 hidden" style="display: none;">
-    <div id="modal-f3-declaration-overlay" class="modal-overlay modal-f3-declaration-overlay fixed inset-0 bg-black/30 backdrop-blur-sm z-40"></div>
-    <div id="modal-f3-declaration-content" class="modal-content modal-f3-declaration-content fixed inset-0 z-50 flex items-center justify-center p-4 pointer-events-none">
+  <div id="modal-f4-declaration" class="modal-container modal-f4-declaration fixed inset-0 z-50 hidden" style="display: none;">
+    <div id="modal-f4-declaration-overlay" class="modal-overlay modal-f4-declaration-overlay fixed inset-0 bg-black/30 backdrop-blur-sm z-40"></div>
+    <div id="modal-f4-declaration-content" class="modal-content modal-f4-declaration-content fixed inset-0 z-50 flex items-center justify-center p-4 pointer-events-none">
       <div class="w-full max-w-3xl rounded-xl bg-white p-8 shadow-xl pointer-events-auto relative z-50 max-h-[90vh] overflow-hidden flex flex-col">
         <div class="flex items-start justify-between mb-6">
           <div class="flex flex-col gap-1">
             <h2 class="text-2xl font-bold text-gray-900">Cập nhật thông tin</h2>
             <p class="text-sm text-gray-600">Cập nhật trạng thái, Jira Key và Note cho tác vụ</p>
           </div>
-          <button type="button" id="modal-f3-declaration-close" class="modal-close modal-f3-declaration-close text-gray-500 hover:text-gray-700 transition">
+          <button type="button" id="modal-f4-declaration-close" class="modal-close modal-f4-declaration-close text-gray-500 hover:text-gray-700 transition">
             <span class="material-icons">close</span>
           </button>
         </div>
         
         <!-- Modal Body -->
-        <div id="modal-f3-declaration-body" class="modal-body modal-f3-declaration-body overflow-y-auto flex-1 p-4 space-y-6">
+        <div id="modal-f4-declaration-body" class="modal-body modal-f4-declaration-body overflow-y-auto flex-1 p-4 space-y-6">
           <!-- Thông tin tác vụ -->
           <div class="border border-gray-200 rounded-lg p-4 bg-gray-50">
             <h4 class="text-lg font-semibold text-gray-700 mb-3">Thông tin tác vụ</h4>
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <label class="block text-sm font-medium text-gray-700 mb-1">Epic</label>
-                <input type="text" id="modal-f3-declaration-epic" class="w-full px-3 py-2 border border-gray-300 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-blue-500" readonly/>
+                <input type="text" id="modal-f4-declaration-epic" class="w-full px-3 py-2 border border-gray-300 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-blue-500" readonly/>
               </div>
               <div>
                 <label class="block text-sm font-medium text-gray-700 mb-1">Story</label>
-                <input type="text" id="modal-f3-declaration-story" class="w-full px-3 py-2 border border-gray-300 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-blue-500" readonly/>
+                <input type="text" id="modal-f4-declaration-story" class="w-full px-3 py-2 border border-gray-300 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-blue-500" readonly/>
               </div>
               <div class="md:col-span-2">
                 <label class="block text-sm font-medium text-gray-700 mb-1">Subtask</label>
-                <input type="text" id="modal-f3-declaration-subtask" class="w-full px-3 py-2 border border-gray-300 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-blue-500" readonly/>
+                <input type="text" id="modal-f4-declaration-subtask" class="w-full px-3 py-2 border border-gray-300 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-blue-500" readonly/>
               </div>
             </div>
           </div>
@@ -3777,7 +5244,7 @@
             <!-- Trạng thái -->
             <div class="mb-4">
               <label class="block text-sm font-medium text-gray-700 mb-2">Trạng thái *</label>
-              <select id="modal-f3-declaration-status" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" required>
+              <select id="modal-f4-declaration-status" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" required>
                 <option value="">Chọn trạng thái</option>
                 <option value="Hoàn thành">Hoàn thành</option>
                 <option value="Đang triển khai">Đang triển khai</option>
@@ -3789,27 +5256,27 @@
             <!-- Mã Jira -->
             <div class="mb-4">
               <label class="block text-sm font-medium text-gray-700 mb-2">Mã Jira *</label>
-              <input type="text" id="modal-f3-declaration-jira-key" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Nhập Mã Jira..."/>
+              <input type="text" id="modal-f4-declaration-jira-key" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Nhập Mã Jira..."/>
             </div>
 
             <!-- Link jira -->
             <div class="mb-4">
               <label class="block text-sm font-medium text-gray-700 mb-2">Link jira</label>
-              <input type="text" id="modal-f3-declaration-jira-link" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Nhập link jira..."/>
+              <input type="text" id="modal-f4-declaration-jira-link" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Nhập link jira..."/>
             </div>
 
             <!-- Note -->
             <div>
               <label class="block text-sm font-medium text-gray-700 mb-2">Note</label>
-              <textarea id="modal-f3-declaration-note" rows="4" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Nhập ghi chú..."></textarea>
+              <textarea id="modal-f4-declaration-note" rows="4" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Nhập ghi chú..."></textarea>
             </div>
           </div>
         </div>
         
         <!-- Modal Footer -->
         <div class="mt-6 flex justify-end gap-3 border-t border-gray-200 pt-4">
-          <button type="button" id="modal-f3-declaration-cancel" class="modal-cancel-btn modal-f3-declaration-cancel-btn h-11 rounded-full border border-gray-300 bg-white px-6 text-sm font-bold text-gray-700 shadow-sm hover:bg-gray-50">Hủy</button>
-          <button type="button" id="modal-f3-declaration-submit" class="modal-submit-btn modal-f3-declaration-submit-btn h-11 rounded-full bg-primary-blue px-6 text-sm font-bold text-white shadow-sm hover:shadow-md">Lưu thay đổi</button>
+          <button type="button" id="modal-f4-declaration-cancel" class="modal-cancel-btn modal-f4-declaration-cancel-btn h-11 rounded-full border border-gray-300 bg-white px-6 text-sm font-bold text-gray-700 shadow-sm hover:bg-gray-50">Hủy</button>
+          <button type="button" id="modal-f4-declaration-submit" class="modal-submit-btn modal-f4-declaration-submit-btn h-11 rounded-full bg-primary-blue px-6 text-sm font-bold text-white shadow-sm hover:shadow-md">Lưu thay đổi</button>
         </div>
       </div>
     </div>
@@ -3821,37 +5288,37 @@
   <!-- ============================================ -->
   <!-- MODAL SYSTEM - FORM 3: ADD STORY (Thêm Story) -->
   <!-- ============================================ -->
-  <div id="modal-f3-add-story" class="modal-container modal-f3-add-story fixed inset-0 z-50 hidden" style="display: none;">
-    <div id="modal-f3-add-story-overlay" class="modal-overlay modal-f3-add-story-overlay fixed inset-0 bg-black/30 backdrop-blur-sm z-40"></div>
-    <div id="modal-f3-add-story-content" class="modal-content modal-f3-add-story-content fixed inset-0 z-50 flex items-center justify-center p-4 pointer-events-none">
+  <div id="modal-f4-add-story" class="modal-container modal-f4-add-story fixed inset-0 z-50 hidden" style="display: none;">
+    <div id="modal-f4-add-story-overlay" class="modal-overlay modal-f4-add-story-overlay fixed inset-0 bg-black/30 backdrop-blur-sm z-40"></div>
+    <div id="modal-f4-add-story-content" class="modal-content modal-f4-add-story-content fixed inset-0 z-50 flex items-center justify-center p-4 pointer-events-none">
       <div class="w-full max-w-3xl rounded-xl bg-white p-8 shadow-xl pointer-events-auto relative z-50 max-h-[90vh] overflow-hidden flex flex-col">
         <div class="flex items-start justify-between mb-6">
           <div class="flex flex-col gap-1">
             <h2 class="text-2xl font-bold text-gray-900">Thêm Story mới</h2>
-            <p class="text-sm text-gray-600">Thêm Story vào Epic: <span id="modal-f3-add-story-epic-name" class="font-medium text-blue-600"></span></p>
+            <p class="text-sm text-gray-600">Thêm Story vào Epic: <span id="modal-f4-add-story-epic-name" class="font-medium text-blue-600"></span></p>
           </div>
-          <button id="modal-f3-add-story-close" class="modal-close modal-f3-add-story-close text-gray-500 hover:text-gray-700 transition">
+          <button id="modal-f4-add-story-close" class="modal-close modal-f4-add-story-close text-gray-500 hover:text-gray-700 transition">
             <span class="material-icons">close</span>
           </button>
         </div>
         
-        <form id="modal-f3-add-story-form" class="modal-body overflow-y-auto flex-1 space-y-6">
-          <input type="hidden" id="modal-f3-add-story-epic-id" />
+        <form id="modal-f4-add-story-form" class="modal-body overflow-y-auto flex-1 space-y-6">
+          <input type="hidden" id="modal-f4-add-story-epic-id" />
           
           <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div class="md:col-span-2">
               <label class="block text-sm font-medium text-gray-700 mb-2">Tên Story *</label>
-              <input type="text" id="modal-f3-add-story-name" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Nhập tên Story..."/>
+              <input type="text" id="modal-f4-add-story-name" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Nhập tên Story..."/>
             </div>
             
             <div>
               <label class="block text-sm font-medium text-gray-700 mb-2">Story Code *</label>
-              <input type="text" id="modal-f3-add-story-code" readonly class="w-full px-3 py-2 border border-gray-300 rounded-lg bg-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Tự động sinh..."/>
+              <input type="text" id="modal-f4-add-story-code" readonly class="w-full px-3 py-2 border border-gray-300 rounded-lg bg-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Tự động sinh..."/>
             </div>
             
             <div>
               <label class="block text-sm font-medium text-gray-700 mb-2">Người thực hiện *</label>
-              <select id="modal-f3-add-story-assignee" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+              <select id="modal-f4-add-story-assignee" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
                 <option value="">Chọn người thực hiện</option>
                 <option>Trần Văn Hoàng</option>
                 <option>Nguyễn Kim Cương</option>
@@ -3867,41 +5334,41 @@
             
             <div>
               <label class="block text-sm font-medium text-gray-700 mb-2">Ngày bắt đầu *</label>
-              <input type="date" id="modal-f3-add-story-start-date" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"/>
+              <input type="date" id="modal-f4-add-story-start-date" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"/>
             </div>
             
             <div>
               <label class="block text-sm font-medium text-gray-700 mb-2">Hạn hoàn thành *</label>
-              <input type="date" id="modal-f3-add-story-due-date" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"/>
+              <input type="date" id="modal-f4-add-story-due-date" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"/>
             </div>
             
             <div>
               <label class="block text-sm font-medium text-gray-700 mb-2">Mã Jira *</label>
-              <input type="text" id="modal-f3-add-story-jira-key" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Nhập Mã Jira..."/>
+              <input type="text" id="modal-f4-add-story-jira-key" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Nhập Mã Jira..."/>
             </div>
             
             <div>
               <label class="block text-sm font-medium text-gray-700 mb-2">Link jira</label>
-              <input type="text" id="modal-f3-add-story-jira-link" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Nhập link jira..."/>
+              <input type="text" id="modal-f4-add-story-jira-link" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Nhập link jira..."/>
             </div>
             
             <div>
               <label class="block text-sm font-medium text-gray-700 mb-2">Trạng thái *</label>
-              <select id="modal-f3-add-story-status" disabled class="w-full px-3 py-2 border border-gray-300 rounded-lg bg-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500 cursor-not-allowed">
+              <select id="modal-f4-add-story-status" disabled class="w-full px-3 py-2 border border-gray-300 rounded-lg bg-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500 cursor-not-allowed">
                 <option value="Đang triển khai" selected>Đang triển khai</option>
               </select>
             </div>
             
             <div class="md:col-span-2">
               <label class="block text-sm font-medium text-gray-700 mb-2">Note</label>
-              <textarea id="modal-f3-add-story-note" rows="3" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Nhập ghi chú..."></textarea>
+              <textarea id="modal-f4-add-story-note" rows="3" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Nhập ghi chú..."></textarea>
             </div>
           </div>
         </form>
         
         <div class="mt-6 flex justify-end gap-3 border-t border-gray-200 pt-4">
-          <button type="button" id="modal-f3-add-story-cancel" class="modal-cancel-btn h-11 rounded-full border border-gray-300 bg-white px-6 text-sm font-bold text-gray-700 shadow-sm hover:bg-gray-50">Hủy</button>
-          <button type="submit" id="modal-f3-add-story-submit" class="modal-submit-btn h-11 rounded-full bg-primary-blue px-6 text-sm font-bold text-white shadow-sm hover:shadow-md">Thêm Story</button>
+          <button type="button" id="modal-f4-add-story-cancel" class="modal-cancel-btn h-11 rounded-full border border-gray-300 bg-white px-6 text-sm font-bold text-gray-700 shadow-sm hover:bg-gray-50">Hủy</button>
+          <button type="submit" id="modal-f4-add-story-submit" class="modal-submit-btn h-11 rounded-full bg-primary-blue px-6 text-sm font-bold text-white shadow-sm hover:shadow-md">Thêm Story</button>
         </div>
       </div>
     </div>
@@ -3913,39 +5380,39 @@
   <!-- ============================================ -->
   <!-- MODAL SYSTEM - FORM 3: ADD SUBTASK (Thêm Sub-task) -->
   <!-- ============================================ -->
-  <div id="modal-f3-add-subtask" class="modal-container modal-f3-add-subtask fixed inset-0 z-50 hidden" style="display: none;">
-    <div id="modal-f3-add-subtask-overlay" class="modal-overlay modal-f3-add-subtask-overlay fixed inset-0 bg-black/30 backdrop-blur-sm z-40"></div>
-    <div id="modal-f3-add-subtask-content" class="modal-content modal-f3-add-subtask-content fixed inset-0 z-50 flex items-center justify-center p-4 pointer-events-none">
+  <div id="modal-f4-add-subtask" class="modal-container modal-f4-add-subtask fixed inset-0 z-50 hidden" style="display: none;">
+    <div id="modal-f4-add-subtask-overlay" class="modal-overlay modal-f4-add-subtask-overlay fixed inset-0 bg-black/30 backdrop-blur-sm z-40"></div>
+    <div id="modal-f4-add-subtask-content" class="modal-content modal-f4-add-subtask-content fixed inset-0 z-50 flex items-center justify-center p-4 pointer-events-none">
       <div class="w-full max-w-3xl rounded-xl bg-white p-8 shadow-xl pointer-events-auto relative z-50 max-h-[90vh] overflow-hidden flex flex-col">
         <div class="flex items-start justify-between mb-6">
           <div class="flex flex-col gap-1">
             <h2 class="text-2xl font-bold text-gray-900">Thêm Sub-task mới</h2>
-            <p class="text-sm text-gray-600">Thêm Sub-task vào Story: <span id="modal-f3-add-subtask-story-name" class="font-medium text-blue-600"></span></p>
-            <p class="text-xs text-gray-500">Epic: <span id="modal-f3-add-subtask-epic-name" class="font-medium"></span></p>
+            <p class="text-sm text-gray-600">Thêm Sub-task vào Story: <span id="modal-f4-add-subtask-story-name" class="font-medium text-blue-600"></span></p>
+            <p class="text-xs text-gray-500">Epic: <span id="modal-f4-add-subtask-epic-name" class="font-medium"></span></p>
           </div>
-          <button id="modal-f3-add-subtask-close" class="modal-close modal-f3-add-subtask-close text-gray-500 hover:text-gray-700 transition">
+          <button id="modal-f4-add-subtask-close" class="modal-close modal-f4-add-subtask-close text-gray-500 hover:text-gray-700 transition">
             <span class="material-icons">close</span>
           </button>
         </div>
         
-        <form id="modal-f3-add-subtask-form" class="modal-body overflow-y-auto flex-1 space-y-6">
-          <input type="hidden" id="modal-f3-add-subtask-epic-id" />
-          <input type="hidden" id="modal-f3-add-subtask-story-id" />
+        <form id="modal-f4-add-subtask-form" class="modal-body overflow-y-auto flex-1 space-y-6">
+          <input type="hidden" id="modal-f4-add-subtask-epic-id" />
+          <input type="hidden" id="modal-f4-add-subtask-story-id" />
           
           <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div class="md:col-span-2">
               <label class="block text-sm font-medium text-gray-700 mb-2">Tên Sub-task *</label>
-              <input type="text" id="modal-f3-add-subtask-name" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Nhập tên Sub-task..."/>
+              <input type="text" id="modal-f4-add-subtask-name" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Nhập tên Sub-task..."/>
             </div>
             
             <div>
               <label class="block text-sm font-medium text-gray-700 mb-2">Task Code *</label>
-              <input type="text" id="modal-f3-add-subtask-task-code" readonly class="w-full px-3 py-2 border border-gray-300 rounded-lg bg-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Tự động sinh..."/>
+              <input type="text" id="modal-f4-add-subtask-task-code" readonly class="w-full px-3 py-2 border border-gray-300 rounded-lg bg-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Tự động sinh..."/>
             </div>
             
             <div>
               <label class="block text-sm font-medium text-gray-700 mb-2">Người thực hiện *</label>
-              <select id="modal-f3-add-subtask-assignee" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+              <select id="modal-f4-add-subtask-assignee" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
                 <option value="">Chọn người thực hiện</option>
                 <option>Trần Văn Hoàng</option>
                 <option>Nguyễn Thế Việt</option>
@@ -3961,41 +5428,41 @@
             
             <div>
               <label class="block text-sm font-medium text-gray-700 mb-2">Trạng thái *</label>
-              <select id="modal-f3-add-subtask-status" disabled class="w-full px-3 py-2 border border-gray-300 rounded-lg bg-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500 cursor-not-allowed">
+              <select id="modal-f4-add-subtask-status" disabled class="w-full px-3 py-2 border border-gray-300 rounded-lg bg-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500 cursor-not-allowed">
                 <option value="Chưa triển khai" selected>Chưa triển khai</option>
               </select>
             </div>
             
             <div>
               <label class="block text-sm font-medium text-gray-700 mb-2">Ngày bắt đầu *</label>
-              <input type="date" id="modal-f3-add-subtask-start-date" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"/>
+              <input type="date" id="modal-f4-add-subtask-start-date" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"/>
             </div>
             
             <div>
               <label class="block text-sm font-medium text-gray-700 mb-2">Hạn hoàn thành *</label>
-              <input type="date" id="modal-f3-add-subtask-due-date" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"/>
+              <input type="date" id="modal-f4-add-subtask-due-date" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"/>
             </div>
             
             <div>
               <label class="block text-sm font-medium text-gray-700 mb-2">Mã Jira *</label>
-              <input type="text" id="modal-f3-add-subtask-jira-key" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Nhập Mã Jira..."/>
+              <input type="text" id="modal-f4-add-subtask-jira-key" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Nhập Mã Jira..."/>
             </div>
             
             <div>
               <label class="block text-sm font-medium text-gray-700 mb-2">Link jira</label>
-              <input type="text" id="modal-f3-add-subtask-jira-link" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Nhập link jira..."/>
+              <input type="text" id="modal-f4-add-subtask-jira-link" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Nhập link jira..."/>
             </div>
             
             <div class="md:col-span-2">
               <label class="block text-sm font-medium text-gray-700 mb-2">Note</label>
-              <textarea id="modal-f3-add-subtask-note" rows="3" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Nhập ghi chú..."></textarea>
+              <textarea id="modal-f4-add-subtask-note" rows="3" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Nhập ghi chú..."></textarea>
             </div>
           </div>
         </form>
         
         <div class="mt-6 flex justify-end gap-3 border-t border-gray-200 pt-4">
-          <button type="button" id="modal-f3-add-subtask-cancel" class="modal-cancel-btn h-11 rounded-full border border-gray-300 bg-white px-6 text-sm font-bold text-gray-700 shadow-sm hover:bg-gray-50">Hủy</button>
-          <button type="submit" id="modal-f3-add-subtask-submit" class="modal-submit-btn h-11 rounded-full bg-primary-blue px-6 text-sm font-bold text-white shadow-sm hover:shadow-md">Thêm Sub-task</button>
+          <button type="button" id="modal-f4-add-subtask-cancel" class="modal-cancel-btn h-11 rounded-full border border-gray-300 bg-white px-6 text-sm font-bold text-gray-700 shadow-sm hover:bg-gray-50">Hủy</button>
+          <button type="submit" id="modal-f4-add-subtask-submit" class="modal-submit-btn h-11 rounded-full bg-primary-blue px-6 text-sm font-bold text-white shadow-sm hover:shadow-md">Thêm Sub-task</button>
         </div>
       </div>
     </div>
