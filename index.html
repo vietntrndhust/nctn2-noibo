@@ -483,6 +483,7 @@
               <th class="px-3 py-2 w-[10%]">Người nhận rà soát</th>
               <th class="px-3 py-2 w-[8%]">File ban đầu</th>
               <th class="px-3 py-2 w-[8%]">File phản hồi</th>
+              <th class="px-3 py-2 w-[8%]">Jira Key</th>
               <th class="px-3 py-2 w-[8%]">Link Jira</th>
               <th class="px-3 py-2 w-[8%]">Ghi chú</th>
               <th class="px-3 py-2 w-[8%]">Chi tiết sửa đổi</th>
@@ -490,7 +491,7 @@
             </tr>
           </thead>
           <tbody id="f4r-table-body" class="divide-y divide-gray-100">
-            <tr><td class="px-3 py-3 text-center text-gray-500" colspan="12">Chưa có dữ liệu. Nhấn "Tải dữ liệu" để lấy từ webhook.</td></tr>
+            <tr><td class="px-3 py-3 text-center text-gray-500" colspan="13">Chưa có dữ liệu. Nhấn "Tải dữ liệu" để lấy từ webhook.</td></tr>
           </tbody>
         </table>
       </div>
@@ -959,14 +960,7 @@
       el.value = `${y}/${m}/${dd} ${h}:${min}`;
     }
     const F3_SUGGEST_DATA = [
-      { name: 'Đặng Văn Hải', dept: 'TKCK', email: 'haidv1@karofi.vn' },
-      { name: 'Phạm Quang Doanh', dept: 'TKĐT', email: 'doanh.pham@karofi.vn' },
-      { name: 'Đặng Thế Huy', dept: 'TKĐT', email: 'huydt@karofi.com' },
-      { name: 'Nguyễn Ngọc Quang', dept: 'TKCK', email: 'quang.nguyen1@karofi.vn' },
       { name: 'Hoàng Thùy Linh', dept: 'NCTN', email: 'linh.hoang1@karofi.vn' },
-      { name: 'Đỗ Công Nhậm', dept: 'TKCK', email: 'nham.do@karofi.vn' },
-      { name: 'Dương Quốc Hiếu', dept: 'TKCK', email: 'hieudq1@karofi.vn' },
-      { name: 'Đào Hoàng Dương', dept: 'DQA', email: 'duong.dao@karofi.vn' },
       { name: 'Khương Đức Tình', dept: 'NCTN', email: 'tinh.khuong@karofi.vn' },
       { name: 'Đặng Thị Chín', dept: 'NCTN', email: 'chindt@karofi.vn' },
       { name: 'Hoàng Văn Thành', dept: 'NCTN', email: 'thanhhv@karofi.vn' },
@@ -1245,7 +1239,7 @@
       const tbody = document.getElementById('f4r-table-body');
       if (!tbody) return;
       if (!data || data.length === 0) {
-        tbody.innerHTML = '<tr><td class="px-3 py-3 text-center text-gray-500" colspan="12">Không có dữ liệu</td></tr>';
+        tbody.innerHTML = '<tr><td class="px-3 py-3 text-center text-gray-500" colspan="13">Không có dữ liệu</td></tr>';
         return;
       }
       const esc = (s) => String(s ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
@@ -1260,6 +1254,8 @@
         const fileCell = fileUrl ? `<a href="${esc(fileUrl)}" target="_blank" rel="noopener" class="text-primary-blue hover:underline">Xem file</a>` : '-';
         const ngayTra = esc(row['Ngày trả'] ?? row.ngayTra ?? '');
         const linhKien = esc(row['Linh kiện rà soát'] ?? row.linhKienRasoat ?? row.data ?? '').replace(/\n/g, '<br>');
+        const jiraKey = String(row['Jira Key'] ?? row.jiraKey ?? row['Mã Jira'] ?? row.jira_key ?? '').trim();
+        const jiraKeyCell = jiraKey ? `<span class="text-sm text-gray-700">${esc(jiraKey)}</span>` : '-';
         const jiraUrl = (row['Link Jira'] ?? row.linkJira ?? '').trim();
         const jiraCell = jiraUrl ? `<a href="${esc(jiraUrl)}" target="_blank" rel="noopener" class="text-primary-blue hover:underline">Nhấn để mở</a>` : '-';
         const filePhanHoiUrl = (row['File phản hồi'] ?? row.filePhanHoi ?? '').trim();
@@ -1270,7 +1266,7 @@
         const ghiChuCell = ghiChu ? `<span class="text-sm text-gray-700 whitespace-pre-wrap break-words block">${esc(ghiChu).replace(/\n/g, '<br>')}</span>` : '-';
         const tyLeCell = `<button type="button" class="f4r-ty-le-btn px-2 py-1 text-xs rounded border border-gray-300 text-gray-600 hover:bg-gray-50" data-f4r-id="${id}">Xem</button>`;
         const phanHoiCell = `<button type="button" class="f4r-phan-hoi-btn px-2 py-1 text-xs rounded border border-blue-300 text-blue-700 bg-blue-50 hover:bg-blue-100" data-f4r-id="${id}" data-f4r-tinh-trang="${esc(tinhTrangRaw)}">Ý kiến</button>`;
-        return `<tr><td class="px-3 py-2 text-sm">${linhKien || '-'}</td><td class="px-3 py-2">${tinhTrangCell}</td><td class="px-3 py-2">${ngayGui}</td><td class="px-3 py-2">${ngayTra || '-'}</td><td class="px-3 py-2">${nguoiGui}</td><td class="px-3 py-2">${nguoiNhan}</td><td class="px-3 py-2">${fileCell}</td><td class="px-3 py-2">${filePhanHoiCell}</td><td class="px-3 py-2">${jiraCell}</td><td class="px-3 py-2">${ghiChuCell}</td><td class="px-3 py-2">${tyLeCell}</td><td class="px-3 py-2">${phanHoiCell}</td></tr>`;
+        return `<tr><td class="px-3 py-2 text-sm">${linhKien || '-'}</td><td class="px-3 py-2">${tinhTrangCell}</td><td class="px-3 py-2">${ngayGui}</td><td class="px-3 py-2">${ngayTra || '-'}</td><td class="px-3 py-2">${nguoiGui}</td><td class="px-3 py-2">${nguoiNhan}</td><td class="px-3 py-2">${fileCell}</td><td class="px-3 py-2">${filePhanHoiCell}</td><td class="px-3 py-2">${jiraKeyCell}</td><td class="px-3 py-2">${jiraCell}</td><td class="px-3 py-2">${ghiChuCell}</td><td class="px-3 py-2">${tyLeCell}</td><td class="px-3 py-2">${phanHoiCell}</td></tr>`;
       }).join('');
     }
     function populateF4RFilters() {
@@ -1318,7 +1314,7 @@
       try {
         if (loadingDiv) loadingDiv.classList.remove('hidden');
         if (loadBtn) loadBtn.disabled = true;
-        if (tbody) tbody.innerHTML = '<tr><td class="px-3 py-3 text-center text-gray-500" colspan="12">Đang tải...</td></tr>';
+        if (tbody) tbody.innerHTML = '<tr><td class="px-3 py-3 text-center text-gray-500" colspan="13">Đang tải...</td></tr>';
         const resp = await fetch(F4R_WEBHOOK_URL, { method: 'GET', headers: { 'Accept': 'application/json' } });
         if (!resp.ok) throw new Error('HTTP ' + resp.status);
         const raw = await resp.text();
@@ -1333,7 +1329,7 @@
         F4R_DATA = data;
         if (!tbody) return;
         if (data.length === 0) {
-          tbody.innerHTML = '<tr><td class="px-3 py-3 text-center text-gray-500" colspan="12">Không có dữ liệu</td></tr>';
+          tbody.innerHTML = '<tr><td class="px-3 py-3 text-center text-gray-500" colspan="13">Không có dữ liệu</td></tr>';
           if (typeof showToast === 'function') showToast('Không có dữ liệu rà soát.', 'info');
           populateF4RFilters();
         } else {
@@ -1343,7 +1339,7 @@
         }
       } catch (err) {
         console.error('[Form 4] Lỗi tải dữ liệu rà soát:', err);
-        if (tbody) tbody.innerHTML = `<tr><td class="px-3 py-3 text-center text-red-500" colspan="12">Lỗi: ${String(err.message || err).replace(/</g, '&lt;')}</td></tr>`;
+        if (tbody) tbody.innerHTML = `<tr><td class="px-3 py-3 text-center text-red-500" colspan="13">Lỗi: ${String(err.message || err).replace(/</g, '&lt;')}</td></tr>`;
         if (typeof showToast === 'function') showToast('Lỗi tải dữ liệu: ' + (err.message || err), 'error');
       } finally {
         if (loadingDiv) loadingDiv.classList.add('hidden');
