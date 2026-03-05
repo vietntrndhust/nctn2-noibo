@@ -20,6 +20,7 @@
     }
   </script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/luxon@3.4.4/build/global/luxon.min.js"></script>
   <script src="https://cdn.sheetjs.com/xlsx-0.20.0/package/dist/xlsx.full.min.js"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -46,6 +47,11 @@
     .f4r-phan-hoi-tab.tab-active{border-bottom-color:inherit}
     #f4r-tab-trao-doi.tab-active{border-bottom-color:#eab308;color:#a16207;background:#fef9c3}
     #f4r-tab-huy.tab-active{border-bottom-color:#ef4444;color:#b91c1c;background:#fee2e2}
+    /* Nhập tác vụ: Tab styling */
+    .trv-tab{border-bottom:2px solid transparent;transition:all .15s ease;cursor:pointer}
+    .trv-tab.tab-active{border-bottom-color:#1e3a5f;color:#1e3a5f;background:#e8eef5}
+    .trv-panel{transition:all .2s ease}
+    .trv-panel.hidden{display:none}
     /* Form 2: Table styling */
     .table-zebra tbody tr:nth-child(even){ background-color:#f8fafc; }
     .cell-div{ border-left:1px solid #e5e7eb; }
@@ -105,6 +111,66 @@
         -ms-overflow-style: none;
         scrollbar-width: none;
     }
+    /* Form 2B: Ẩn thanh cuộn ngang của header (đồng bộ với body) */
+    #f2b-header-dates::-webkit-scrollbar {
+        display: none;
+    }
+    #f2b-header-dates {
+        -ms-overflow-style: none;
+        scrollbar-width: none;
+    }
+    /* Sidebar - Light style like Cổng 2 */
+    #sidebar-nav {
+      position: sticky; top: 0; align-self: flex-start; max-height: 100vh; overflow-y: auto;
+      background: linear-gradient(180deg, #f8fafc 0%, #f1f5f9 100%);
+      box-shadow: 2px 0 8px rgba(0,0,0,0.08), 4px 0 16px rgba(0,0,0,0.04);
+      border-right: 1px solid #e2e8f0;
+    }
+    #sidebar-nav .group-btn {
+      margin-bottom: 0.5rem; border-radius: 0.5rem; font-weight: 600;
+      border: 1px solid; padding: 0.5rem 0.75rem; transition: all 0.2s ease; cursor: pointer;
+    }
+    #sidebar-nav .group-btn:hover { transform: translateX(1px); }
+    #sidebar-nav .group-btn .group-expand-icon { transition: transform 0.2s ease; }
+    #sidebar-nav .group-btn.collapsed .group-expand-icon { transform: rotate(-90deg); }
+    #sidebar-nav .group-btn[data-group="task-group"] {
+      background: rgba(147, 51, 234, 0.1); color: #6b21a8; border-color: rgba(147, 51, 234, 0.2);
+    }
+    #sidebar-nav .group-btn[data-group="task-group"]:hover {
+      background: rgba(147, 51, 234, 0.2); border-color: rgba(147, 51, 234, 0.3);
+    }
+    #sidebar-nav .group-btn[data-group="progress-group"] {
+      background: rgba(234, 179, 8, 0.1); color: #a16207; border-color: rgba(234, 179, 8, 0.2);
+    }
+    #sidebar-nav .group-btn[data-group="progress-group"]:hover {
+      background: rgba(234, 179, 8, 0.2); border-color: rgba(234, 179, 8, 0.3);
+    }
+    #sidebar-nav .group-btn[data-group="rasoat-group"] {
+      background: rgba(59, 130, 246, 0.1); color: #1e40af; border-color: rgba(59, 130, 246, 0.2);
+    }
+    #sidebar-nav .group-btn[data-group="rasoat-group"]:hover {
+      background: rgba(59, 130, 246, 0.2); border-color: rgba(59, 130, 246, 0.3);
+    }
+    #sidebar-nav .group-btn[data-group="project-group"] {
+      background: rgba(34, 197, 94, 0.1); color: #15803d; border-color: rgba(34, 197, 94, 0.2);
+    }
+    #sidebar-nav .group-btn[data-group="project-group"]:hover {
+      background: rgba(34, 197, 94, 0.2); border-color: rgba(34, 197, 94, 0.3);
+    }
+    .group-items { transition: all 0.2s ease; overflow: hidden; max-height: 500px; opacity: 1; }
+    .group-items.collapsed { max-height: 0; opacity: 0; margin: 0; padding: 0; pointer-events: none; }
+    #sidebar-nav .nav-btn {
+      margin-bottom: 0.125rem; padding: 0.5rem 0.75rem 0.5rem 2.5rem;
+      transition: all 0.2s ease; background: transparent; color: #475569; font-weight: 500;
+      display: flex; align-items: center; gap: 0.5rem; border-radius: 0.5rem;
+    }
+    #sidebar-nav .nav-btn:hover { background: rgba(196, 30, 58, 0.08); color: #b91c1c; }
+    #sidebar-nav .nav-btn.bg-primary-blue, #sidebar-nav .nav-btn.active {
+      background: rgba(196, 30, 58, 0.15); color: #b91c1c; font-weight: 600;
+    }
+    #sidebar-nav .nav-btn .material-icons { font-size: 1.125rem; color: #64748b; }
+    #sidebar-nav .nav-btn:hover .material-icons, #sidebar-nav .nav-btn.bg-primary-blue .material-icons,
+    #sidebar-nav .nav-btn.active .material-icons { color: #b91c1c; }
     /* Form 3: Resizable table panel */
     #form3 { display: flex; flex-direction: column; min-height: calc(100vh - 120px); }
     #form3.hidden { display: none !important; }
@@ -135,27 +201,256 @@
 </head>
 <body class="bg-muted min-h-screen flex text-gray-800" style="font-family: 'Inter', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol'">
   <!-- Sidebar -->
-  <aside class="w-64 min-h-screen bg-sidebar text-white flex flex-col py-8 px-4 shadow-lg">
-    <h1 class="text-xl font-bold tracking-wide pb-6 border-b border-red-200 mb-4">Cổng Tác Vụ NCTN 2</h1>
-    <nav class="flex flex-col gap-2 mt-2">
-      <button class="nav-btn py-2 px-4 rounded transition hover:bg-sidebar-hover text-left text-base" data-target="form1">Form 1 · Tra cứu tác vụ</button>
-      <button class="nav-btn py-2 px-4 rounded transition hover:bg-sidebar-hover text-left text-base" data-target="form2">Form 2 · Tiến độ công việc</button>
-      <button class="nav-btn py-2 px-4 rounded transition hover:bg-sidebar-hover text-left text-base" data-target="form3">Form 3 · Gửi yêu cầu rà soát TCKT</button>
-      <button class="nav-btn py-2 px-4 rounded transition hover:bg-sidebar-hover text-left text-base" data-target="form4">Form 4 · Quản lý tác vụ rà soát</button>
-      <button class="nav-btn py-2 px-4 rounded transition hover:bg-sidebar-hover text-left text-base" data-target="form5">Form 5 · KPI Thống kê rà soát</button>
-      <button class="nav-btn py-2 px-4 rounded transition hover:bg-sidebar-hover text-left text-base" data-target="testRequest">Nhập tác vụ mới</button>
-      <button class="nav-btn py-2 px-4 rounded transition hover:bg-sidebar-hover text-left text-base" data-target="form0">Form 0 · Quản lý dự án (đang phát triển)</button>
+  <aside id="sidebar-nav" class="w-64 flex-shrink-0 min-h-screen flex flex-col p-4">
+    <div class="flex items-center gap-3 px-2 mb-6 pb-4 border-b border-gray-200">
+      <span class="material-icons text-2xl text-primary-blue">analytics</span>
+      <h1 class="text-base font-bold text-gray-800">Cổng Tác Vụ NCTN 2</h1>
+    </div>
+    <nav class="flex flex-col gap-2">
+      <!-- Nhóm: Tác vụ đánh giá & nghiên cứu -->
+      <div class="flex flex-col gap-1">
+        <button class="group-btn flex items-center gap-2 text-left text-sm" data-group="task-group">
+          <span class="material-icons text-lg text-gray-500 group-expand-icon">expand_more</span>
+          <span>Tác vụ đánh giá & nghiên cứu</span>
+        </button>
+        <div class="group-items flex flex-col gap-0.5 ml-1" data-group="task-group">
+          <button class="nav-btn text-left text-sm" data-target="form1">
+            <span class="material-icons">assignment</span>
+            <span>Form 1 · Tác vụ đánh giá</span>
+          </button>
+          <button class="nav-btn text-left text-sm" data-target="form1b">
+            <span class="material-icons">science</span>
+            <span>Form 1B · Tác vụ nghiên cứu</span>
+          </button>
+          <button class="nav-btn text-left text-sm" data-target="testRequest">
+            <span class="material-icons">note_add</span>
+            <span>Nhập tác vụ mới</span>
+          </button>
+        </div>
+      </div>
+      <!-- Nhóm: Tiến độ & Kế hoạch -->
+      <div class="flex flex-col gap-1 mt-2">
+        <button class="group-btn flex items-center gap-2 text-left text-sm" data-group="progress-group">
+          <span class="material-icons text-lg text-gray-500 group-expand-icon">expand_more</span>
+          <span>Tiến độ & Kế hoạch</span>
+        </button>
+        <div class="group-items flex flex-col gap-0.5 ml-1" data-group="progress-group">
+          <button class="nav-btn text-left text-sm" data-target="form2">
+            <span class="material-icons">timeline</span>
+            <span>Form 2 · Tiến độ công việc</span>
+          </button>
+          <button class="nav-btn text-left text-sm" data-target="form2b">
+            <span class="material-icons">calendar_view_month</span>
+            <span>Form 2B · Kế hoạch công việc</span>
+          </button>
+        </div>
+      </div>
+      <!-- Nhóm: Rà soát TCKT -->
+      <div class="flex flex-col gap-1 mt-2">
+        <button class="group-btn flex items-center gap-2 text-left text-sm" data-group="rasoat-group">
+          <span class="material-icons text-lg text-gray-500 group-expand-icon">expand_more</span>
+          <span>Rà soát TCKT</span>
+        </button>
+        <div class="group-items flex flex-col gap-0.5 ml-1" data-group="rasoat-group">
+          <button class="nav-btn text-left text-sm" data-target="form3">
+            <span class="material-icons">send</span>
+            <span>Form 3 · Gửi yêu cầu rà soát TCKT</span>
+          </button>
+          <button class="nav-btn text-left text-sm" data-target="form4">
+            <span class="material-icons">fact_check</span>
+            <span>Form 4 · Quản lý tác vụ rà soát</span>
+          </button>
+          <button class="nav-btn text-left text-sm" data-target="form5">
+            <span class="material-icons">bar_chart</span>
+            <span>Form 5 · KPI Thống kê rà soát</span>
+          </button>
+        </div>
+      </div>
+      <!-- Nhóm: Quản lý dự án -->
+      <div class="flex flex-col gap-1 mt-2">
+        <button class="group-btn flex items-center gap-2 text-left text-sm" data-group="project-group">
+          <span class="material-icons text-lg text-gray-500 group-expand-icon">expand_more</span>
+          <span>Quản lý dự án</span>
+        </button>
+        <div class="group-items flex flex-col gap-0.5 ml-1" data-group="project-group">
+          <button class="nav-btn text-left text-sm" data-target="form0">
+            <span class="material-icons">folder_special</span>
+            <span>Form 0 · Quản lý dự án (đang phát triển)</span>
+          </button>
+        </div>
+      </div>
     </nav>
   </aside>
 
   <!-- Main -->
   <main class="flex-1 py-10 flex flex-col items-center min-h-screen overflow-y-auto">
-    <!-- Test Request Form -->
+    <!-- Form 1 -->
+    <section id="form1" class="w-full max-w-none bg-white p-6 rounded-lg shadow-md">
+      <div class="flex items-center justify-between mb-4">
+        <h2 class="text-xl font-semibold text-red-800">Form 1 · Dành cho các tác vụ đánh giá có xuất báo cáo</h2>
+      </div>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">Chọn tên</label>
+          <div class="flex gap-2">
+            <select id="f1-name" class="flex-1 border border-red-300 rounded-lg bg-slate-100 p-2 focus:outline-none focus:ring-2 focus:ring-red-200 focus:bg-white">
+              <option value="">— Chọn người —</option>
+            </select>
+            <button id="f1-search" class="px-4 py-2 rounded-lg text-white font-semibold bg-primary-blue hover:brightness-105">Tra cứu</button>
+            <button id="f1-unassigned" class="px-4 py-2 rounded-lg border border-gray-300 text-gray-700 bg-white hover:bg-gray-50">Chưa phân công</button>
+          </div>
+          <p class="text-gray-500 text-xs mt-1">Chọn tên và nhấn Tra cứu để gửi yêu cầu và hiển thị tác vụ</p>
+        </div>
+        <div class="md:col-span-2">
+          <div class="flex items-center gap-3">
+            <label class="text-sm font-medium text-gray-700 whitespace-nowrap">Lọc theo tháng:</label>
+            <select id="f1-month" class="w-40 border border-red-300 rounded-lg bg-slate-100 p-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-red-200 focus:bg-white">
+              <option value="">— Tất cả tháng —</option>
+            </select>
+            <button id="f1-clear-filter" class="px-3 py-1.5 text-sm rounded-lg border border-gray-300 text-gray-700 bg-white hover:bg-gray-50">Xóa lọc</button>
+          </div>
+          <p class="text-gray-500 text-xs mt-1">Các tác vụ Doing sẽ luôn hiện lên đầu và không bị lọc theo tháng</p>
+        </div>
+      </div>
+      <div class="mt-4 overflow-auto max-h-[60vh] border border-gray-200 rounded-lg">
+        <table class="min-w-[1760px] w-full text-sm">
+          <thead class="bg-gradient-to-r from-red-100 to-red-50 sticky top-0">
+            <tr class="text-left text-gray-700">
+              <th class="px-3 py-2 min-w-[160px]">Trả báo cáo</th>
+              <th class="px-3 py-2 min-w-[140px]">Tình trạng</th>
+              <th class="px-3 py-2 min-w-[160px]">Thực hiện</th>
+              <th class="px-3 py-2 min-w-[160px]">Ngày bắt đầu thực tế</th>
+              <th class="px-3 py-2 min-w-[160px]">Ngày hoàn thành thực tế</th>
+              <th class="px-3 py-2 min-w-[140px]">Ngày yêu cầu</th>
+              <th class="px-3 py-2 min-w-[140px]">Deadline</th>
+              <th class="px-3 py-2 min-w-[260px]">Tên tác vụ</th>
+              <th class="px-3 py-2 min-w-[140px]">Mã tác vụ</th>
+              <th class="px-3 py-2 min-w-[220px]">File đính kèm</th>
+              <th class="px-3 py-2 min-w-[220px]">File báo cáo</th>
+              <th class="px-3 py-2 min-w-[160px]">Người yêu cầu</th>
+              <th class="px-3 py-2 min-w-[160px]">Người thực hiện</th>
+              <th class="px-3 py-2 min-w-[260px]">Mục đích đánh giá</th>
+              <th class="px-3 py-2 min-w-[240px]">Ghi chú</th>
+            </tr>
+          </thead>
+          <tbody id="f1-body" class="divide-y divide-gray-100">
+            <tr><td class="px-3 py-3 text-center text-gray-500" colspan="15">Chưa có dữ liệu</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div id="f1-pager" class="mt-2 flex items-center justify-between" style="display:none">
+        <div class="text-sm text-gray-600">
+          <span id="f1-page-info">Trang 1/1 (0 dòng)</span>
+        </div>
+        <div class="flex items-center gap-2">
+          <label class="text-sm text-gray-600">Hiển thị</label>
+          <select id="f1-size" class="border border-red-300 rounded-lg bg-slate-100 p-1 focus:outline-none focus:ring-2 focus:ring-red-200 focus:bg-white">
+            <option value="10" selected>10</option>
+            <option value="20">20</option>
+            <option value="50">50</option>
+          </select>
+          <button id="f1-prev" class="px-3 py-1 rounded-lg border border-gray-300 text-gray-700 bg-white hover:bg-gray-50">Trước</button>
+          <button id="f1-next" class="px-3 py-1 rounded-lg text-white font-semibold bg-primary-blue hover:brightness-105">Sau</button>
+        </div>
+      </div>
+
+      <!-- Điểm lưu trữ file đính kèm -->
+      <div class="mt-4">
+        <a id="f1-storage-link" href="https://drive.google.com/drive/u/0/folders/1iVSNn6Ddv6jEun6lyMvOMcan2fpnFSpU" target="_blank" rel="noopener" title="Nhấn để mở và tự động copy liên kết"
+           class="inline-flex items-center gap-2 px-3 py-2 rounded-lg border border-red-200 bg-red-50/30 text-primary-blue hover:bg-red-50">
+          Điểm lưu trữ file đính kèm
+        </a>
+        <p class="text-xs text-gray-500 mt-1">Nhấn để mở và copy liên kết.</p>
+      </div>
+    </section>
+
+    <!-- Form 1B · Tác vụ nghiên cứu (chỉ hiện mã đuôi -NC) -->
+    <section id="form1b" class="w-full max-w-none bg-white p-6 rounded-lg shadow-md hidden">
+      <div class="flex items-center justify-between mb-4">
+        <h2 class="text-xl font-semibold text-red-800">Form 1B · Dành cho các tác vụ nghiên cứu & phục vụ nghiên cứu sản phẩm mới (Không cần phê duyệt file báo cáo pdf)</h2>
+      </div>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">Chọn tên</label>
+          <div class="flex gap-2">
+            <select id="f1b-name" class="flex-1 border border-red-300 rounded-lg bg-slate-100 p-2 focus:outline-none focus:ring-2 focus:ring-red-200 focus:bg-white">
+              <option value="">— Chọn người —</option>
+            </select>
+            <button id="f1b-search" class="px-4 py-2 rounded-lg text-white font-semibold bg-primary-blue hover:brightness-105">Tra cứu</button>
+            <button id="f1b-unassigned" class="px-4 py-2 rounded-lg border border-gray-300 text-gray-700 bg-white hover:bg-gray-50">Chưa phân công</button>
+          </div>
+          <p class="text-gray-500 text-xs mt-1">Chỉ hiển thị tác vụ có mã đuôi -NC</p>
+        </div>
+        <div class="md:col-span-2">
+          <div class="flex items-center gap-3">
+            <label class="text-sm font-medium text-gray-700 whitespace-nowrap">Lọc theo tháng:</label>
+            <select id="f1b-month" class="w-40 border border-red-300 rounded-lg bg-slate-100 p-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-red-200 focus:bg-white">
+              <option value="">— Tất cả tháng —</option>
+            </select>
+            <button id="f1b-clear-filter" class="px-3 py-1.5 text-sm rounded-lg border border-gray-300 text-gray-700 bg-white hover:bg-gray-50">Xóa lọc</button>
+          </div>
+        </div>
+      </div>
+      <div class="mt-4 overflow-auto max-h-[60vh] border border-gray-200 rounded-lg">
+        <table class="min-w-[1760px] w-full text-sm">
+          <thead class="bg-gradient-to-r from-red-100 to-red-50 sticky top-0">
+            <tr class="text-left text-gray-700">
+              <th class="px-3 py-2 min-w-[160px]">Khai báo</th>
+              <th class="px-3 py-2 min-w-[140px]">Tình trạng</th>
+              <th class="px-3 py-2 min-w-[160px]">Ngày hoàn thành thực tế</th>
+              <th class="px-3 py-2 min-w-[140px]">Ngày yêu cầu</th>
+              <th class="px-3 py-2 min-w-[140px]">Hạn mong muốn</th>
+              <th class="px-3 py-2 min-w-[260px]">Tên tác vụ</th>
+              <th class="px-3 py-2 min-w-[140px]">Mã tác vụ</th>
+              <th class="px-3 py-2 min-w-[220px]">File đính kèm</th>
+              <th class="px-3 py-2 min-w-[220px]">File báo cáo</th>
+              <th class="px-3 py-2 min-w-[160px]">Người yêu cầu</th>
+              <th class="px-3 py-2 min-w-[160px]">Người thực hiện</th>
+              <th class="px-3 py-2 min-w-[260px]">Mục đích đánh giá</th>
+              <th class="px-3 py-2 min-w-[240px]">Ghi chú</th>
+            </tr>
+          </thead>
+          <tbody id="f1b-body" class="divide-y divide-gray-100">
+            <tr><td class="px-3 py-3 text-center text-gray-500" colspan="13">Chưa có dữ liệu</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div id="f1b-pager" class="mt-2 flex items-center justify-between" style="display:none">
+        <div class="text-sm text-gray-600">
+          <span id="f1b-page-info">Trang 1/1 (0 dòng)</span>
+        </div>
+        <div class="flex items-center gap-2">
+          <label class="text-sm text-gray-600">Hiển thị</label>
+          <select id="f1b-size" class="border border-red-300 rounded-lg bg-slate-100 p-1 focus:outline-none focus:ring-2 focus:ring-red-200 focus:bg-white">
+            <option value="10" selected>10</option>
+            <option value="20">20</option>
+            <option value="50">50</option>
+          </select>
+          <button id="f1b-prev" class="px-3 py-1 rounded-lg border border-gray-300 text-gray-700 bg-white hover:bg-gray-50">Trước</button>
+          <button id="f1b-next" class="px-3 py-1 rounded-lg text-white font-semibold bg-primary-blue hover:brightness-105">Sau</button>
+        </div>
+      </div>
+      <div class="mt-4">
+        <a id="f1b-storage-link" href="https://drive.google.com/drive/u/0/folders/1iVSNn6Ddv6jEun6lyMvOMcan2fpnFSpU" target="_blank" rel="noopener" title="Nhấn để mở và tự động copy liên kết"
+           class="inline-flex items-center gap-2 px-3 py-2 rounded-lg border border-red-200 bg-red-50/30 text-primary-blue hover:bg-red-50">
+          Điểm lưu trữ file đính kèm
+        </a>
+      </div>
+    </section>
+
+    <!-- Nhập tác vụ -->
     <section id="testRequest" class="form-section w-full max-w-7xl bg-white p-6 rounded-lg shadow-md hidden">
       <div class="mb-6">
         <h2 class="text-3xl font-extrabold text-primary-blue tracking-wide mb-1">Nhập tác vụ</h2>
         <div class="h-1 w-16 bg-primary-blue mb-2 rounded"></div>
       </div>
+      <!-- Tab navigation -->
+      <div class="flex border-b border-gray-200 mb-6">
+        <button type="button" id="trv-tab-danh-gia" class="trv-tab tab-active flex-1 px-4 py-3 text-sm font-medium text-gray-600 hover:bg-gray-50 rounded-t-lg">Đánh giá linh kiện/máy</button>
+        <button type="button" id="trv-tab-nghien-cuu" class="trv-tab flex-1 px-4 py-3 text-sm font-medium text-gray-600 hover:bg-gray-50 rounded-t-lg">Tác vụ nghiên cứu</button>
+      </div>
+      <!-- Tab: Đánh giá linh kiện/máy -->
+      <div id="trv-panel-danh-gia" class="trv-panel">
       <form id="testRequestForm" class="space-y-5" autocomplete="off">
         <!-- A. General Information -->
         <div class="section-card section-a">
@@ -205,8 +500,14 @@
               <input name="numSamples" type="number" min="0" required class="input-field"/>
             </div>
             <div class="space-y-1">
-              <label class="block text-sm font-medium text-gray-700">Hạn mong muốn có kết quả</label>
+              <label class="block text-sm font-medium text-gray-700">Hạn hoàn thành</label>
               <input name="desiredCompletionDate" type="date" required class="input-field"/>
+            </div>
+            <div class="space-y-1">
+              <label class="block text-sm font-medium text-gray-700">Người thực hiện</label>
+              <select name="assignee" id="testRequestAssignee" class="input-field">
+                <option value="">— Chọn người —</option>
+              </select>
             </div>
             <div class="space-y-1 lg:col-span-3">
               <label class="block text-sm font-medium text-gray-700">Link KOI (nếu có)</label>
@@ -240,85 +541,93 @@
           <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6" /></svg>
         </button>
       </form>
-    </section>
-
-    <!-- Form 1 -->
-    <section id="form1" class="w-full max-w-none bg-white p-6 rounded-lg shadow-md">
-      <div class="flex items-center justify-between mb-4">
-        <h2 class="text-xl font-semibold text-red-800">Form 1 · Tra cứu tác vụ</h2>
       </div>
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div>
-          <label class="block text-sm font-medium text-gray-700 mb-1">Chọn tên</label>
-          <div class="flex gap-2">
-            <select id="f1-name" class="flex-1 border border-red-300 rounded-lg bg-slate-100 p-2 focus:outline-none focus:ring-2 focus:ring-red-200 focus:bg-white">
-              <option value="">— Chọn người —</option>
-            </select>
-            <button id="f1-search" class="px-4 py-2 rounded-lg text-white font-semibold bg-primary-blue hover:brightness-105">Tra cứu</button>
-            <button id="f1-unassigned" class="px-4 py-2 rounded-lg border border-gray-300 text-gray-700 bg-white hover:bg-gray-50">Chưa phân công</button>
+      <!-- Tab: Tác vụ nghiên cứu -->
+      <div id="trv-panel-nghien-cuu" class="trv-panel hidden">
+      <form id="researchRequestForm" class="space-y-5" autocomplete="off">
+        <!-- A. General Information -->
+        <div class="section-card section-a">
+          <h3 class="text-lg font-semibold text-primary-blue mb-2">A. Thông tin chung</h3>
+          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+            <div class="space-y-1">
+              <label class="block text-sm font-medium text-gray-700">Họ tên người yêu cầu</label>
+              <input required name="senderName" type="text" class="input-field"/>
+            </div>
+            <div class="space-y-1">
+              <label class="block text-sm font-medium text-gray-700">Email</label>
+              <input required name="senderEmail" type="email" class="input-field"/>
+            </div>
+            <div class="space-y-1">
+              <label class="block text-sm font-medium text-gray-700">Ngày gửi yêu cầu</label>
+              <input name="requestDate" type="datetime-local" class="input-field" readonly id="researchRequestDate"/>
+            </div>
+            <div class="space-y-1">
+              <label class="block text-sm font-medium text-gray-700">Phòng ban yêu cầu</label>
+              <select required name="department" class="input-field">
+                <option value="">Chọn phòng ban *</option>
+                <option>Mua hàng</option><option>SC</option><option>SC2</option><option>KTSX</option><option>KTSP</option>
+                <option>TKCK</option><option>KTCN</option><option>NCTN1</option><option>TKĐT</option>
+                <option>QA/QC nhà máy</option><option>NCTN2</option>
+              </select>
+            </div>
           </div>
-          <p class="text-gray-500 text-xs mt-1">Chọn tên và nhấn Tra cứu để gửi yêu cầu và hiển thị tác vụ</p>
         </div>
-        <div class="md:col-span-2">
-          <div class="flex items-center gap-3">
-            <label class="text-sm font-medium text-gray-700 whitespace-nowrap">Lọc theo tháng:</label>
-            <select id="f1-month" class="w-40 border border-red-300 rounded-lg bg-slate-100 p-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-red-200 focus:bg-white">
-              <option value="">— Tất cả tháng —</option>
-            </select>
-            <button id="f1-clear-filter" class="px-3 py-1.5 text-sm rounded-lg border border-gray-300 text-gray-700 bg-white hover:bg-gray-50">Xóa lọc</button>
+        <!-- B. Research Task Information -->
+        <div class="section-card section-b">
+          <h3 class="text-lg font-semibold text-primary-blue mb-2">B. Thông tin nghiên cứu</h3>
+          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            <div class="space-y-1 lg:col-span-3">
+              <label class="block text-sm font-medium text-gray-700">Tên công việc</label>
+              <input required name="researchTitle" type="text" class="input-field" placeholder="Nhập tên công việc"/>
+            </div>
+            <div class="space-y-1">
+              <label class="block text-sm font-medium text-gray-700">Mục đích</label>
+              <select name="purpose" class="input-field">
+                <option value="">— Chọn mục đích —</option>
+                <option value="Lập TCKT">Lập TCKT</option>
+                <option value="Thẩm định rủi ro">Thẩm định rủi ro</option>
+                <option value="Báo cáo công nghệ">Báo cáo công nghệ</option>
+                <option value="Công việc khác">Công việc khác</option>
+              </select>
+            </div>
+            <div class="space-y-1">
+              <label class="block text-sm font-medium text-gray-700">Người thực hiện</label>
+              <select name="assignee" id="researchAssignee" class="input-field">
+                <option value="">— Chọn người —</option>
+              </select>
+            </div>
+            <div class="space-y-1">
+              <label class="block text-sm font-medium text-gray-700">Hạn hoàn thành</label>
+              <input name="desiredCompletionDate" type="date" required class="input-field"/>
+            </div>
+            <div class="space-y-1">
+              <label class="block text-sm font-medium text-gray-700">Link KOI (nếu có)</label>
+              <input name="koiLink" type="text" class="input-field" placeholder="Copy link luồng phê duyệt KOI vào đây"/>
+            </div>
+            <div class="space-y-1 lg:col-span-3">
+              <label class="block text-sm font-medium text-gray-700">Nội dung công việc</label>
+              <textarea name="researchScope" rows="3" class="input-field" placeholder="Mô tả nội dung công việc"></textarea>
+            </div>
           </div>
-          <p class="text-gray-500 text-xs mt-1">Các tác vụ Doing sẽ luôn hiện lên đầu và không bị lọc theo tháng</p>
         </div>
-      </div>
-      <div class="mt-4 overflow-auto max-h-[60vh] border border-gray-200 rounded-lg">
-        <table class="min-w-[1760px] w-full text-sm">
-          <thead class="bg-gradient-to-r from-red-100 to-red-50 sticky top-0">
-            <tr class="text-left text-gray-700">
-              <th class="px-3 py-2 min-w-[160px]">Trả báo cáo</th>
-              <th class="px-3 py-2 min-w-[140px]">Tình trạng</th>
-              <th class="px-3 py-2 min-w-[160px]">Thực hiện</th>
-              <th class="px-3 py-2 min-w-[160px]">Ngày bắt đầu thực tế</th>
-              <th class="px-3 py-2 min-w-[160px]">Ngày hoàn thành thực tế</th>
-              <th class="px-3 py-2 min-w-[140px]">Ngày yêu cầu</th>
-              <th class="px-3 py-2 min-w-[140px]">Hạn mong muốn</th>
-              <th class="px-3 py-2 min-w-[260px]">Tên tác vụ</th>
-              <th class="px-3 py-2 min-w-[140px]">Mã tác vụ</th>
-              <th class="px-3 py-2 min-w-[220px]">File đính kèm</th>
-              <th class="px-3 py-2 min-w-[220px]">File báo cáo</th>
-              <th class="px-3 py-2 min-w-[160px]">Người yêu cầu</th>
-              <th class="px-3 py-2 min-w-[160px]">Người thực hiện</th>
-              <th class="px-3 py-2 min-w-[260px]">Mục đích đánh giá</th>
-              <th class="px-3 py-2 min-w-[240px]">Ghi chú</th>
-            </tr>
-          </thead>
-          <tbody id="f1-body" class="divide-y divide-gray-100">
-            <tr><td class="px-3 py-3 text-center text-gray-500" colspan="15">Chưa có dữ liệu</td></tr>
-          </tbody>
-        </table>
-      </div>
-      <div id="f1-pager" class="mt-2 flex items-center justify-between" style="display:none">
-        <div class="text-sm text-gray-600">
-          <span id="f1-page-info">Trang 1/1 (0 dòng)</span>
+        <!-- C. Attachments -->
+        <div class="section-card section-c">
+          <h3 class="text-lg font-semibold text-primary-blue mb-2">C. Tài liệu đính kèm</h3>
+          <div class="space-y-1">
+            <label class="block text-sm font-medium text-gray-700">Tệp đính kèm</label>
+            <input multiple type="file" id="researchRequestFiles" class="block w-full text-sm file:mr-2 file:py-1 file:px-3 file:rounded-full file:border-0 file:bg-primary-blue file:text-white"/>
+          </div>
+          <div id="researchRequestUploadList" class="mt-2 flex flex-col gap-2"></div>
         </div>
-        <div class="flex items-center gap-2">
-          <label class="text-sm text-gray-600">Hiển thị</label>
-          <select id="f1-size" class="border border-red-300 rounded-lg bg-slate-100 p-1 focus:outline-none focus:ring-2 focus:ring-red-200 focus:bg-white">
-            <option value="10" selected>10</option>
-            <option value="20">20</option>
-            <option value="50">50</option>
-          </select>
-          <button id="f1-prev" class="px-3 py-1 rounded-lg border border-gray-300 text-gray-700 bg-white hover:bg-gray-50">Trước</button>
-          <button id="f1-next" class="px-3 py-1 rounded-lg text-white font-semibold bg-primary-blue hover:brightness-105">Sau</button>
+        <div class="flex items-center gap-2 mt-4">
+          <input type="checkbox" id="researchRequestKeepData" class="h-4 w-4 rounded border-gray-300 text-primary-blue focus:ring-primary-blue"/>
+          <label for="researchRequestKeepData" class="text-sm font-medium text-gray-700 select-none cursor-pointer">Giữ nguyên dữ liệu sau khi gửi</label>
         </div>
-      </div>
-
-      <!-- Điểm lưu trữ file đính kèm -->
-      <div class="mt-4">
-        <a id="f1-storage-link" href="https://drive.google.com/drive/u/0/folders/1iVSNn6Ddv6jEun6lyMvOMcan2fpnFSpU" target="_blank" rel="noopener" title="Nhấn để mở và tự động copy liên kết"
-           class="inline-flex items-center gap-2 px-3 py-2 rounded-lg border border-red-200 bg-red-50/30 text-primary-blue hover:bg-red-50">
-          Điểm lưu trữ file đính kèm
-        </a>
-        <p class="text-xs text-gray-500 mt-1">Nhấn để mở và copy liên kết.</p>
+        <button type="submit" class="submit-btn w-full mt-4 py-3 text-white font-semibold text-lg transition flex items-center justify-center gap-2">
+          <span>Gửi yêu cầu</span>
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6" /></svg>
+        </button>
+      </form>
       </div>
     </section>
 
@@ -362,6 +671,50 @@
         </table>
           </div>
         </div>
+      </div>
+    </section>
+
+    <!-- Form 2B · Kế hoạch công việc (Gantt) -->
+    <section id="form2b" class="w-full max-w-none bg-white p-6 rounded-lg shadow-md hidden">
+      <div class="flex items-center justify-between mb-4">
+        <h2 class="text-xl font-semibold text-red-800">Form 2B · Kế hoạch công việc</h2>
+        <div class="flex items-center gap-3">
+          <select id="f2b-assigneeFilter" class="text-sm border border-gray-300 rounded-lg px-3 py-1.5 bg-white focus:outline-none focus:ring-2 focus:ring-red-200">
+            <option value="all">Tất cả nhân sự</option>
+          </select>
+          <button id="f2b-reloadButton" class="inline-flex items-center gap-2 rounded-lg bg-primary-blue px-4 py-1.5 text-sm font-medium text-white hover:bg-red-600 transition" type="button">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+            </svg>
+            Tải lại
+          </button>
+          <p id="f2b-statusText" class="text-xs text-gray-500"></p>
+        </div>
+      </div>
+      <div class="flex h-[calc(100vh-200px)] overflow-hidden border border-gray-200 rounded-lg">
+        <aside class="w-80 bg-white border-r border-gray-200 flex flex-col overflow-hidden">
+          <div class="p-4 border-b border-gray-200 bg-gray-50">
+            <div class="flex items-center justify-between mb-2">
+              <h2 class="text-sm font-semibold text-gray-700 uppercase">Danh sách công việc</h2>
+              <span id="f2b-recordCounter" class="text-xs text-gray-500"></span>
+            </div>
+          </div>
+          <div class="flex-1 overflow-y-auto">
+            <div id="f2b-taskList" class="p-2"></div>
+          </div>
+        </aside>
+        <section class="flex-1 flex flex-col overflow-hidden bg-white">
+          <div class="p-4 border-b border-gray-200 bg-gray-50 flex items-center justify-between">
+            <h2 class="text-sm font-semibold text-gray-700 uppercase">Timeline (Gantt Chart)</h2>
+            <div id="f2b-legend" class="flex gap-4 text-xs">
+              <span class="flex items-center gap-1.5"><span class="w-3 h-3 rounded" style="background:#10B981"></span>Tác vụ đánh giá</span>
+              <span class="flex items-center gap-1.5"><span class="w-3 h-3 rounded" style="background:#F59E0B"></span>Tác vụ nghiên cứu</span>
+            </div>
+          </div>
+          <div class="flex-1 overflow-hidden">
+            <div id="f2b-chartWrapper" class="relative w-full h-full p-4 overflow-hidden flex flex-col"></div>
+          </div>
+        </section>
       </div>
     </section>
 
@@ -692,7 +1045,7 @@
           <span class="px-3 py-1 rounded-full bg-red-50 border border-red-200">Tác vụ: <b class="ml-1" id="uploader-task"></b></span>
         </div>
         <div>
-          <label class="block text-sm font-medium text-gray-700 mb-1">Chọn tệp báo cáo</label>
+          <label id="upload-file-label" class="block text-sm font-medium text-gray-700 mb-1">Chọn tệp báo cáo</label>
           <input id="upload-file" type="file" class="block w-full text-sm file:mr-2 file:py-1 file:px-3 file:rounded-full file:border-0 file:bg-primary-blue file:text-white"/>
         </div>
         <div>
@@ -899,7 +1252,9 @@
     const WEBHOOK_URL = "https://xcqiyibqs.tino.page/webhook/LaydulieuNCTN2";
     const FORM2_WEBHOOK_URL = "https://xcqiyibqs.tino.page/webhook/Laydulieuform2NCTN2";
     const FORM1_UPLOAD_URL = "https://xcqiyibqs.tino.page/webhook/NopbaocaoNCTN2DBmoi";
+    const FORM1B_KHAIBAO_URL = "https://xcqiyibqs.tino.page/webhook/khaibaohoanthanhNC";
     const N8N_SUBMIT_ENDPOINT = "https://xcqiyibqs.tino.page/webhook/YeucauthunghiemNCTN2";
+    const N8N_RESEARCH_WEBHOOK = "https://xcqiyibqs.tino.page/webhook/tacvunghiencuuNCTN2";
     let F4_CHART = null;
 
     // Hàm format timestamp theo định dạng DD HH:mm GMT+7
@@ -918,13 +1273,32 @@
     }
 
     // Sidebar navigation
+    document.querySelectorAll('.group-btn[data-group]').forEach(btn => {
+      btn.addEventListener('click', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        const groupName = this.getAttribute('data-group');
+        const groupItems = document.querySelector(`.group-items[data-group="${groupName}"]`);
+        if (groupItems) {
+          const isCollapsed = groupItems.classList.contains('collapsed');
+          if (isCollapsed) {
+            groupItems.classList.remove('collapsed');
+            this.classList.remove('collapsed');
+          } else {
+            groupItems.classList.add('collapsed');
+            this.classList.add('collapsed');
+          }
+        }
+      });
+    });
     const navBtns = document.querySelectorAll('.nav-btn');
     const formSections = document.querySelectorAll('.form-section');
-    const sections = ['testRequest', 'form1', 'form2', 'form3', 'form4', 'form5', 'form0'].map(id=>document.getElementById(id));
+    const sections = ['testRequest', 'form1', 'form1b', 'form2', 'form2b', 'form3', 'form4', 'form5', 'form0'].map(id=>document.getElementById(id));
     function showSection(id){ 
       formSections.forEach(sec => sec.classList.add('hidden'));
       sections.forEach(s=>s.classList.toggle('hidden', s.id!==id));
       if (id === 'form3') setF3ThoiGianGui();
+      if (id === 'form2b' && typeof window.initForm2B === 'function') setTimeout(window.initForm2B, 50);
       
       // Tự động tải dữ liệu khi chuyển sang Form 0
       if (id === 'form0') {
@@ -960,6 +1334,11 @@
       el.value = `${y}/${m}/${dd} ${h}:${min}`;
     }
     const F3_SUGGEST_DATA = [
+      { name: 'Hoàng Thùy Linh', dept: 'NCTN', email: 'linh.hoang1@karofi.vn' },
+      { name: 'Khương Đức Tình', dept: 'NCTN', email: 'tinh.khuong@karofi.vn' },
+      { name: 'Đặng Thị Chín', dept: 'NCTN', email: 'chindt@karofi.vn' },
+      { name: 'Hoàng Văn Thành', dept: 'NCTN', email: 'thanhhv@karofi.vn' },
+      { name: 'Nguyễn Thị Thủy', dept: 'NCTN', email: 'thuynt3@karofi.vn' },
       { name: 'Trần Văn Hoàng', dept: 'NCTN 2', email: 'hoang.tran@karofi.vn' },
       { name: 'Nguyễn Kim Cương', dept: 'NCTN 2', email: 'cuong.nguyen6@karofi.com' },
       { name: 'Trịnh Xuân Hạnh', dept: 'NCTN 2', email: 'hanhtx@karofi.vn' },
@@ -1937,6 +2316,29 @@
       if (el) el.value = localISO;
     }
     setCurrentDateTime('testRequestDate');
+    setCurrentDateTime('researchRequestDate');
+
+    // Tab switching: Nhập tác vụ (Đánh giá linh kiện/máy | Tác vụ nghiên cứu)
+    function switchTrvTab(tabName) {
+      const tabDanhGia = document.getElementById('trv-tab-danh-gia');
+      const tabNghienCuu = document.getElementById('trv-tab-nghien-cuu');
+      const panelDanhGia = document.getElementById('trv-panel-danh-gia');
+      const panelNghienCuu = document.getElementById('trv-panel-nghien-cuu');
+      if (tabName === 'danh-gia') {
+        tabDanhGia?.classList.add('tab-active');
+        tabNghienCuu?.classList.remove('tab-active');
+        panelDanhGia?.classList.remove('hidden');
+        panelNghienCuu?.classList.add('hidden');
+      } else {
+        tabDanhGia?.classList.remove('tab-active');
+        tabNghienCuu?.classList.add('tab-active');
+        panelDanhGia?.classList.add('hidden');
+        panelNghienCuu?.classList.remove('hidden');
+        setCurrentDateTime('researchRequestDate');
+      }
+    }
+    document.getElementById('trv-tab-danh-gia')?.addEventListener('click', () => switchTrvTab('danh-gia'));
+    document.getElementById('trv-tab-nghien-cuu')?.addEventListener('click', () => switchTrvTab('nghien-cuu'));
 
     // Dynamic fields logic for Test Request Form
     function generateTaskCode(){
@@ -1973,6 +2375,35 @@
           rowDiv.querySelector('button').onclick = ()=>{
             rowDiv.remove();
             testRequestUploads[idx] = null;
+          };
+          uploadList.appendChild(rowDiv);
+        }
+        this.value = '';
+      });
+    })();
+
+    // File upload widget for Research Request Form
+    let researchRequestUploads = [];
+    (function setupResearchRequestUploads(){
+      const fileInput = document.getElementById('researchRequestFiles');
+      const uploadList = document.getElementById('researchRequestUploadList');
+      if (!fileInput || !uploadList) return;
+      researchRequestUploads = [];
+      fileInput.addEventListener('change', function(){
+        if (!this.files || this.files.length === 0) return;
+        for (const file of this.files){
+          const rowDiv = document.createElement('div');
+          rowDiv.className = "flex items-center justify-between p-2 bg-blue-50 rounded";
+          rowDiv.innerHTML = `
+            <span>📄<span class="ml-2">${file.name}</span></span>
+            <span class="text-gray-600 text-xs">Sẽ gửi kèm (binary)</span>
+            <button class="ml-2 text-red-600 hover:underline font-bold" type="button">X</button>
+          `;
+          const idx = researchRequestUploads.length;
+          researchRequestUploads.push({ name: file.name, file });
+          rowDiv.querySelector('button').onclick = ()=>{
+            rowDiv.remove();
+            researchRequestUploads[idx] = null;
           };
           uploadList.appendChild(rowDiv);
         }
@@ -2048,6 +2479,7 @@
             "Ghi chú của yêu cầu": String(data.notes || '').trim(),
             "Người yêu cầu": String(data.senderName || '').trim(),
             "Email người yêu cầu": String(data.senderEmail || '').trim(),
+            "Người thực hiện": String(data.assignee || '').trim(),
             "LinkKOI": String(data.koiLink || '').trim(),
             // Keep these for backward compatibility if needed
             attachments: String(data.attachments || '').trim()
@@ -2074,6 +2506,8 @@
           try{
             const resp = await fetch(endpoint, { method: 'POST', body: form });
             if(resp.ok){
+              if (typeof showToast === 'function') showToast('Đã gửi yêu cầu thành công!', 'success');
+              else alert('Đã gửi yêu cầu thành công!');
               if (btn) {
                 btn.innerHTML="Đã gửi!";
                 btn.classList.add("bg-green-600");
@@ -2105,7 +2539,9 @@
               throw new Error(text || `HTTP ${resp.status}`);
             }
           } catch(err){
-            alert("Gửi thất bại: "+err);
+            const msg = "Gửi thất bại: " + (err.message || err);
+            if (typeof showToast === 'function') showToast(msg, 'error');
+            else alert(msg);
             if (btn) {
               btn.innerHTML=originalLabel;
               btn.disabled=false;
@@ -2118,6 +2554,89 @@
     submitForm("testRequestForm", 
       N8N_SUBMIT_ENDPOINT,
       ()=>testRequestUploads);
+
+    // Research Request Form - submit to webhook
+    (function setupResearchRequestFormSubmit(){
+      const form = document.getElementById('researchRequestForm');
+      if (!form) return;
+      form.onsubmit = async function(e){
+        e.preventDefault();
+        const btn = this.querySelector("button[type=submit]");
+        const originalLabel = btn ? btn.innerHTML : "";
+        if (btn) {
+          btn.disabled = true;
+          btn.innerHTML = "<span class='spinner'></span>";
+        }
+        const data = toJSON(this);
+        const taskCode = generateTaskCode() + '-NC';
+        const uploads = (researchRequestUploads || []).filter(Boolean);
+        data.attachments = uploads.map(u=>u.name || '').join(';');
+        let normalizedRequestDate = '';
+        if (data.requestDate) {
+          const date = new Date(data.requestDate);
+          const gmt7Date = new Date(date.getTime() + (7 * 60 * 60 * 1000));
+          normalizedRequestDate = `${gmt7Date.getUTCFullYear()}-${String(gmt7Date.getUTCMonth() + 1).padStart(2, '0')}-${String(gmt7Date.getUTCDate()).padStart(2, '0')} ${String(gmt7Date.getUTCHours()).padStart(2, '0')}:${String(gmt7Date.getUTCMinutes()).padStart(2, '0')}`;
+        }
+        const normalizedDesiredDate = (data.desiredCompletionDate || '').toString().slice(0, 10);
+        const mapped = {
+          "Ngày yêu cầu của các bên": String(normalizedRequestDate || '').trim(),
+          "Hạn mong muốn của các bên": String(normalizedDesiredDate || '').trim(),
+          "Mã tác vụ": String(taskCode || '').trim(),
+          "Tên tác vụ": String(data.researchTitle || '').trim(),
+          "Mục đích": String(data.purpose || '').trim(),
+          "Người thực hiện": String(data.assignee || '').trim(),
+          "Người yêu cầu": String(data.senderName || '').trim(),
+          "Email người yêu cầu": String(data.senderEmail || '').trim(),
+          "Phòng ban": String(data.department || '').trim(),
+          "Nội dung công việc": String(data.researchScope || '').trim(),
+          "LinkKOI": String(data.koiLink || '').trim(),
+          attachments: String(data.attachments || '').trim()
+        };
+        const formData = new FormData();
+        Object.keys(mapped).forEach(k => {
+          const value = mapped[k];
+          if (k === "LinkKOI") formData.append(k, value || '');
+          else if (value !== undefined && value !== null && String(value).trim() !== '') formData.append(k, value);
+        });
+        formData.append('_ts', Date.now().toString());
+        for (const u of uploads) {
+          if (u && u.file) formData.append('files', u.file, u.name || u.file.name || 'upload');
+        }
+        try {
+          const resp = await fetch(N8N_RESEARCH_WEBHOOK, { method: 'POST', body: formData });
+          if (resp.ok) {
+            if (typeof showToast === 'function') showToast('Đã gửi tác vụ nghiên cứu thành công!', 'success');
+            else alert('Đã gửi tác vụ nghiên cứu thành công!');
+            if (btn) {
+              btn.innerHTML = "Đã gửi!";
+              btn.classList.add("bg-green-600");
+              setTimeout(() => {
+                if (btn) { btn.innerHTML = originalLabel; btn.disabled = false; btn.classList.remove("bg-green-600"); }
+              }, 2000);
+            }
+            const keepData = document.getElementById('researchRequestKeepData')?.checked;
+            if (!keepData) {
+              this.reset();
+              const dtEl = document.getElementById('researchRequestDate');
+              if (dtEl) {
+                const now = new Date();
+                dtEl.value = new Date(now.getTime() - now.getTimezoneOffset() * 60000).toISOString().slice(0, 16);
+              }
+              researchRequestUploads.length = 0;
+              const uploadList = document.getElementById('researchRequestUploadList');
+              if (uploadList) uploadList.innerHTML = '';
+              const fileInput = document.getElementById('researchRequestFiles');
+              if (fileInput) fileInput.value = '';
+            }
+          } else throw new Error(await resp.text() || `HTTP ${resp.status}`);
+        } catch (err) {
+          const msg = "Gửi thất bại: " + (err.message || err);
+          if (typeof showToast === 'function') showToast(msg, 'error');
+          else alert(msg);
+          if (btn) { btn.innerHTML = originalLabel; btn.disabled = false; }
+        }
+      };
+    })();
 
     // Names - Form 1 (Cập nhật từ json.json)
     const FORM1_NAMES = [
@@ -2151,33 +2670,29 @@
     
 
     // Fill selects
-    function fillSelect(sel, arr){ arr.forEach(n=>{ const o=document.createElement('option'); o.value=n; o.textContent=n; sel.appendChild(o); }); }
+    function fillSelect(sel, arr){ if(!sel) return; arr.forEach(n=>{ const o=document.createElement('option'); o.value=n; o.textContent=n; sel.appendChild(o); }); }
     fillSelect(document.getElementById('f1-name'), FORM1_NAMES);
+    fillSelect(document.getElementById('f1b-name'), FORM1_NAMES);
+    fillSelect(document.getElementById('researchAssignee'), FORM1_NAMES);
+    fillSelect(document.getElementById('testRequestAssignee'), FORM1_NAMES);
 
     // Fill month dropdown
     function fillMonthSelect(){
-      const monthSelect = document.getElementById('f1-month');
-      if (!monthSelect) return;
-      
-      const months = [];
-      const now = new Date();
-      
-      // Tạo danh sách 12 tháng gần nhất (bao gồm tháng hiện tại)
-      for (let i = 0; i < 12; i++) {
-        const date = new Date(now.getFullYear(), now.getMonth() - i, 1);
-        const year = date.getFullYear();
-        const month = String(date.getMonth() + 1).padStart(2, '0');
-        const monthName = date.toLocaleDateString('vi-VN', { month: 'long', year: 'numeric' });
-        const value = `${year}-${month}`;
-        months.push({ value, text: monthName });
-      }
-      
-      months.forEach(m => {
-        const option = document.createElement('option');
-        option.value = m.value;
-        option.textContent = m.text;
-        monthSelect.appendChild(option);
-      });
+      const fillOne = (sel) => {
+        if (!sel) return;
+        const months = [];
+        const now = new Date();
+        for (let i = 0; i < 12; i++) {
+          const date = new Date(now.getFullYear(), now.getMonth() - i, 1);
+          const year = date.getFullYear();
+          const month = String(date.getMonth() + 1).padStart(2, '0');
+          const monthName = date.toLocaleDateString('vi-VN', { month: 'long', year: 'numeric' });
+          months.push({ value: `${year}-${month}`, text: monthName });
+        }
+        months.forEach(m => { const o = document.createElement('option'); o.value = m.value; o.textContent = m.text; sel.appendChild(o); });
+      };
+      fillOne(document.getElementById('f1-month'));
+      fillOne(document.getElementById('f1b-month'));
     }
     fillMonthSelect();
 
@@ -2204,6 +2719,10 @@
       uploaderName.textContent = ctx?.name || '';
       uploaderCode.textContent = ctx?.code || '';
       uploaderTask.textContent = ctx?.taskName || '';
+      const fileLabel = document.getElementById('upload-file-label');
+      if (fileLabel) fileLabel.textContent = (ctx?.form === 'Form 1B') ? 'Chọn tệp bằng chứng (nếu có)' : 'Chọn tệp báo cáo';
+      const sendBtn = document.getElementById('btn-send');
+      if (sendBtn) sendBtn.textContent = (ctx?.form === 'Form 1B') ? 'Gửi khai báo' : 'Gửi báo cáo';
       // Hide Người nộp pill no longer needed (Form 2 removed)
       try {
         const namePill = uploaderName && uploaderName.parentElement && uploaderName.parentElement.parentElement ? uploaderName.parentElement.parentElement : null;
@@ -2233,7 +2752,7 @@
       const sendBtn = document.getElementById('btn-send');
       if (sendBtn) {
         sendBtn.disabled = false;
-        sendBtn.textContent = 'Gửi báo cáo';
+        sendBtn.textContent = (uploadContext?.form === 'Form 1B') ? 'Gửi khai báo' : 'Gửi báo cáo';
       }
       isModalSubmitting = false;
     }
@@ -2243,13 +2762,18 @@
 
     document.getElementById('btn-send').onclick = async ()=>{
       if (isModalSubmitting) return;
-      if(!fileInput.files || fileInput.files.length===0){ showToast('Vui lòng chọn tệp báo cáo.','error'); return; }
+      const isForm1B = uploadContext?.form === 'Form 1B';
+      if(!isForm1B && (!fileInput.files || fileInput.files.length===0)){ showToast('Vui lòng chọn tệp báo cáo.','error'); return; }
       const btn = document.getElementById('btn-send');
       isModalSubmitting = true;
       if (btn) { btn.disabled = true; btn.innerHTML = "<span class='spinner mr-2'></span>Đang gửi..."; }
       const fd = new FormData();
-      fd.append('file', fileInput.files[0]);
-      fd.append('file_name', fileInput.files[0].name || '');
+      if (fileInput.files && fileInput.files.length > 0) {
+        fd.append('file', fileInput.files[0]);
+        fd.append('file_name', fileInput.files[0].name || '');
+      } else {
+        fd.append('file_name', '');
+      }
       fd.append('timestamp', formatTimestampGMT7());
       if(uploadContext){
         fd.append('nguoi_nop', uploadContext.name||'');
@@ -2268,17 +2792,17 @@
       fd.append('ghi_chu', noteValue);
       const bpsCheckbox = document.getElementById('upload-bps');
       fd.append('is_bps', '0');
-      const targetUpload = FORM1_UPLOAD_URL;
+      const targetUpload = (uploadContext?.form === 'Form 1B') ? FORM1B_KHAIBAO_URL : FORM1_UPLOAD_URL;
       try{
         await fetch(targetUpload,{method:'POST',body:fd});
-        showToast('Đã gửi báo cáo.','success');
+        showToast((uploadContext?.form === 'Form 1B') ? 'Đã gửi khai báo.' : 'Đã gửi báo cáo.','success');
         closeUploadModal();
       }
       catch(e){
         console.error(e);
         showToast('Gửi thất bại.','error');
         isModalSubmitting = false;
-        if (btn) { btn.disabled = false; btn.textContent = 'Gửi báo cáo'; }
+        if (btn) { btn.disabled = false; btn.textContent = (uploadContext?.form === 'Form 1B') ? 'Gửi khai báo' : 'Gửi báo cáo'; }
       }
     };
 
@@ -2330,6 +2854,10 @@
       };
 
       let filteredData = [...F1_ALL_DATA];
+
+      // Ẩn các tác vụ có Mã tác vụ đuôi -NC
+      const getCode = (item) => String(getV(item, ['Mã tác vụ', 'code', 'ma', 'taskcode', 'mã']) || '').trim();
+      filteredData = filteredData.filter(item => !getCode(item).endsWith('-NC'));
 
       // Lọc theo tháng nếu có bộ lọc
       if (F1_MONTH_FILTER) {
@@ -2881,7 +3409,6 @@
 
 
 
-
     // Copy on click and open link for storage (Form 1)
     const f1StorageLink = document.getElementById('f1-storage-link');
     if (f1StorageLink) {
@@ -2891,6 +3418,222 @@
         catch(_) { /* ignore copy error to not block open */ }
       });
     }
+
+    // ===== Form 1B: Tác vụ nghiên cứu (chỉ mã đuôi -NC) =====
+    let F1B_ALL_ROWS = [];
+    let F1B_PAGE = 1;
+    let F1B_SIZE = 10;
+    let F1B_UNASSIGNED_MODE = false;
+    let F1B_MONTH_FILTER = '';
+    let F1B_ALL_DATA = [];
+    function applyForm1BPaging(){
+      const body = document.getElementById('f1b-body');
+      const pager = document.getElementById('f1b-pager');
+      const total = F1B_ALL_ROWS.length;
+      if(total === 0){
+        body.innerHTML = '<tr><td class="px-3 py-3 text-center text-gray-500" colspan="14">Không có tác vụ</td></tr>';
+        pager.style.display = 'none';
+        return;
+      }
+      pager.style.display = '';
+      const maxPage = Math.max(1, Math.ceil(total / F1B_SIZE));
+      if(F1B_PAGE > maxPage) F1B_PAGE = maxPage;
+      const start = (F1B_PAGE - 1) * F1B_SIZE;
+      const end = Math.min(total, start + F1B_SIZE);
+      const slice = F1B_ALL_ROWS.slice(start, end);
+      const pageInfo = document.getElementById('f1b-page-info');
+      if(pageInfo) pageInfo.textContent = `Trang ${F1B_PAGE}/${maxPage} (${total} dòng)`;
+      const prev = document.getElementById('f1b-prev');
+      const next = document.getElementById('f1b-next');
+      if(prev) prev.disabled = (F1B_PAGE <= 1);
+      if(next) next.disabled = (F1B_PAGE >= maxPage);
+      body.innerHTML = '';
+      slice.forEach(tr => body.appendChild(tr));
+    }
+    function applyLocalMonthFilter1B() {
+      if (!F1B_ALL_DATA.length) return;
+      const getV = (obj, keys) => {
+        const lower = Object.keys(obj || {}).reduce((acc, k) => { acc[k.toLowerCase()] = obj[k]; return acc; }, {});
+        for (const k of keys) { const v = lower[k.toLowerCase()]; if (v !== undefined) return v; }
+        return '';
+      };
+      let filteredData = [...F1B_ALL_DATA];
+      if (F1B_MONTH_FILTER) {
+        filteredData = filteredData.filter(item => {
+          const statusText = String(getV(item, ['Kết quả', 'status', 'trangthai', 'trang_thai', 'trạng thái']) || '').toLowerCase();
+          const isDoing = statusText.includes('doing') || statusText.includes('đang');
+          if (isDoing) return true;
+          const requestDate = getV(item, ['Ngày yêu cầu của các bên', 'requestdate', 'ngayyeucau', 'ngay_yeu_cau', 'submissiondate', 'ngaygui', 'ngày yêu cầu']);
+          if (!requestDate) return false;
+          const date = new Date(requestDate);
+          if (isNaN(date.getTime())) return false;
+          const itemMonthStr = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
+          return itemMonthStr === F1B_MONTH_FILTER;
+        });
+      }
+      filteredData.sort((a, b) => {
+        const getStatus = (item) => String(getV(item, ['Kết quả', 'status', 'trangthai', 'trang_thai', 'trạng thái']) || '').toLowerCase();
+        const isDoing = (item) => getStatus(item).includes('doing') || getStatus(item).includes('đang');
+        const aDoing = isDoing(a);
+        const bDoing = isDoing(b);
+        if (aDoing && !bDoing) return -1;
+        if (!aDoing && bDoing) return 1;
+        const getRequestDate = (item) => {
+          const rd = getV(item, ['Ngày yêu cầu của các bên', 'requestdate', 'ngayyeucau', 'ngay_yeu_cau', 'submissiondate', 'ngaygui', 'ngày yêu cầu']);
+          if (!rd) return new Date(0);
+          const d = new Date(rd);
+          return isNaN(d.getTime()) ? new Date(0) : d;
+        };
+        return getRequestDate(b).getTime() - getRequestDate(a).getTime();
+      });
+      renderFilteredData1B(filteredData);
+    }
+    function renderFilteredData1B(data) {
+      const body = document.getElementById('f1b-body');
+      const pager = document.getElementById('f1b-pager');
+      if (!data.length) {
+        body.innerHTML = '<tr><td class="px-3 py-3 text-center text-gray-500" colspan="14">Không có tác vụ</td></tr>';
+        pager.style.display = 'none';
+        return;
+      }
+      const getV = (obj, keys) => {
+        const lower = Object.keys(obj || {}).reduce((acc, k) => { acc[k.toLowerCase()] = obj[k]; return acc; }, {});
+        for (const k of keys) { const v = lower[k.toLowerCase()]; if (v !== undefined) return v; }
+        return '';
+      };
+      const nameSelected = (document.getElementById('f1b-name').value || '').trim();
+      F1B_ALL_ROWS = [];
+      data.forEach(item => {
+        const tr = document.createElement('tr');
+        const itemId = getV(item, ['Id', 'id', 'ID', '_id']);
+        if (itemId) tr.setAttribute('data-task-id', String(itemId));
+        const tdBtn = document.createElement('td'); tdBtn.className = 'px-3 py-2';
+        const code = getV(item, ['Mã tác vụ', 'code', 'ma', 'taskcode', 'mã']);
+        const tname = getV(item, ['Tên tác vụ', 'Task Name', 'taskname', 'ten_tac_vu', 'ten', 'name', 'title']);
+        const statusText = getV(item, ['Kết quả', '⁉️ Kết quả', 'Hiện trạng', 'status', 'trangthai', 'trang_thai', 'trạng thái']);
+        const statusLower = (statusText || '').toLowerCase();
+        const isDoing = statusLower.includes('doing') || statusLower.includes('đang');
+        const isDone = statusLower.includes('hoàn') || statusLower.includes('done');
+        const isCancelled = statusLower.includes('cancel') || statusLower.includes('hủy') || statusLower.includes('huỷ');
+        const isEmptyStatus = statusLower.trim() === '';
+        const isLocked = !isDoing;
+        const labelBtn = document.createElement('label');
+        if (isLocked) {
+          labelBtn.className = 'px-3 py-1 inline-block rounded-lg bg-gray-300 text-gray-500 cursor-not-allowed opacity-60 pointer-events-none';
+          labelBtn.textContent = isCancelled ? 'Đã hủy' : isDone ? 'Đã hoàn thành' : isEmptyStatus ? 'Trạng thái trống' : 'Chỉ Doing mới được gửi';
+        } else {
+          labelBtn.className = 'px-3 py-1 inline-block rounded-lg text-white bg-primary-blue hover:brightness-105 cursor-pointer';
+          labelBtn.textContent = 'Khai báo';
+          labelBtn.onclick = (e) => {
+            e.preventDefault();
+            if (labelBtn.disabled) return;
+            labelBtn.disabled = true;
+            labelBtn.classList.add('opacity-50', 'pointer-events-none');
+            lastOpenTrigger = labelBtn;
+            openUploadModal({ form: 'Form 1B', name: nameSelected, code, taskName: tname, taskId: itemId });
+          };
+        }
+        tdBtn.appendChild(labelBtn); tr.appendChild(tdBtn);
+        const tdStatus = document.createElement('td'); tdStatus.className = 'px-3 py-2';
+        const s = (statusText || '').toLowerCase();
+        const badge = document.createElement('span');
+        badge.className = 'px-2 py-1 rounded text-xs ' + (s.includes('hoàn') || s.includes('done') ? 'bg-green-100 text-green-800' : (s.includes('cancel') || s.includes('hủy') || s.includes('huỷ') || s.includes('chờ') || s.includes('pending') ? 'bg-yellow-100 text-yellow-800' : 'bg-blue-100 text-blue-800'));
+        badge.textContent = statusText || ''; tdStatus.appendChild(badge); tr.appendChild(tdStatus);
+        addTd(tr, getV(item, ['Ngày hoàn thành thực tế', 'completiondate', 'completeddate', 'ngayhoanthanh', 'ngay_hoan_thanh', 'completion', 'done_date', 'ngày hoàn thành']));
+        addTd(tr, getV(item, ['Ngày yêu cầu của các bên', 'Ngày yêu cầu', 'requestdate', 'ngayyeucau', 'ngay_yeu_cau', 'submissiondate', 'ngaygui']));
+        addTd(tr, getV(item, ['Hạn mong muốn của các bên', 'Hạn mong muốn', 'wishdue', 'hanmongmuon', 'han_mong_muon', 'desireddue']));
+        addTd(tr, tname);
+        addTd(tr, code);
+        const tdFile = document.createElement('td'); tdFile.className = 'px-3 py-2 align-top';
+        const fileLink = getV(item, ['File đính kèm', 'attachmentfilename', 'file_name', 'filename', 'tenfile', 'ten_file', 'tên file', 'tên file đính kèm', 'attachment', 'file']);
+        if (fileLink && String(fileLink).trim() !== '') {
+          const linkBtn = document.createElement('button');
+          linkBtn.className = 'px-3 py-1 inline-block rounded-lg text-white bg-blue-600 hover:bg-blue-700 cursor-pointer text-sm';
+          linkBtn.textContent = 'Xem file';
+          linkBtn.onclick = (e) => { e.preventDefault(); const url = String(fileLink).trim(); window.open((url.startsWith('http') ? url : 'https://' + url), '_blank'); };
+          tdFile.appendChild(linkBtn);
+        }
+        tr.appendChild(tdFile);
+        const tdReport = document.createElement('td'); tdReport.className = 'px-3 py-2 align-top';
+        const reportLink = getV(item, ['LinkBC', 'linkbc', 'link_bc', 'file_bao_cao', 'filebaocao', 'file báo cáo']);
+        if (reportLink && String(reportLink).trim() !== '') {
+          const reportBtn = document.createElement('button');
+          reportBtn.className = 'px-3 py-1 inline-block rounded-lg text-white bg-blue-600 hover:bg-blue-700 cursor-pointer text-sm';
+          reportBtn.textContent = 'Xem file';
+          reportBtn.onclick = (e) => { e.preventDefault(); const url = String(reportLink).trim(); window.open((url.startsWith('http') ? url : 'https://' + url), '_blank'); };
+          tdReport.appendChild(reportBtn);
+        }
+        tr.appendChild(tdReport);
+        addTd(tr, getV(item, ['Người yêu cầu', 'requester', 'nguoiyeucau', 'nguoi_yeu_cau', 'assigner', 'người yêu cầu']));
+        addTd(tr, getV(item, ['Người thực hiện', 'assignee', 'nguoi_thuc_hien', 'người thực hiện', 'employee', 'nhanvien']));
+        addTd(tr, getV(item, ['Mục đích đánh giá', 'purpose', 'mucdich', 'muc_dich', 'mục đích đánh giá', 'muc dich danh gia', 'mucdichdanhgia']));
+        addTd(tr, getV(item, ['Ghi chú của yêu cầu', 'Ghi chú', 'note', 'ghi_chu', 'ghichu']));
+        try {
+          const wishDueStr = getV(item, ['Hạn mong muốn của các bên', 'Hạn mong muốn', 'wishdue', 'hanmongmuon', 'han_mong_muon', 'desireddue']);
+          if (isDoing && wishDueStr) {
+            const dueDate = parseDateFlexible(wishDueStr);
+            if (!isNaN(dueDate.getTime())) {
+              const ymd = (d)=>`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+              const today = new Date();
+              const dueYmd = ymd(dueDate);
+              const todayYmd = ymd(today);
+              if (dueYmd < todayYmd) tr.style.backgroundColor = '#FEE2E2';
+              else if (dueYmd === todayYmd) tr.style.backgroundColor = '#FEF3C7';
+            }
+          }
+        } catch(_) {}
+        F1B_ALL_ROWS.push(tr);
+      });
+      applyForm1BPaging();
+    }
+    async function renderForm1B(){
+      const unassigned = F1B_UNASSIGNED_MODE === true;
+      const nameSelected = (document.getElementById('f1b-name').value || '').trim();
+      const personParam = unassigned ? '' : nameSelected;
+      const body = document.getElementById('f1b-body');
+      if(!unassigned && !nameSelected){ body.innerHTML = '<tr><td class="px-3 py-3 text-center text-gray-500" colspan="13">Vui lòng chọn tên</td></tr>'; return; }
+      body.innerHTML = "<tr><td colspan='13' class='px-3 py-3 text-center text-gray-500'><span class='spinner mr-2'></span>Đang tải...</td></tr>";
+      try {
+        const headerMapF1 = { header_btn: 'Nút nhập gửi báo cáo', header_requester: 'Người yêu cầu', header_requestDate: 'Ngày yêu cầu của các bên', header_wishDue: 'Hạn mong muốn của các bên', header_code: 'Mã tác vụ', header_taskName: 'Tên tác vụ', header_purpose: 'Mục đích đánh giá', header_note: 'Ghi chú của yêu cầu', header_status: 'Kết quả', header_completionDate: 'Ngày hoàn thành thực tế', header_attachmentFileName: 'File đính kèm', header_assignee: 'Người thực hiện', field_requester: 'Người yêu cầu', field_requestDate: 'Ngày yêu cầu của các bên', field_wishDue: 'Hạn mong muốn của các bên', field_code: 'Mã tác vụ', field_taskName: 'Tên tác vụ', field_purpose: 'Mục đích đánh giá', field_note: 'Ghi chú của yêu cầu', field_status: 'Kết quả', field_completionDate: 'Ngày hoàn thành thực tế', field_attachmentFileName: 'File đính kèm', field_assignee: 'Người thực hiện' };
+        const params = new URLSearchParams({ ...headerMapF1, action: 'form1_lookup', person_name: personParam, filter_by: 'Người thực hiện', timestamp: formatTimestampGMT7() });
+        const testUrl = `${WEBHOOK_URL}?${params.toString()}`;
+        async function fetchJson(url){ const maxAttempts = 2; let lastErr = null; for (let attempt = 1; attempt <= maxAttempts; attempt++){ try{ const r = await fetchWithTimeout(url, { method: 'GET', timeout: 120000, mode: 'cors', headers: { 'Accept': 'application/json, text/plain, */*', 'Content-Type': 'application/json' } }); const text = await r.text(); if(!r.ok) throw new Error(text || `HTTP ${r.status}`); let parsed = null; try{ parsed = JSON.parse(text); }catch{ parsed = null; } return { parsed, raw: text }; }catch(e){ lastErr = e; if (attempt < maxAttempts) await new Promise(res=>setTimeout(res, 1000)); continue; } throw lastErr; } }
+        let data = null; try{ const { parsed, raw } = await fetchJson(testUrl); if (parsed && parsed.code === 0 && /could not be started/i.test(String(parsed.message||''))) throw new Error('WEBHOOK_TEST_INACTIVE'); data = parsed ?? raw; } catch (e) { const prodUrl = testUrl.replace('/webhook-test/', '/webhook/'); try { const { parsed, raw } = await fetchJson(prodUrl); data = parsed ?? raw; } catch (e2) { const proxyUrls = [`https://api.allorigins.win/raw?url=${encodeURIComponent(prodUrl)}`, `https://cors.isomorphic-git.org/${prodUrl}`, `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(prodUrl)}`]; for (const proxyUrl of proxyUrls) { try { const { parsed, raw } = await fetchJson(proxyUrl); data = parsed ?? raw; break; } catch (e3) { continue; } } if (!data) throw e2; } }
+        function pickRows(json){ if (!json) return []; if (Array.isArray(json)) return json; const candidates = ['data','rows','result','records','items','list']; for (const k of candidates){ if (Array.isArray(json?.[k])) return json[k]; } try{ const queue = [json]; const seen = new Set(); while(queue.length){ const cur = queue.shift(); if (!cur || typeof cur !== 'object' || seen.has(cur)) continue; seen.add(cur); for (const v of Object.values(cur)){ if (Array.isArray(v) && v.length && typeof v[0] === 'object') return v; if (v && typeof v === 'object') queue.push(v); } } }catch(_){ } return []; }
+        let rows = pickRows(data);
+        if(!rows.length){ body.innerHTML = "<tr><td colspan='13' class='px-3 py-3 text-center text-gray-500'>Không có tác vụ</td></tr>"; return; }
+        const getV = (obj, keys)=>{ const lower = Object.keys(obj||{}).reduce((acc,k)=>{ acc[k.toLowerCase()] = obj[k]; return acc; },{}); for(const k of keys){ const v = lower[k.toLowerCase()]; if(v!==undefined) return v; } return ''; };
+        rows = rows.filter(item=> String(getV(item,['Tên tác vụ','taskname','ten_tac_vu','ten','name','title'])||'').trim() !== '');
+        rows = rows.filter(item => String(getV(item, ['Mã tác vụ', 'code', 'ma', 'taskcode', 'mã']) || '').trim().endsWith('-NC'));
+        if(!rows.length){ body.innerHTML = "<tr><td colspan='13' class='px-3 py-3 text-center text-gray-500'>Không có tác vụ nghiên cứu (-NC)</td></tr>"; return; }
+        if (!unassigned && nameSelected) { rows = rows.filter(item => { const assignee = getV(item, ['Người thực hiện', 'assignee', 'nguoi_thuc_hien', 'người thực hiện', 'employee', 'nhanvien']); return String(assignee || '').trim().toLowerCase() === nameSelected.toLowerCase(); }); }
+        else if (unassigned) { rows = rows.filter(item => { const assignee = getV(item, ['Người thực hiện', 'assignee', 'nguoi_thuc_hien', 'người thực hiện', 'employee', 'nhanvien']); return !assignee || String(assignee).trim() === ''; }); }
+        if(!rows.length){ body.innerHTML = "<tr><td colspan='13' class='px-3 py-3 text-center text-gray-500'>Không có tác vụ</td></tr>"; return; }
+        F1B_ALL_DATA = [...rows];
+        applyLocalMonthFilter1B();
+      } catch(err) {
+        const isCors = /Failed to fetch|CORS|No 'Access-Control-Allow-Origin'|NetworkError|TypeError/.test(String(err && (err.message || err)));
+        const msg = isCors ? 'Bị chặn bởi CORS. Vui lòng mở file qua web server.' : (String(err && err.name)==='AbortError') ? 'Quá thời gian chờ.' : `Lỗi tải dữ liệu: ${String(err.message||err)}`;
+        body.innerHTML = `<tr><td colspan='13' class='px-3 py-3 text-center text-red-600'>${msg}</td></tr>`;
+      }
+    }
+    document.getElementById('f1b-name').onchange = ()=>{};
+    const f1bSearchBtn = document.getElementById('f1b-search');
+    if (f1bSearchBtn) { let f1bBusy = false; f1bSearchBtn.onclick = async (e)=>{ e.preventDefault(); if (f1bBusy) return; f1bBusy = true; f1bSearchBtn.disabled = true; const prev = f1bSearchBtn.textContent; f1bSearchBtn.innerHTML = "<span class='spinner mr-2'></span>Đang tải..."; try { F1B_UNASSIGNED_MODE = false; await renderForm1B(); } finally { f1bBusy = false; f1bSearchBtn.disabled = false; f1bSearchBtn.textContent = prev; } }; }
+    const f1bUnassignedBtn = document.getElementById('f1b-unassigned');
+    if (f1bUnassignedBtn) { let f1bUBusy = false; f1bUnassignedBtn.onclick = async (e)=>{ e.preventDefault(); if (f1bUBusy) return; f1bUBusy = true; F1B_UNASSIGNED_MODE = true; f1bUnassignedBtn.disabled = true; const prev = f1bUnassignedBtn.textContent; f1bUnassignedBtn.innerHTML = "<span class='spinner mr-2'></span>Đang tải..."; try { await renderForm1B(); } finally { f1bUBusy = false; f1bUnassignedBtn.disabled = false; f1bUnassignedBtn.textContent = prev; } }; }
+    const f1bPrev = document.getElementById('f1b-prev');
+    const f1bNext = document.getElementById('f1b-next');
+    const f1bSize = document.getElementById('f1b-size');
+    if (f1bPrev) f1bPrev.onclick = (e)=>{ e.preventDefault(); if(F1B_PAGE>1){ F1B_PAGE--; applyForm1BPaging(); } };
+    if (f1bNext) f1bNext.onclick = (e)=>{ e.preventDefault(); F1B_PAGE++; applyForm1BPaging(); };
+    if (f1bSize) f1bSize.onchange = (e)=>{ F1B_SIZE = parseInt(e.target.value||'10',10)||10; F1B_PAGE=1; applyForm1BPaging(); };
+    const f1bMonth = document.getElementById('f1b-month');
+    const f1bClearFilter = document.getElementById('f1b-clear-filter');
+    if (f1bMonth) f1bMonth.addEventListener('change', (e) => { F1B_MONTH_FILTER = e.target.value || ''; F1B_PAGE = 1; applyLocalMonthFilter1B(); });
+    if (f1bClearFilter) f1bClearFilter.addEventListener('click', (e) => { e.preventDefault(); F1B_MONTH_FILTER = ''; if (f1bMonth) f1bMonth.value = ''; F1B_PAGE = 1; applyLocalMonthFilter1B(); });
+    const f1bStorageLink = document.getElementById('f1b-storage-link');
+    if (f1bStorageLink) f1bStorageLink.addEventListener('click', async ()=>{ const url = f1bStorageLink.getAttribute('href') || ''; try { await navigator.clipboard.writeText(url); showToast('Đã copy liên kết.','success'); } catch(_) {} });
 
     // ===== Form 2: Tất cả tác vụ =====
     let F2_ALL_DATA = [];
@@ -3878,6 +4621,284 @@
     setTimeout(() => {
       fetchForm2Data();
     }, 100);
+
+    // ===== Form 2B · Kế hoạch công việc (Gantt) =====
+    (function initForm2B() {
+      const { DateTime } = luxon;
+      const ZONE = 'Asia/Ho_Chi_Minh';
+      const assigneeFilter = document.getElementById('f2b-assigneeFilter');
+      const reloadButton = document.getElementById('f2b-reloadButton');
+      const statusText = document.getElementById('f2b-statusText');
+      const recordCounter = document.getElementById('f2b-recordCounter');
+      const chartWrapper = document.getElementById('f2b-chartWrapper');
+      const taskList = document.getElementById('f2b-taskList');
+
+      let f2bRows = [];
+      const COLOR_DANH_GIA = '#10B981';
+      const COLOR_NGHIEN_CUU = '#F59E0B';
+
+      function isNghienCuuTask(taskCode) {
+        return taskCode && String(taskCode).trim().toUpperCase().endsWith('-NC');
+      }
+
+      function getColorForTask(task) {
+        return isNghienCuuTask(task.task_code) ? COLOR_NGHIEN_CUU : COLOR_DANH_GIA;
+      }
+
+      function getV(obj, keys) {
+        if (!obj) return '';
+        const lower = Object.keys(obj).reduce((acc, k) => { acc[k.toLowerCase()] = obj[k]; return acc; }, {});
+        for (const k of keys) {
+          const v = lower[k.toLowerCase()];
+          if (v !== undefined) return v;
+        }
+        return '';
+      }
+
+      function parseDateOnly(val) {
+        if (!val) return null;
+        const s = String(val).trim();
+        const m1 = s.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})/);
+        if (m1) return DateTime.fromObject({ year: +m1[3], month: +m1[2], day: +m1[1] }, { zone: ZONE }).startOf('day');
+        const m2 = s.match(/^(\d{4})-(\d{2})-(\d{2})/);
+        if (m2) return DateTime.fromObject({ year: +m2[1], month: +m2[2], day: +m2[3] }, { zone: ZONE }).startOf('day');
+        try { return DateTime.fromISO(s.replace(' ', 'T'), { zone: ZONE }).startOf('day'); } catch (_) { return null; }
+      }
+
+      function pickRows(json) {
+        if (!json) return [];
+        if (Array.isArray(json)) return json;
+        const candidates = ['data', 'rows', 'result', 'records', 'items', 'list'];
+        for (const k of candidates) { if (Array.isArray(json?.[k])) return json[k]; }
+        try {
+          const queue = [json]; const seen = new Set();
+          while (queue.length) {
+            const cur = queue.shift();
+            if (!cur || typeof cur !== 'object' || seen.has(cur)) continue;
+            seen.add(cur);
+            for (const v of Object.values(cur)) {
+              if (Array.isArray(v) && v.length && typeof v[0] === 'object') return v;
+              if (v && typeof v === 'object') queue.push(v);
+            }
+          }
+        } catch (_) {}
+        return [];
+      }
+
+      function getColorForAssignee(name) {
+        if (!name) return COLORS[0];
+        if (colorCache.has(name)) return colorCache.get(name);
+        const idx = colorCache.size % COLORS.length;
+        const c = COLORS[idx];
+        colorCache.set(name, c);
+        return c;
+      }
+
+      async function loadForm2BData() {
+        if (statusText) statusText.textContent = 'Đang tải dữ liệu...';
+        try {
+          const headerMapF1 = { header_btn: 'Nút nhập gửi báo cáo', header_requester: 'Người yêu cầu', header_requestDate: 'Ngày yêu cầu của các bên', header_wishDue: 'Hạn mong muốn của các bên', header_code: 'Mã tác vụ', header_taskName: 'Tên tác vụ', header_purpose: 'Mục đích đánh giá', header_note: 'Ghi chú của yêu cầu', header_status: 'Kết quả', header_completionDate: 'Ngày hoàn thành thực tế', header_attachmentFileName: 'File đính kèm', header_assignee: 'Người thực hiện', field_requester: 'Người yêu cầu', field_requestDate: 'Ngày yêu cầu của các bên', field_wishDue: 'Hạn mong muốn của các bên', field_code: 'Mã tác vụ', field_taskName: 'Tên tác vụ', field_purpose: 'Mục đích đánh giá', field_note: 'Ghi chú của yêu cầu', field_status: 'Kết quả', field_completionDate: 'Ngày hoàn thành thực tế', field_attachmentFileName: 'File đính kèm', field_assignee: 'Người thực hiện' };
+          const params = new URLSearchParams({ ...headerMapF1, action: 'form1_lookup', person_name: '', filter_by: 'Người thực hiện', timestamp: formatTimestampGMT7() });
+          const url = `${WEBHOOK_URL}?${params.toString()}`;
+          async function fetchJson(u) {
+            const r = await fetchWithTimeout(u, { method: 'GET', timeout: 120000, mode: 'cors', headers: { 'Accept': 'application/json', 'Content-Type': 'application/json' } });
+            const text = await r.text();
+            if (!r.ok) throw new Error(text || `HTTP ${r.status}`);
+            try { return JSON.parse(text); } catch (_) { return text; }
+          }
+          let data = null;
+          try { data = await fetchJson(url); } catch (e) {
+            const proxyUrls = [`https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`, `https://cors.isomorphic-git.org/${url}`, `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(url)}`];
+            for (const pu of proxyUrls) { try { data = await fetchJson(pu); break; } catch (_) { continue; } }
+            if (!data) throw e;
+          }
+          const rows = pickRows(data);
+          const filtered = rows.filter(item => {
+            const taskName = String(getV(item, ['Tên tác vụ', 'taskname', 'ten_tac_vu', 'ten', 'name', 'title']) || '').trim();
+            const status = String(getV(item, ['Kết quả', 'ketqua', 'ket_qua', 'status', 'result', 'kết quả']) || '').trim();
+            return taskName !== '' && status.toLowerCase() === 'doing';
+          });
+          const tasks = [];
+          filtered.forEach((item, idx) => {
+            const startVal = getV(item, ['Ngày yêu cầu của các bên', 'Ngày yêu cầu', 'requestdate', 'ngayyeucau', 'ngay_yeu_cau']);
+            const endVal = getV(item, ['Hạn mong muốn của các bên', 'Hạn mong muốn', 'wishdue', 'hanmongmuon', 'han_mong_muon']);
+            const startDt = parseDateOnly(startVal);
+            const endDt = parseDateOnly(endVal);
+            if (!startDt || !startDt.isValid) return;
+            const endDate = endDt && endDt.isValid ? endDt : startDt;
+            if (endDate < startDt) return;
+            tasks.push({
+              order: idx + 1,
+              assignee: getV(item, ['Người thực hiện', 'assignee', 'nguoi_thuc_hien', 'người thực hiện']) || 'Chưa phân công',
+              task_code: getV(item, ['Mã tác vụ', 'code', 'ma', 'taskcode', 'mã']) || '',
+              task_name: getV(item, ['Tên tác vụ', 'taskname', 'ten_tac_vu', 'ten', 'name', 'title']) || '',
+              start: startDt,
+              end: endDate
+            });
+          });
+          f2bRows = tasks;
+          const names = Array.from(new Set(tasks.map(t => t.assignee)));
+          if (assigneeFilter) {
+            assigneeFilter.innerHTML = '<option value="all">Tất cả nhân sự</option>';
+            names.forEach(n => { const opt = document.createElement('option'); opt.value = n; opt.textContent = n; assigneeFilter.appendChild(opt); });
+          }
+          if (statusText) statusText.textContent = `Đã tải ${tasks.length} tác vụ`;
+          refreshForm2BView();
+        } catch (err) {
+          if (statusText) statusText.textContent = `Lỗi: ${err.message}`;
+          f2bRows = [];
+          refreshForm2BView();
+        }
+      }
+
+      function getDateRange(rows) {
+        if (rows.length === 0) return [];
+        const dates = rows.flatMap(r => [r.start.toMillis(), r.end.toMillis()]);
+        const minMs = Math.min(...dates);
+        const maxMs = Math.max(...dates);
+        const dateRange = [];
+        let current = DateTime.fromMillis(minMs, { zone: ZONE }).startOf('day');
+        const end = DateTime.fromMillis(maxMs, { zone: ZONE }).startOf('day');
+        const weekdays = ['CN', 'Th 2', 'Th 3', 'Th 4', 'Th 5', 'Th 6', 'Th 7'];
+        while (current <= end) {
+          const wd = current.weekday === 7 ? 0 : current.weekday;
+          dateRange.push({ date: current.toFormat('dd/MM'), weekday: weekdays[wd], dateObj: current });
+          current = current.plus({ days: 1 });
+        }
+        return dateRange;
+      }
+
+      function renderTaskList(rows, filterValue) {
+        const filtered = filterValue === 'all' ? rows : rows.filter(r => r.assignee === filterValue);
+        const byAssignee = {};
+        filtered.forEach(r => {
+          const n = r.assignee || 'Chưa phân công';
+          if (!byAssignee[n]) byAssignee[n] = [];
+          byAssignee[n].push(r);
+        });
+        const assignees = Object.keys(byAssignee).sort((a, b) => {
+          if (a === 'Chưa phân công') return -1;
+          if (b === 'Chưa phân công') return 1;
+          return a.localeCompare(b);
+        });
+        if (recordCounter) recordCounter.textContent = `${filtered.length} công việc`;
+        if (!taskList) return;
+        taskList.innerHTML = assignees.map(name => {
+          const tasks = byAssignee[name];
+          const isUnassigned = name === 'Chưa phân công';
+          const rowClass = isUnassigned ? 'border-b border-gray-100 py-2 bg-yellow-100' : 'border-b border-gray-100 py-2';
+          return `<div class="${rowClass}">
+            <div class="flex items-center gap-2 px-2 font-medium text-gray-800">
+              <span>${(name || '-').replace(/</g, '&lt;')}</span>
+              <span class="text-xs text-gray-500">(${tasks.length} tác vụ)</span>
+            </div>
+            <div class="mt-1 pl-5 space-y-0.5">
+              ${tasks.map(t => `<div class="text-xs text-gray-600 truncate" title="${(t.task_name || t.task_code || '').replace(/"/g, '&quot;')}">${(t.task_name || t.task_code || '-').replace(/</g, '&lt;')}</div>`).join('')}
+            </div>
+          </div>`;
+        }).join('');
+      }
+
+      function renderGantt(rows, filterValue) {
+        const filtered = filterValue === 'all' ? rows : rows.filter(r => r.assignee === filterValue);
+        const dateRange = getDateRange(filtered);
+        if (dateRange.length === 0) {
+          chartWrapper.innerHTML = '<div class="flex items-center justify-center h-full text-gray-500">Không có dữ liệu để hiển thị</div>';
+          return;
+        }
+        const startDate = dateRange[0].dateObj;
+        const totalDays = dateRange.length;
+        const colWidth = 60;
+        const taskRowHeight = 36;
+        const timelineWidth = totalDays * colWidth;
+
+        const byAssignee = {};
+        filtered.forEach(r => {
+          const n = r.assignee || 'Chưa phân công';
+          if (!byAssignee[n]) byAssignee[n] = [];
+          byAssignee[n].push(r);
+        });
+        const assignees = Object.keys(byAssignee).sort((a, b) => {
+          if (a === 'Chưa phân công') return -1;
+          if (b === 'Chưa phân công') return 1;
+          return a.localeCompare(b);
+        });
+
+        const headerCells = dateRange.map(d => `<div class="flex-shrink-0 text-center text-xs font-medium text-gray-600 border-l border-gray-200 py-1" style="width:${colWidth}px">${d.weekday}<br>${d.date}</div>`).join('');
+
+        const endDate = dateRange[dateRange.length - 1].dateObj;
+        const now = DateTime.now().setZone(ZONE).startOf('day');
+        let currentTimeLineHtml = '';
+        if (now >= startDate && now <= endDate) {
+          const dayIdx = Math.floor(now.diff(startDate, 'days').days);
+          const leftPx = dayIdx * colWidth;
+          const todayFmt = now.toFormat('dd/MM/yyyy');
+          currentTimeLineHtml = `<div class="absolute top-0 bottom-0 z-20 pointer-events-none" style="left:${leftPx}px;width:2px;background:#ef4444;box-shadow:0 0 4px rgba(239,68,68,0.6);" title="Hôm nay: ${todayFmt}"></div>`;
+        }
+
+        const assigneeBlocks = assignees.map(assignee => {
+          const tasks = byAssignee[assignee];
+          const isUnassigned = assignee === 'Chưa phân công';
+          const blockHeight = tasks.length * taskRowHeight;
+          const blockBg = isUnassigned ? 'bg-yellow-100' : '';
+          const barsHtml = tasks.map((seg, ti) => {
+            const color = getColorForTask(seg);
+            const startDayIdx = Math.max(0, Math.floor(seg.start.diff(startDate, 'days').days));
+            const endDayIdx = Math.min(totalDays - 1, Math.floor(seg.end.diff(startDate, 'days').days));
+            const spanDays = Math.max(1, endDayIdx - startDayIdx + 1);
+            const leftPx = startDayIdx * colWidth;
+            const widthPx = spanDays * colWidth;
+            const displayName = (seg.task_name || seg.task_code || '-').replace(/</g, '&lt;');
+            const startFmt = seg.start.toFormat('dd/MM');
+            const endFmt = seg.end.toFormat('dd/MM');
+            const topPx = ti * taskRowHeight + 4;
+            return `<div class="absolute rounded flex items-center px-2 text-white text-xs font-medium overflow-hidden shadow-sm" style="left:${leftPx}px;width:${widthPx}px;top:${topPx}px;height:28px;background:${color};" title="${displayName} (${startFmt} → ${endFmt})"><span class="truncate">${displayName}</span></div>`;
+          }).join('');
+          return `<div class="flex border-b border-gray-200 ${blockBg}" style="min-width:${timelineWidth}px">
+            <div class="flex-shrink-0 w-48 py-2 px-2 border-r border-gray-200 ${isUnassigned ? 'bg-yellow-200' : 'bg-gray-50'} text-sm font-medium text-gray-800 sticky left-0 z-[5]" style="min-height:${blockHeight}px">
+              ${(assignee || 'Chưa phân công').replace(/</g, '&lt;')} <span class="text-gray-500 font-normal">(${tasks.length} tác vụ)</span>
+            </div>
+            <div class="relative flex-1 ${blockBg}" style="min-width:${timelineWidth}px;min-height:${blockHeight}px">
+              ${barsHtml}
+              ${currentTimeLineHtml}
+            </div>
+          </div>`;
+        }).join('');
+
+        chartWrapper.innerHTML = `
+          <div class="flex flex-col flex-1 min-h-0">
+            <div id="f2b-gantt-header" class="flex-shrink-0 flex border-b-2 border-gray-300 bg-gray-100 shadow-sm">
+              <div class="flex-shrink-0 w-48 py-2 px-2 border-r border-gray-200 bg-gray-100 text-xs font-semibold uppercase text-gray-600">Người thực hiện</div>
+              <div id="f2b-header-dates" class="flex-1 min-w-0 overflow-x-auto overflow-y-hidden border-l border-gray-200 bg-gray-100">
+                <div class="flex" style="min-width:${timelineWidth}px">${headerCells}</div>
+              </div>
+            </div>
+            <div id="f2b-gantt-body" class="flex-1 min-h-0 overflow-auto">
+              <div class="flex flex-col" style="min-width:${timelineWidth + 192}px">
+                ${assigneeBlocks}
+              </div>
+            </div>
+          </div>`;
+        const headerDates = document.getElementById('f2b-header-dates');
+        const ganttBody = document.getElementById('f2b-gantt-body');
+        if (headerDates && ganttBody) {
+          ganttBody.addEventListener('scroll', function() {
+            headerDates.scrollLeft = ganttBody.scrollLeft;
+          });
+        }
+      }
+
+      function refreshForm2BView() {
+        const filterValue = (assigneeFilter && assigneeFilter.value) || 'all';
+        renderTaskList(f2bRows, filterValue);
+        renderGantt(f2bRows, filterValue);
+      }
+
+      if (reloadButton) reloadButton.addEventListener('click', loadForm2BData);
+      if (assigneeFilter) assigneeFilter.addEventListener('change', refreshForm2BView);
+
+      window.initForm2B = loadForm2BData;
+    })();
 
     // ===== FORM 3 - QUẢN LÝ DỰ ÁN =====
     let F4_EXCEL_FILE = null;
