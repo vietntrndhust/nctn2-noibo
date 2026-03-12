@@ -785,6 +785,14 @@
           <span>Gửi yêu cầu</span>
         </button>
       </div>
+      <div id="f3-invalid-banner" class="hidden mb-4 p-4 bg-red-100 border-2 border-red-500 rounded-lg flex items-start gap-3 flex-shrink-0">
+        <span class="material-icons text-red-600 text-2xl flex-shrink-0">error</span>
+        <div class="flex-1">
+          <p class="font-semibold text-red-800 text-base">Xin vui lòng xem lại định dạng file.</p>
+          <p class="text-red-700 text-sm mt-1">Excel phải được xuất trực tiếp từ file code BPS.</p>
+          <p class="text-red-600 text-xs mt-2">File có dữ liệu không hợp lệ (dòng không có Code hoặc nhóm không có Index) nên không thể gửi yêu cầu.</p>
+        </div>
+      </div>
       <!-- Vùng hiển thị bảng theo nhóm - có thể kéo để thay đổi chiều cao -->
       <div id="f3-table-preview" class="f3-table-wrapper mt-4 border border-gray-200 rounded-lg overflow-hidden flex flex-col flex-1 min-h-[300px]">
         <div class="px-3 py-2 bg-gray-50 border-b border-gray-200 text-sm font-medium text-gray-700 flex-shrink-0">
@@ -1401,6 +1409,7 @@
     })();
     let F3_TEMP_JSON = null;
     let F3_TEMP_FILE = null;
+    let F3_HAS_INVALID_GROUPS = false;
     const F3_OUTPUT_FIELDS = [
       { key: 'Code_1', excelKeys: ['Code_1', 'Code', 'code_1', 'code'] },
       { key: 'Name 1', excelKeys: ['Name 1', 'Name1', 'name 1', 'name1'] },
@@ -1451,7 +1460,14 @@
               if (!groupsMap.has(key)) groupsMap.set(key, []);
               groupsMap.get(key).push(r);
             }
+            const hasNoCode = groupsMap.has('__NO_CODE__');
+            const hasNoIndexGroups = Array.from(groupsMap.entries()).some(([code, items]) =>
+              code !== '__NO_CODE__' && items.every(row => !String(row?.Index ?? '').trim())
+            );
+            F3_HAS_INVALID_GROUPS = hasNoCode || hasNoIndexGroups;
             F3_TEMP_JSON = Array.from(groupsMap.entries())
+              .filter(([code]) => code !== '__NO_CODE__')
+              .filter(([code, items]) => items.some(row => String(row?.Index ?? '').trim() !== ''))
               .sort((a, b) => a[0].localeCompare(b[0]))
               .map(([code, items]) => ({
                 code,
@@ -1460,6 +1476,8 @@
                 items,
               }));
             console.log('[Form 3] Excel → JSON (grouped):', F3_TEMP_JSON);
+            const f3InvalidBanner = document.getElementById('f3-invalid-banner');
+            if (f3InvalidBanner) f3InvalidBanner.classList.toggle('hidden', !F3_HAS_INVALID_GROUPS);
             const content = document.getElementById('f3-table-content');
             const preview = document.getElementById('f3-table-preview');
             const headers = ['Code_1', 'Name 1', 'Index', 'Standard', 'Tool', 'Type', 'Document', 'Available'];
@@ -1554,6 +1572,9 @@
           } catch (err) {
             console.error('[Form 3] Lỗi đọc Excel:', err);
             F3_TEMP_JSON = null;
+            F3_HAS_INVALID_GROUPS = false;
+            const f3InvalidBanner = document.getElementById('f3-invalid-banner');
+            if (f3InvalidBanner) f3InvalidBanner.classList.add('hidden');
             const content = document.getElementById('f3-table-content');
             const preview = document.getElementById('f3-table-preview');
             if (content && preview) {
@@ -1592,6 +1613,7 @@
       if (!val || !String(val).trim()) return '-';
       const v = String(val).trim().toLowerCase();
       const base = 'inline-block rounded-full px-3 py-1 text-xs font-medium whitespace-nowrap';
+      if (v.includes('rework')) return `<span class="${base} bg-red-100 text-red-800 border border-red-300">Rework</span>`;
       if (v.includes('đang rà soát') || v.includes('dang ra soat')) return `<span class="${base} bg-blue-100 text-blue-800 border border-blue-200">Đang rà soát</span>`;
       if (v.includes('đã phản hồi') || v.includes('da phan hoi')) return `<span class="${base} bg-purple-100 text-purple-800 border border-purple-200">Đã phản hồi</span>`;
       if (v.includes('đang trao đổi') || v.includes('dang trao doi')) return `<span class="${base} bg-yellow-100 text-yellow-800 border border-yellow-200">Đang trao đổi lại</span>`;
@@ -2252,6 +2274,12 @@
         const emailNguoiYeuCau = (document.getElementById('f3-email-yeu-cau')?.value || '').trim();
         const nguoiNhanRasoat = (document.getElementById('f3-nguoi-nhan')?.value || '').trim();
         const thoiGianGui = (document.getElementById('f3-thoi-gian-gui')?.value || '').trim();
+        if (F3_HAS_INVALID_GROUPS) {
+          const msg = 'Xin vui lòng xem lại định dạng file.\nExcel phải được xuất trực tiếp từ file code BPS';
+          if (typeof showToast === 'function') showToast(msg, 'error');
+          else alert(msg);
+          return;
+        }
         const errors = [];
         if (!nguoiYeuCau) errors.push('Người yêu cầu');
         if (!emailNguoiYeuCau) errors.push('Email người yêu cầu');
