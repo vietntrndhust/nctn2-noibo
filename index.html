@@ -645,6 +645,12 @@
           <label class="text-sm text-gray-700">Tháng</label>
           <input id="f2-month" type="month" class="border border-red-300 rounded-lg bg-slate-100 p-2 focus:outline-none focus:ring-2 focus:ring-red-200 focus:bg-white"/>
           <button id="f2-search-p1" class="submit-btn px-3 py-1.5 text-white text-sm font-semibold transition">Tra cứu</button>
+          <button id="f2-debug-toggle" class="px-3 py-1.5 rounded-lg border border-amber-400 text-amber-800 bg-amber-50 hover:bg-amber-100 text-sm">🔍 Debug</button>
+        </div>
+        <!-- Debug Panel Form 2 -->
+        <div id="f2-debug-panel" class="hidden mt-2 p-3 bg-slate-100 border border-slate-300 rounded-lg text-sm font-mono max-h-64 overflow-y-auto">
+          <div class="font-semibold text-slate-700 mb-2">📋 Form 2 Debug Log</div>
+          <div id="f2-debug-content" class="space-y-1 text-xs"></div>
         </div>
         <!-- P1: Thống kê tiến độ -->
         <div id="f2-panel-p1" class="f2-panel bg-white border border-gray-200 rounded-lg shadow-sm mt-2">
@@ -791,6 +797,7 @@
           <p class="font-semibold text-red-800 text-base">Xin vui lòng xem lại định dạng file.</p>
           <p class="text-red-700 text-sm mt-1">Excel phải được xuất trực tiếp từ file code BPS.</p>
           <p class="text-red-600 text-xs mt-2">File có dữ liệu không hợp lệ (dòng không có Code hoặc nhóm không có Index) nên không thể gửi yêu cầu.</p>
+          <p id="f3-invalid-detail" class="text-red-700 text-sm mt-2 font-mono bg-red-50 p-2 rounded border border-red-200"></p>
         </div>
       </div>
       <!-- Vùng hiển thị bảng theo nhóm - có thể kéo để thay đổi chiều cao -->
@@ -1411,9 +1418,9 @@
     let F3_TEMP_FILE = null;
     let F3_HAS_INVALID_GROUPS = false;
     const F3_OUTPUT_FIELDS = [
-      { key: 'Code_1', excelKeys: ['Code_1', 'Code', 'code_1', 'code'] },
-      { key: 'Name 1', excelKeys: ['Name 1', 'Name1', 'name 1', 'name1'] },
-      { key: 'Index', excelKeys: ['Index', 'index'] },
+      { key: 'Code_1', excelKeys: ['Code_1', 'Code 1', 'Code1', 'Code', 'code_1', 'code1', 'code', 'Mã', 'ma'] },
+      { key: 'Name 1', excelKeys: ['Name 1', 'Name1', 'name 1', 'name1', 'Name', 'Tên', 'ten'] },
+      { key: 'Index', excelKeys: ['Index', 'index', 'Index_1', 'Mục lục', 'muc luc', 'STT', 'stt'] },
       { key: 'Standard', excelKeys: ['Standard', 'standard'] },
       { key: 'Tool', excelKeys: ['Tool', 'tool'] },
       { key: 'Type', excelKeys: ['Type', 'type'] },
@@ -1454,17 +1461,32 @@
             const raw = XLSX.utils.sheet_to_json(firstSheet, { defval: '', blankrows: true });
             const rows = raw.map(extractF3Fields);
             const KEY_FIELD = 'Code_1';
+            const isRowCompletelyEmpty = (r) => ['Code_1', 'Name 1', 'Index', 'Standard', 'Tool', 'Type', 'Document', 'Available'].every(f => !String(r?.[f] ?? '').trim());
             const groupsMap = new Map();
-            for (const r of rows) {
+            const noCodeExcelRows = [];
+            for (let i = 0; i < rows.length; i++) {
+              const r = rows[i];
+              if (isRowCompletelyEmpty(r)) continue;
+              const excelRow = i + 2;
               const key = String(r?.[KEY_FIELD] ?? '').trim() || '__NO_CODE__';
               if (!groupsMap.has(key)) groupsMap.set(key, []);
               groupsMap.get(key).push(r);
+              if (key === '__NO_CODE__') noCodeExcelRows.push(excelRow);
             }
             const hasNoCode = groupsMap.has('__NO_CODE__');
-            const hasNoIndexGroups = Array.from(groupsMap.entries()).some(([code, items]) =>
+            const noCodeRows = noCodeExcelRows.length;
+            const noIndexGroups = Array.from(groupsMap.entries()).filter(([code, items]) =>
               code !== '__NO_CODE__' && items.every(row => !String(row?.Index ?? '').trim())
             );
+            const hasNoIndexGroups = noIndexGroups.length > 0;
             F3_HAS_INVALID_GROUPS = hasNoCode || hasNoIndexGroups;
+            if (F3_HAS_INVALID_GROUPS) {
+              console.log('[Form 3 Debug] Dữ liệu không hợp lệ:', {
+                noCodeRows,
+                noCodeRowExamples: hasNoCode ? (groupsMap.get('__NO_CODE__') || []).slice(0, 2) : [],
+                noIndexGroups: noIndexGroups.map(([c, i]) => ({ code: c, count: i.length })),
+              });
+            }
             F3_TEMP_JSON = Array.from(groupsMap.entries())
               .filter(([code]) => code !== '__NO_CODE__')
               .filter(([code, items]) => items.some(row => String(row?.Index ?? '').trim() !== ''))
@@ -1477,7 +1499,22 @@
               }));
             console.log('[Form 3] Excel → JSON (grouped):', F3_TEMP_JSON);
             const f3InvalidBanner = document.getElementById('f3-invalid-banner');
+            const f3InvalidDetail = document.getElementById('f3-invalid-detail');
             if (f3InvalidBanner) f3InvalidBanner.classList.toggle('hidden', !F3_HAS_INVALID_GROUPS);
+            if (f3InvalidDetail && F3_HAS_INVALID_GROUPS) {
+              const parts = [];
+              if (noCodeRows > 0) {
+                const rowList = noCodeExcelRows.length <= 15
+                  ? noCodeExcelRows.join(', ')
+                  : noCodeExcelRows.slice(0, 12).join(', ') + ', ...';
+                parts.push(`Dòng Excel không có Code: ${rowList}${noCodeRows > 15 ? ` (tổng ${noCodeRows} dòng)` : ''}`);
+              }
+              if (noIndexGroups.length > 0) {
+                const list = noIndexGroups.map(([c, i]) => `${c} (${i.length} dòng)`).join(', ');
+                parts.push(`Nhóm không có Index: ${list}`);
+              }
+              f3InvalidDetail.textContent = '🔍 Chi tiết: ' + (parts.join(' | ') || 'Dữ liệu không hợp lệ');
+            }
             const content = document.getElementById('f3-table-content');
             const preview = document.getElementById('f3-table-preview');
             const headers = ['Code_1', 'Name 1', 'Index', 'Standard', 'Tool', 'Type', 'Document', 'Available'];
@@ -3668,6 +3705,29 @@
     let F2_MONTH_FILTER = '';
     let F2_EMPLOYEE_STATS = {}; // Lưu thống kê theo nhân viên
 
+    // Form 2: Debug panel helper
+    const f2DebugLog = (msg, type = 'info') => {
+      const el = document.getElementById('f2-debug-content');
+      if (!el) return;
+      const t = document.createElement('div');
+      const cls = type === 'error' ? 'text-red-600' : type === 'success' ? 'text-green-700' : 'text-slate-600';
+      t.className = cls;
+      t.textContent = `[${new Date().toLocaleTimeString('vi-VN')}] ${msg}`;
+      el.appendChild(t);
+      el.parentElement?.scrollTo?.({ top: el.scrollHeight, behavior: 'smooth' });
+    };
+    const f2DebugClear = () => {
+      const el = document.getElementById('f2-debug-content');
+      if (el) el.innerHTML = '';
+    };
+    const f2DebugToggle = document.getElementById('f2-debug-toggle');
+    const f2DebugPanel = document.getElementById('f2-debug-panel');
+    if (f2DebugToggle && f2DebugPanel) {
+      f2DebugToggle.addEventListener('click', () => {
+        f2DebugPanel.classList.toggle('hidden');
+      });
+    }
+
     // Form 2: Month filter
     const f2Month = document.getElementById('f2-month');
     if (f2Month) {
@@ -3698,7 +3758,7 @@
       const body = document.getElementById('f2-body-p1');
       if (!body) return;
 
-      body.innerHTML = "<tr><td colspan='10' class='px-3 py-3 text-center text-gray-500'><span class='spinner mr-2'></span>Đang tải...</td></tr>";
+      body.innerHTML = "<tr><td colspan='11' class='px-3 py-3 text-center text-gray-500'><span class='spinner mr-2'></span>Đang tải...</td></tr>";
 
       try {
         // Đơn giản hóa request - chỉ gửi tham số cần thiết
@@ -3709,8 +3769,29 @@
 
         const baseUrl = `${FORM2_WEBHOOK_URL}?${params.toString()}`;
 
+        f2DebugClear();
+        f2DebugLog(`Origin: ${window.location.origin || 'null (file://)'}`, window.location.protocol === 'file:' ? 'error' : 'info');
+        f2DebugLog(`URL: ${baseUrl}`);
+
+        const hasMeaningfulRows = (obj)=>{
+          if (Array.isArray(obj)) return obj.length > 0 && typeof obj[0] === 'object';
+          if (!obj || typeof obj !== 'object') return false;
+          const keys = ['data','rows','result','records','items','list'];
+          for (const k of keys) {
+            const v = obj[k];
+            if (Array.isArray(v) && v.length && typeof v[0] === 'object') return true;
+          }
+          try {
+            for (const v of Object.values(obj)) {
+              if (Array.isArray(v) && v.length && typeof v[0] === 'object') return true;
+            }
+          } catch(_){}
+          return false;
+        };
+
         async function fetchJsonWithProxyChain(base) {
-        // Thử JSONP trước (hoạt động với file://)
+        // Bước 1: Thử JSONP (hoạt động với file:// nếu server hỗ trợ)
+        f2DebugLog('Bước 1: Thử JSONP...');
         const jsonpPromise = new Promise((resolve, reject) => {
           const callbackName = 'jsonp_callback_' + Math.round(100000 * Math.random());
           const script = document.createElement('script');
@@ -3731,7 +3812,6 @@
           script.src = url;
           document.head.appendChild(script);
           
-          // Timeout sau 30 giây
           setTimeout(() => {
             if (document.head.contains(script)) {
               document.head.removeChild(script);
@@ -3742,40 +3822,28 @@
         });
 
         try {
-          console.log('[Form2 Debug] Trying JSONP:', base);
           const result = await jsonpPromise;
           if (result.parsed && hasMeaningfulRows(result.parsed)) {
+            f2DebugLog('✓ JSONP thành công', 'success');
             return result;
           }
+          f2DebugLog('JSONP trả về nhưng không có dữ liệu hợp lệ');
         } catch (e) {
-          console.log('[Form2 Debug] JSONP failed:', e.message);
+          f2DebugLog(`✗ JSONP thất bại: ${e.message} (Server có thể không hỗ trợ callback=)`, 'error');
         }
 
-        // Fallback: Thử fetch trực tiếp như Form 0
+        // Bước 2 & 3: Thử fetch trực tiếp (webhook-test rồi webhook)
         const urlProd = base.includes('/webhook/') ? base : base.replace('/webhook-test/', '/webhook/');
         const urlTest = base.includes('/webhook-test/') ? base : base.replace('/webhook/', '/webhook-test/');
         const urls = [urlTest, urlProd];
-        
+        const labels = ['webhook-test', 'webhook'];
         let lastErr = null;
-        const hasMeaningfulRows = (obj)=>{
-          if (Array.isArray(obj)) return obj.length > 0 && typeof obj[0] === 'object';
-          if (!obj || typeof obj !== 'object') return false;
-          const keys = ['data','rows','result','records','items','list'];
-          for (const k of keys) {
-            const v = obj[k];
-            if (Array.isArray(v) && v.length && typeof v[0] === 'object') return true;
-          }
-          try {
-            for (const v of Object.values(obj)) {
-              if (Array.isArray(v) && v.length && typeof v[0] === 'object') return true;
-            }
-          } catch(_){}
-          return false;
-        };
 
-        for (const url of urls) {
+        for (let i = 0; i < urls.length; i++) {
+          const url = urls[i];
+          const label = labels[i];
+          f2DebugLog(`Bước ${i + 2}: Fetch ${label}...`);
           try {
-            console.log('[Form2 Debug] Fetching:', url);
             const r = await fetch(url, { 
               method: 'GET',
               headers: {
@@ -3795,13 +3863,41 @@
             }
             if (!parsed) throw new Error('INVALID_JSON');
             if (!hasMeaningfulRows(parsed)) throw new Error('NO_ROWS_FOUND');
+            f2DebugLog(`✓ Fetch ${label} thành công`, 'success');
             return { parsed, source: url };
           } catch (e) {
             lastErr = e;
-            console.log('[Form2 Debug] Fetch failed:', e.message);
+            const isCors = /Failed to fetch|CORS|Access-Control|net::ERR_FAILED/.test(String(e.message || e));
+            f2DebugLog(`✗ Fetch ${label} thất bại: ${e.message}${isCors ? ' (CORS - origin file:// bị chặn)' : ''}`, 'error');
             continue;
           }
         }
+
+        // Bước 4: Thử CORS proxy
+        f2DebugLog('Bước 4: Thử CORS proxy...');
+        const proxyUrls = [
+          `https://api.allorigins.win/raw?url=${encodeURIComponent(urlProd)}`,
+          `https://cors.isomorphic-git.org/${urlProd}`,
+          `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(urlProd)}`
+        ];
+        for (let i = 0; i < proxyUrls.length; i++) {
+          try {
+            f2DebugLog(`  Proxy ${i + 1}/${proxyUrls.length}...`);
+            const r = await fetch(proxyUrls[i], { method: 'GET', headers: { 'Accept': 'application/json' } });
+            const text = await r.text();
+            if (!r.ok) throw new Error(`HTTP ${r.status}`);
+            let parsed = null;
+            try { parsed = JSON.parse(text); } catch { parsed = null; }
+            if (parsed && hasMeaningfulRows(parsed)) {
+              f2DebugLog(`✓ Proxy thành công`, 'success');
+              return { parsed, source: 'proxy' };
+            }
+          } catch (e) {
+            f2DebugLog(`  Proxy ${i + 1} thất bại: ${e.message}`, 'error');
+          }
+        }
+
+        f2DebugLog('Tất cả phương thức đều thất bại. Gợi ý: Mở file qua Live Server (http://) thay vì file://', 'error');
         throw lastErr || new Error('FETCH_FAILED');
         }
 
@@ -3909,6 +4005,7 @@
             : `Lỗi tải dữ liệu: ${String(err.message || err)}`;
         
         body.innerHTML = `<tr><td colspan='11' class='px-3 py-3 text-center text-red-600'>${msg}</td></tr>`;
+        if (f2DebugPanel) f2DebugPanel.classList.remove('hidden');
       }
     }
 
