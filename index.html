@@ -473,7 +473,7 @@
             </div>
             <div class="space-y-1">
               <label class="block text-sm font-medium text-gray-700">Ngày gửi yêu cầu</label>
-              <input name="requestDate" type="datetime-local" class="input-field" readonly id="testRequestDate"/>
+              <input name="requestDate" type="datetime-local" class="input-field" id="testRequestDate"/>
             </div>
             <div class="space-y-1">
               <label class="block text-sm font-medium text-gray-700">Phòng ban yêu cầu</label>
@@ -2578,7 +2578,7 @@
         }
         let data = toJSON(this);
         // Sinh Mã tác vụ ngay thời điểm submit
-        const taskCode = generateTaskCode();
+        const taskCode = generateTaskCode()
         let uploads = [];
         if(getUploads){
           if(formId === "testRequestForm"){
@@ -4945,7 +4945,18 @@
             });
           });
           f2bRows = tasks;
-          const names = Array.from(new Set(tasks.map(t => t.assignee)));
+          const fromData = Array.from(new Set(tasks.map(t => t.assignee)));
+          const merged = new Set([...FORM2_NAMES, ...fromData]);
+          const names = [...merged].sort((a, b) => {
+            const ia = FORM2_NAMES.indexOf(a);
+            const ib = FORM2_NAMES.indexOf(b);
+            if (ia >= 0 && ib >= 0) return ia - ib;
+            if (ia >= 0) return -1;
+            if (ib >= 0) return 1;
+            if (a === 'Chưa phân công') return 1;
+            if (b === 'Chưa phân công') return -1;
+            return String(a).localeCompare(String(b), 'vi');
+          });
           if (assigneeFilter) {
             assigneeFilter.innerHTML = '<option value="all">Tất cả nhân sự</option>';
             names.forEach(n => { const opt = document.createElement('option'); opt.value = n; opt.textContent = n; assigneeFilter.appendChild(opt); });
