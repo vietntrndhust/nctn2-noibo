@@ -264,6 +264,14 @@
             <span class="material-icons">bar_chart</span>
             <span>Form 5 · KPI Thống kê rà soát</span>
           </button>
+          <button class="nav-btn text-left text-sm" data-target="form13">
+            <span class="material-icons">list</span>
+            <span>Form 13 · List trích xuất phê duyệt</span>
+          </button>
+          <button class="nav-btn text-left text-sm" data-target="form14">
+            <span class="material-icons">bug_report</span>
+            <span>Form 14 · Dữ liệu Jira</span>
+          </button>
         </div>
       </div>
       <!-- Nhóm: Quản lý dự án -->
@@ -364,7 +372,7 @@
       </div>
     </section>
 
-    <!-- Form 1B · Tác vụ nghiên cứu (chỉ hiện mã đuôi -NC) -->
+    <!-- Form 1B · Tác vụ nghiên cứu -->
     <section id="form1b" class="w-full max-w-none bg-white p-6 rounded-lg shadow-md hidden">
       <div class="flex items-center justify-between mb-4">
         <h2 class="text-xl font-semibold text-red-800">Form 1B · Dành cho các tác vụ nghiên cứu & phục vụ nghiên cứu sản phẩm mới (Không cần phê duyệt file báo cáo pdf)</h2>
@@ -379,7 +387,7 @@
             <button id="f1b-search" class="px-4 py-2 rounded-lg text-white font-semibold bg-primary-blue hover:brightness-105">Tra cứu</button>
             <button id="f1b-unassigned" class="px-4 py-2 rounded-lg border border-gray-300 text-gray-700 bg-white hover:bg-gray-50">Chưa phân công</button>
           </div>
-          <p class="text-gray-500 text-xs mt-1">Chỉ hiển thị tác vụ có mã đuôi -NC</p>
+          <p class="text-gray-500 text-xs mt-1">Hiển thị tác vụ không có dấu "x" ở trường Tác vụ đánh giá</p>
         </div>
         <div class="md:col-span-2">
           <div class="flex items-center gap-3">
@@ -447,7 +455,6 @@
       <!-- Tab navigation -->
       <div class="flex border-b border-gray-200 mb-6">
         <button type="button" id="trv-tab-danh-gia" class="trv-tab tab-active flex-1 px-4 py-3 text-sm font-medium text-gray-600 hover:bg-gray-50 rounded-t-lg">Đánh giá linh kiện/máy</button>
-        <button type="button" id="trv-tab-nghien-cuu" class="trv-tab flex-1 px-4 py-3 text-sm font-medium text-gray-600 hover:bg-gray-50 rounded-t-lg">Tác vụ nghiên cứu</button>
       </div>
       <!-- Tab: Đánh giá linh kiện/máy -->
       <div id="trv-panel-danh-gia" class="trv-panel">
@@ -509,9 +516,23 @@
                 <option value="">— Chọn người —</option>
               </select>
             </div>
-            <div class="space-y-1 lg:col-span-3">
+            <div class="space-y-1">
               <label class="block text-sm font-medium text-gray-700">Link KOI (nếu có)</label>
               <input name="koiLink" type="text" class="input-field" placeholder="Copy link luồng phê duyệt KOI vào đây"/>
+            </div>
+            <div class="space-y-1">
+              <label class="block text-sm font-medium text-gray-700">Link Jira (Nếu có)</label>
+              <input name="jiraLink" type="text" class="input-field" placeholder="Nhập link Jira nếu có"/>
+            </div>
+            <div class="space-y-1">
+              <label class="block text-sm font-medium text-gray-700">Công chuẩn</label>
+              <input name="congChuan" type="text" class="input-field" placeholder="Nhập công chuẩn"/>
+            </div>
+            <div class="space-y-1 flex items-end">
+              <label class="inline-flex items-center gap-2 text-sm font-medium text-gray-700 cursor-pointer select-none">
+                <input name="isDanhGiaTask" type="checkbox" class="h-4 w-4 rounded border-gray-300 text-primary-blue focus:ring-primary-blue"/>
+                <span>Tác vụ đánh giá</span>
+              </label>
             </div>
             <div class="space-y-1 lg:col-span-3">
               <label class="block text-sm font-medium text-gray-700">Mục đích yêu cầu</label>
@@ -535,93 +556,6 @@
         <div class="flex items-center gap-2 mt-4">
           <input type="checkbox" id="testRequestKeepData" class="h-4 w-4 rounded border-gray-300 text-primary-blue focus:ring-primary-blue"/>
           <label for="testRequestKeepData" class="text-sm font-medium text-gray-700 select-none cursor-pointer">Giữ nguyên dữ liệu sau khi gửi</label>
-        </div>
-        <button type="submit" class="submit-btn w-full mt-4 py-3 text-white font-semibold text-lg transition flex items-center justify-center gap-2">
-          <span>Gửi yêu cầu</span>
-          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6" /></svg>
-        </button>
-      </form>
-      </div>
-      <!-- Tab: Tác vụ nghiên cứu -->
-      <div id="trv-panel-nghien-cuu" class="trv-panel hidden">
-      <form id="researchRequestForm" class="space-y-5" autocomplete="off">
-        <!-- A. General Information -->
-        <div class="section-card section-a">
-          <h3 class="text-lg font-semibold text-primary-blue mb-2">A. Thông tin chung</h3>
-          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-            <div class="space-y-1">
-              <label class="block text-sm font-medium text-gray-700">Họ tên người yêu cầu</label>
-              <input required name="senderName" type="text" class="input-field"/>
-            </div>
-            <div class="space-y-1">
-              <label class="block text-sm font-medium text-gray-700">Email</label>
-              <input required name="senderEmail" type="email" class="input-field"/>
-            </div>
-            <div class="space-y-1">
-              <label class="block text-sm font-medium text-gray-700">Ngày gửi yêu cầu</label>
-              <input name="requestDate" type="datetime-local" class="input-field" readonly id="researchRequestDate"/>
-            </div>
-            <div class="space-y-1">
-              <label class="block text-sm font-medium text-gray-700">Phòng ban yêu cầu</label>
-              <select required name="department" class="input-field">
-                <option value="">Chọn phòng ban *</option>
-                <option>Mua hàng</option><option>SC</option><option>SC2</option><option>KTSX</option><option>KTSP</option>
-                <option>TKCK</option><option>KTCN</option><option>NCTN1</option><option>TKĐT</option>
-                <option>QA/QC nhà máy</option><option>NCTN2</option>
-              </select>
-            </div>
-          </div>
-        </div>
-        <!-- B. Research Task Information -->
-        <div class="section-card section-b">
-          <h3 class="text-lg font-semibold text-primary-blue mb-2">B. Thông tin nghiên cứu</h3>
-          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            <div class="space-y-1 lg:col-span-3">
-              <label class="block text-sm font-medium text-gray-700">Tên công việc</label>
-              <input required name="researchTitle" type="text" class="input-field" placeholder="Nhập tên công việc"/>
-            </div>
-            <div class="space-y-1">
-              <label class="block text-sm font-medium text-gray-700">Mục đích</label>
-              <select name="purpose" class="input-field">
-                <option value="">— Chọn mục đích —</option>
-                <option value="Lập TCKT">Lập TCKT</option>
-                <option value="Thẩm định rủi ro">Thẩm định rủi ro</option>
-                <option value="Báo cáo công nghệ">Báo cáo công nghệ</option>
-                <option value="Công việc khác">Công việc khác</option>
-              </select>
-            </div>
-            <div class="space-y-1">
-              <label class="block text-sm font-medium text-gray-700">Người thực hiện</label>
-              <select name="assignee" id="researchAssignee" class="input-field">
-                <option value="">— Chọn người —</option>
-              </select>
-            </div>
-            <div class="space-y-1">
-              <label class="block text-sm font-medium text-gray-700">Hạn hoàn thành</label>
-              <input name="desiredCompletionDate" type="date" required class="input-field"/>
-            </div>
-            <div class="space-y-1">
-              <label class="block text-sm font-medium text-gray-700">Link KOI (nếu có)</label>
-              <input name="koiLink" type="text" class="input-field" placeholder="Copy link luồng phê duyệt KOI vào đây"/>
-            </div>
-            <div class="space-y-1 lg:col-span-3">
-              <label class="block text-sm font-medium text-gray-700">Nội dung công việc</label>
-              <textarea name="researchScope" rows="3" class="input-field" placeholder="Mô tả nội dung công việc"></textarea>
-            </div>
-          </div>
-        </div>
-        <!-- C. Attachments -->
-        <div class="section-card section-c">
-          <h3 class="text-lg font-semibold text-primary-blue mb-2">C. Tài liệu đính kèm</h3>
-          <div class="space-y-1">
-            <label class="block text-sm font-medium text-gray-700">Tệp đính kèm</label>
-            <input multiple type="file" id="researchRequestFiles" class="block w-full text-sm file:mr-2 file:py-1 file:px-3 file:rounded-full file:border-0 file:bg-primary-blue file:text-white"/>
-          </div>
-          <div id="researchRequestUploadList" class="mt-2 flex flex-col gap-2"></div>
-        </div>
-        <div class="flex items-center gap-2 mt-4">
-          <input type="checkbox" id="researchRequestKeepData" class="h-4 w-4 rounded border-gray-300 text-primary-blue focus:ring-primary-blue"/>
-          <label for="researchRequestKeepData" class="text-sm font-medium text-gray-700 select-none cursor-pointer">Giữ nguyên dữ liệu sau khi gửi</label>
         </div>
         <button type="submit" class="submit-btn w-full mt-4 py-3 text-white font-semibold text-lg transition flex items-center justify-center gap-2">
           <span>Gửi yêu cầu</span>
@@ -698,29 +632,33 @@
         </div>
       </div>
       <div class="flex h-[calc(100vh-200px)] overflow-hidden border border-gray-200 rounded-lg">
-        <aside class="w-80 bg-white border-r border-gray-200 flex flex-col overflow-hidden">
-          <div class="p-4 border-b border-gray-200 bg-gray-50">
-            <div class="flex items-center justify-between mb-2">
-              <h2 class="text-sm font-semibold text-gray-700 uppercase">Danh sách công việc</h2>
-              <span id="f2b-recordCounter" class="text-xs text-gray-500"></span>
-            </div>
-          </div>
-          <div class="flex-1 overflow-y-auto">
-            <div id="f2b-taskList" class="p-2"></div>
-          </div>
-        </aside>
         <section class="flex-1 flex flex-col overflow-hidden bg-white">
           <div class="p-4 border-b border-gray-200 bg-gray-50 flex items-center justify-between">
             <h2 class="text-sm font-semibold text-gray-700 uppercase">Timeline (Gantt Chart)</h2>
+            <span id="f2b-recordCounter" class="text-xs text-gray-500"></span>
             <div id="f2b-legend" class="flex gap-4 text-xs">
-              <span class="flex items-center gap-1.5"><span class="w-3 h-3 rounded" style="background:#10B981"></span>Tác vụ đánh giá</span>
-              <span class="flex items-center gap-1.5"><span class="w-3 h-3 rounded" style="background:#F59E0B"></span>Tác vụ nghiên cứu</span>
+              <span class="flex items-center gap-1.5"><span class="w-3 h-3 rounded" style="background:#2563EB"></span>Tác vụ thử nghiệm KOI</span>
+              <span class="flex items-center gap-1.5"><span class="w-3 h-3 rounded" style="background:#16A34A"></span>Tác vụ Jira khác</span>
+              <span class="flex items-center gap-1.5"><span class="w-3 h-3 rounded" style="background:#F59E0B"></span>Tác vụ thử nghiệm Jira</span>
+              <span class="flex items-center gap-1.5"><span class="w-3 h-3 rounded" style="background:#9CA3AF"></span>Không xác định</span>
             </div>
           </div>
           <div class="flex-1 overflow-hidden">
             <div id="f2b-chartWrapper" class="relative w-full h-full p-4 overflow-hidden flex flex-col"></div>
           </div>
         </section>
+      </div>
+      <div id="f2b-assignee-modal" class="modal">
+        <div class="bg-white rounded-xl shadow-xl w-full max-w-3xl max-h-[85vh] overflow-hidden">
+          <div class="px-5 py-4 border-b border-gray-200 flex items-center justify-between">
+            <div>
+              <h3 id="f2b-assignee-modal-title" class="text-lg font-semibold text-gray-800">Chi tiết công việc</h3>
+              <p id="f2b-assignee-modal-subtitle" class="text-sm text-gray-500"></p>
+            </div>
+            <button id="f2b-assignee-modal-close" type="button" class="px-3 py-1.5 rounded-lg border border-gray-300 text-sm bg-white hover:bg-gray-50">Đóng</button>
+          </div>
+          <div id="f2b-assignee-modal-body" class="p-4 overflow-auto" style="max-height:calc(85vh - 86px)"></div>
+        </div>
       </div>
     </section>
 
@@ -910,6 +848,146 @@
               </thead>
               <tbody id="f5-table-body"></tbody>
             </table>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Form 13 - List trích xuất phê duyệt (KOI) -->
+    <section id="form13" class="w-full hidden">
+      <div class="bg-white rounded-lg shadow-md p-6">
+        <div class="flex items-center justify-between mb-6">
+          <h2 class="text-2xl font-bold text-gray-800">13 - List trích xuất phê duyệt</h2>
+          <div class="flex items-center gap-3">
+            <button id="form13-refresh" class="flex items-center gap-2 px-4 py-2 bg-primary-blue text-white rounded-lg hover:brightness-105 transition-colors">
+              <span class="material-icons text-lg">refresh</span>
+              <span>Tải lại</span>
+            </button>
+            <button id="form13-export" class="flex items-center gap-2 px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors">
+              <span class="material-icons text-lg">download</span>
+              <span>Xuất Excel</span>
+            </button>
+          </div>
+        </div>
+
+        <div class="mb-4 flex flex-wrap gap-3">
+          <select id="form13-filter-status" class="px-3 py-2 border border-gray-300 rounded-lg text-sm bg-white">
+            <option value="">Tất cả trạng thái</option>
+            <option value="Submitted">Submitted</option>
+            <option value="Approved">Approved</option>
+            <option value="Refused">Refused</option>
+          </select>
+          <input type="text" id="form13-search" placeholder="Tìm kiếm..." class="flex-1 min-w-[200px] px-3 py-2 border border-gray-300 rounded-lg text-sm bg-white">
+        </div>
+
+        <div class="overflow-x-auto border border-gray-200 rounded-lg">
+          <table class="w-full border-collapse">
+            <thead>
+              <tr class="bg-gray-50 border-b border-gray-200">
+                <th class="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase">STT</th>
+                <th class="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase">Mã phê duyệt</th>
+                <th class="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase">Tên phê duyệt</th>
+                <th class="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase">Task name</th>
+                <th class="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase">Trạng thái</th>
+                <th class="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase">Người yêu cầu</th>
+                <th class="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase">Ngày yêu cầu</th>
+                <th class="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase">Tên sản phẩm</th>
+                <th class="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase">Mã sản phẩm</th>
+                <th class="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase">Loại linh kiện</th>
+                <th class="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase">Hạn mong muốn</th>
+                <th class="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase">Link KOI</th>
+                <th class="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase">Item</th>
+                <th class="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase">Tạo tác vụ</th>
+              </tr>
+            </thead>
+            <tbody id="form13-table-body">
+              <tr>
+                <td colspan="14" class="px-4 py-8 text-center text-gray-500">Bạn sẽ điều chỉnh bảng tại đây.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="mt-4 flex items-center justify-between">
+          <div class="flex items-center gap-2">
+            <span class="text-sm text-gray-500">Hiển thị:</span>
+            <select id="form13-page-size" class="px-2 py-1 border border-gray-300 rounded text-sm bg-white">
+              <option value="10">10</option>
+              <option value="20" selected>20</option>
+              <option value="50">50</option>
+              <option value="100">100</option>
+            </select>
+            <span class="text-sm text-gray-500">dòng</span>
+          </div>
+          <div class="flex items-center gap-2">
+            <button id="form13-prev" class="px-3 py-1 border border-gray-300 rounded text-sm hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed">Trước</button>
+            <span id="form13-page-info" class="px-3 py-1 text-sm text-gray-500">Trang 1 / 1</span>
+            <button id="form13-next" class="px-3 py-1 border border-gray-300 rounded text-sm hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed">Sau</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Form 14 - Dữ liệu Jira -->
+    <section id="form14" class="w-full hidden">
+      <div class="bg-white rounded-lg shadow-md p-6">
+        <div class="flex items-center justify-between mb-6">
+          <h2 class="text-2xl font-bold text-gray-800">14 - Dữ liệu Jira</h2>
+          <div class="flex items-center gap-3">
+            <button id="form14-refresh" class="flex items-center gap-2 px-4 py-2 bg-primary-blue text-white rounded-lg hover:brightness-105 transition-colors">
+              <span class="material-icons text-lg">refresh</span>
+              <span>Tải lại</span>
+            </button>
+            <button id="form14-export" class="flex items-center gap-2 px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors">
+              <span class="material-icons text-lg">download</span>
+              <span>Xuất Excel</span>
+            </button>
+          </div>
+        </div>
+
+        <div class="mb-4 flex flex-wrap gap-3">
+          <select id="form14-filter-status" class="px-3 py-2 border border-gray-300 rounded-lg text-sm bg-white min-w-[220px]">
+            <option value="">Tất cả trạng thái</option>
+          </select>
+          <select id="form14-filter-month" class="px-3 py-2 border border-gray-300 rounded-lg text-sm bg-white min-w-[220px]">
+            <option value="">Tất cả tháng (dueDate)</option>
+          </select>
+          <select id="form14-filter-assignee" class="px-3 py-2 border border-gray-300 rounded-lg text-sm bg-white min-w-[220px]">
+            <option value="">Tất cả người thực hiện</option>
+          </select>
+          <input type="text" id="form14-search" placeholder="Tìm kiếm..." class="flex-1 min-w-[200px] px-3 py-2 border border-gray-300 rounded-lg text-sm bg-white">
+        </div>
+
+        <div class="overflow-x-auto border border-gray-200 rounded-lg">
+          <table class="w-full border-collapse">
+            <thead id="form14-table-head">
+              <tr class="bg-gray-50 border-b border-gray-200">
+                <th class="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase">STT</th>
+              </tr>
+            </thead>
+            <tbody id="form14-table-body">
+              <tr>
+                <td class="px-4 py-8 text-center text-gray-500">Dữ liệu Jira sẽ hiển thị ở đây.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="mt-4 flex items-center justify-between">
+          <div class="flex items-center gap-2">
+            <span class="text-sm text-gray-500">Hiển thị:</span>
+            <select id="form14-page-size" class="px-2 py-1 border border-gray-300 rounded text-sm bg-white">
+              <option value="10">10</option>
+              <option value="20" selected>20</option>
+              <option value="50">50</option>
+              <option value="100">100</option>
+            </select>
+            <span class="text-sm text-gray-500">dòng</span>
+          </div>
+          <div class="flex items-center gap-2">
+            <button id="form14-prev" class="px-3 py-1 border border-gray-300 rounded text-sm hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed">Trước</button>
+            <span id="form14-page-info" class="px-3 py-1 text-sm text-gray-500">Trang 1 / 1</span>
+            <button id="form14-next" class="px-3 py-1 border border-gray-300 rounded text-sm hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed">Sau</button>
           </div>
         </div>
       </div>
@@ -1259,6 +1337,36 @@
     </div>
   </div>
 
+  <!-- Modal: Chọn item từ Form 13 -->
+  <div id="form13-item-modal" class="modal" aria-hidden="true" role="dialog" aria-labelledby="form13-item-title">
+    <div class="w-full max-w-5xl bg-white rounded-xl border border-gray-200 shadow-xl overflow-hidden">
+      <div class="px-4 py-3 bg-gradient-to-b from-red-50 to-white border-b border-gray-200 flex items-center justify-between">
+        <h3 id="form13-item-title" class="text-base font-semibold text-gray-800">Chọn item để tạo tác vụ</h3>
+        <button id="form13-item-close" class="px-3 py-1 rounded-lg bg-slate-100 text-gray-800 hover:bg-slate-200 transition">Đóng</button>
+      </div>
+      <div class="p-4">
+        <p id="form13-item-subtitle" class="text-sm text-gray-600 mb-3">Danh sách item trong cùng phiếu phê duyệt</p>
+        <div class="overflow-x-auto border border-gray-200 rounded-lg">
+          <table class="min-w-[900px] w-full text-sm">
+            <thead class="bg-gradient-to-r from-red-100 to-red-50 sticky top-0">
+              <tr class="text-left text-gray-700">
+                <th class="px-3 py-2">Item</th>
+                <th class="px-3 py-2">Task name</th>
+                <th class="px-3 py-2">Tên sản phẩm</th>
+                <th class="px-3 py-2">Mã sản phẩm</th>
+                <th class="px-3 py-2">Loại linh kiện</th>
+                <th class="px-3 py-2">Hành động</th>
+              </tr>
+            </thead>
+            <tbody id="form13-item-body" class="divide-y divide-gray-100">
+              <tr><td class="px-3 py-3 text-center text-gray-500" colspan="6">Chưa có dữ liệu</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
 
   <div id="toast" class="toast"></div>
 
@@ -1266,6 +1374,10 @@
     // Constants
     const WEBHOOK_URL = "https://xcqiyibqs.tino.page/webhook/LaydulieuNCTN2";
     const FORM2_WEBHOOK_URL = "https://xcqiyibqs.tino.page/webhook/Laydulieuform2NCTN2";
+    const FORM13_WEBHOOK_URL = "https://xcqiyibqs.tino.page/webhook/bangdulieuodoo";
+    const FORM13_UPDATE_ITEMLIST_WEBHOOK_URL = "https://xcqiyibqs.tino.page/webhook/bangdulieuodoocapnhat";
+    const FORM14_WEBHOOK_URL = "https://xcqiyibqs.tino.page/webhook/DuLieuJira";
+    const FORM14_UPDATE_CREATETASK_WEBHOOK_URL = "https://xcqiyibqs.tino.page/webhook/bangdulieujiracapnhat";
     const FORM1_UPLOAD_URL = "https://xcqiyibqs.tino.page/webhook/NopbaocaoNCTN2DBmoi";
     const FORM1B_KHAIBAO_URL = "https://xcqiyibqs.tino.page/webhook/khaibaohoanthanhNC";
     const N8N_SUBMIT_ENDPOINT = "https://xcqiyibqs.tino.page/webhook/YeucauthunghiemNCTN2";
@@ -1308,12 +1420,14 @@
     });
     const navBtns = document.querySelectorAll('.nav-btn');
     const formSections = document.querySelectorAll('.form-section');
-    const sections = ['testRequest', 'form1', 'form1b', 'form2', 'form2b', 'form3', 'form4', 'form5', 'form0'].map(id=>document.getElementById(id));
+    const sections = ['testRequest', 'form1', 'form1b', 'form2', 'form2b', 'form3', 'form4', 'form5', 'form13', 'form14', 'form0'].map(id=>document.getElementById(id));
     function showSection(id){ 
       formSections.forEach(sec => sec.classList.add('hidden'));
       sections.forEach(s=>s.classList.toggle('hidden', s.id!==id));
       if (id === 'form3') setF3ThoiGianGui();
       if (id === 'form2b' && typeof window.initForm2B === 'function') setTimeout(window.initForm2B, 50);
+      if (id === 'form13' && typeof window.loadForm13Data === 'function') setTimeout(window.loadForm13Data, 50);
+      if (id === 'form14' && typeof window.loadForm14Data === 'function') setTimeout(window.loadForm14Data, 50);
       
       // Tự động tải dữ liệu khi chuyển sang Form 0
       if (id === 'form0') {
@@ -2382,29 +2496,15 @@
       if (el) el.value = localISO;
     }
     setCurrentDateTime('testRequestDate');
-    setCurrentDateTime('researchRequestDate');
 
-    // Tab switching: Nhập tác vụ (Đánh giá linh kiện/máy | Tác vụ nghiên cứu)
+    // Tab switching: Nhập tác vụ (chỉ còn tab Đánh giá linh kiện/máy)
     function switchTrvTab(tabName) {
       const tabDanhGia = document.getElementById('trv-tab-danh-gia');
-      const tabNghienCuu = document.getElementById('trv-tab-nghien-cuu');
       const panelDanhGia = document.getElementById('trv-panel-danh-gia');
-      const panelNghienCuu = document.getElementById('trv-panel-nghien-cuu');
-      if (tabName === 'danh-gia') {
-        tabDanhGia?.classList.add('tab-active');
-        tabNghienCuu?.classList.remove('tab-active');
-        panelDanhGia?.classList.remove('hidden');
-        panelNghienCuu?.classList.add('hidden');
-      } else {
-        tabDanhGia?.classList.remove('tab-active');
-        tabNghienCuu?.classList.add('tab-active');
-        panelDanhGia?.classList.add('hidden');
-        panelNghienCuu?.classList.remove('hidden');
-        setCurrentDateTime('researchRequestDate');
-      }
+      tabDanhGia?.classList.add('tab-active');
+      panelDanhGia?.classList.remove('hidden');
     }
     document.getElementById('trv-tab-danh-gia')?.addEventListener('click', () => switchTrvTab('danh-gia'));
-    document.getElementById('trv-tab-nghien-cuu')?.addEventListener('click', () => switchTrvTab('nghien-cuu'));
 
     // Dynamic fields logic for Test Request Form
     function generateTaskCode(){
@@ -2448,34 +2548,6 @@
       });
     })();
 
-    // File upload widget for Research Request Form
-    let researchRequestUploads = [];
-    (function setupResearchRequestUploads(){
-      const fileInput = document.getElementById('researchRequestFiles');
-      const uploadList = document.getElementById('researchRequestUploadList');
-      if (!fileInput || !uploadList) return;
-      researchRequestUploads = [];
-      fileInput.addEventListener('change', function(){
-        if (!this.files || this.files.length === 0) return;
-        for (const file of this.files){
-          const rowDiv = document.createElement('div');
-          rowDiv.className = "flex items-center justify-between p-2 bg-blue-50 rounded";
-          rowDiv.innerHTML = `
-            <span>📄<span class="ml-2">${file.name}</span></span>
-            <span class="text-gray-600 text-xs">Sẽ gửi kèm (binary)</span>
-            <button class="ml-2 text-red-600 hover:underline font-bold" type="button">X</button>
-          `;
-          const idx = researchRequestUploads.length;
-          researchRequestUploads.push({ name: file.name, file });
-          rowDiv.querySelector('button').onclick = ()=>{
-            rowDiv.remove();
-            researchRequestUploads[idx] = null;
-          };
-          uploadList.appendChild(rowDiv);
-        }
-        this.value = '';
-      });
-    })();
 
     // Form submit logic (for testRequestForm)
     function toJSON(form){
@@ -2547,6 +2619,9 @@
             "Email người yêu cầu": String(data.senderEmail || '').trim(),
             "Người thực hiện": String(data.assignee || '').trim(),
             "LinkKOI": String(data.koiLink || '').trim(),
+            "LinkJira": String(data.jiraLink || '').trim(),
+            "Công chuẩn": String(data.congChuan || '').trim(),
+            "Tác vụ đánh giá": data.isDanhGiaTask ? 'x' : '',
             // Keep these for backward compatibility if needed
             attachments: String(data.attachments || '').trim()
           };
@@ -2621,88 +2696,6 @@
       N8N_SUBMIT_ENDPOINT,
       ()=>testRequestUploads);
 
-    // Research Request Form - submit to webhook
-    (function setupResearchRequestFormSubmit(){
-      const form = document.getElementById('researchRequestForm');
-      if (!form) return;
-      form.onsubmit = async function(e){
-        e.preventDefault();
-        const btn = this.querySelector("button[type=submit]");
-        const originalLabel = btn ? btn.innerHTML : "";
-        if (btn) {
-          btn.disabled = true;
-          btn.innerHTML = "<span class='spinner'></span>";
-        }
-        const data = toJSON(this);
-        const taskCode = generateTaskCode() + '-NC';
-        const uploads = (researchRequestUploads || []).filter(Boolean);
-        data.attachments = uploads.map(u=>u.name || '').join(';');
-        let normalizedRequestDate = '';
-        if (data.requestDate) {
-          const date = new Date(data.requestDate);
-          const gmt7Date = new Date(date.getTime() + (7 * 60 * 60 * 1000));
-          normalizedRequestDate = `${gmt7Date.getUTCFullYear()}-${String(gmt7Date.getUTCMonth() + 1).padStart(2, '0')}-${String(gmt7Date.getUTCDate()).padStart(2, '0')} ${String(gmt7Date.getUTCHours()).padStart(2, '0')}:${String(gmt7Date.getUTCMinutes()).padStart(2, '0')}`;
-        }
-        const normalizedDesiredDate = (data.desiredCompletionDate || '').toString().slice(0, 10);
-        const mapped = {
-          "Ngày yêu cầu của các bên": String(normalizedRequestDate || '').trim(),
-          "Hạn mong muốn của các bên": String(normalizedDesiredDate || '').trim(),
-          "Mã tác vụ": String(taskCode || '').trim(),
-          "Tên tác vụ": String(data.researchTitle || '').trim(),
-          "Mục đích": String(data.purpose || '').trim(),
-          "Người thực hiện": String(data.assignee || '').trim(),
-          "Người yêu cầu": String(data.senderName || '').trim(),
-          "Email người yêu cầu": String(data.senderEmail || '').trim(),
-          "Phòng ban": String(data.department || '').trim(),
-          "Nội dung công việc": String(data.researchScope || '').trim(),
-          "LinkKOI": String(data.koiLink || '').trim(),
-          attachments: String(data.attachments || '').trim()
-        };
-        const formData = new FormData();
-        Object.keys(mapped).forEach(k => {
-          const value = mapped[k];
-          if (k === "LinkKOI") formData.append(k, value || '');
-          else if (value !== undefined && value !== null && String(value).trim() !== '') formData.append(k, value);
-        });
-        formData.append('_ts', Date.now().toString());
-        for (const u of uploads) {
-          if (u && u.file) formData.append('files', u.file, u.name || u.file.name || 'upload');
-        }
-        try {
-          const resp = await fetch(N8N_RESEARCH_WEBHOOK, { method: 'POST', body: formData });
-          if (resp.ok) {
-            if (typeof showToast === 'function') showToast('Đã gửi tác vụ nghiên cứu thành công!', 'success');
-            else alert('Đã gửi tác vụ nghiên cứu thành công!');
-            if (btn) {
-              btn.innerHTML = "Đã gửi!";
-              btn.classList.add("bg-green-600");
-              setTimeout(() => {
-                if (btn) { btn.innerHTML = originalLabel; btn.disabled = false; btn.classList.remove("bg-green-600"); }
-              }, 2000);
-            }
-            const keepData = document.getElementById('researchRequestKeepData')?.checked;
-            if (!keepData) {
-              this.reset();
-              const dtEl = document.getElementById('researchRequestDate');
-              if (dtEl) {
-                const now = new Date();
-                dtEl.value = new Date(now.getTime() - now.getTimezoneOffset() * 60000).toISOString().slice(0, 16);
-              }
-              researchRequestUploads.length = 0;
-              const uploadList = document.getElementById('researchRequestUploadList');
-              if (uploadList) uploadList.innerHTML = '';
-              const fileInput = document.getElementById('researchRequestFiles');
-              if (fileInput) fileInput.value = '';
-            }
-          } else throw new Error(await resp.text() || `HTTP ${resp.status}`);
-        } catch (err) {
-          const msg = "Gửi thất bại: " + (err.message || err);
-          if (typeof showToast === 'function') showToast(msg, 'error');
-          else alert(msg);
-          if (btn) { btn.innerHTML = originalLabel; btn.disabled = false; }
-        }
-      };
-    })();
 
     // Names - Form 1 (Cập nhật từ json.json)
     const FORM1_NAMES = [
@@ -2739,7 +2732,6 @@
     function fillSelect(sel, arr){ if(!sel) return; arr.forEach(n=>{ const o=document.createElement('option'); o.value=n; o.textContent=n; sel.appendChild(o); }); }
     fillSelect(document.getElementById('f1-name'), FORM1_NAMES);
     fillSelect(document.getElementById('f1b-name'), FORM1_NAMES);
-    fillSelect(document.getElementById('researchAssignee'), FORM1_NAMES);
     fillSelect(document.getElementById('testRequestAssignee'), FORM1_NAMES);
 
     // Fill month dropdown
@@ -2921,9 +2913,12 @@
 
       let filteredData = [...F1_ALL_DATA];
 
-      // Ẩn các tác vụ có Mã tác vụ đuôi -NC
-      const getCode = (item) => String(getV(item, ['Mã tác vụ', 'code', 'ma', 'taskcode', 'mã']) || '').trim();
-      filteredData = filteredData.filter(item => !getCode(item).endsWith('-NC'));
+      // Form 1 chỉ hiển thị tác vụ có cờ "Tác vụ đánh giá" = x
+      const isDanhGiaTask = (item) => {
+        const val = String(getV(item, ['Tác vụ đánh giá', 'tac vu danh gia', 'tac_vu_danh_gia', 'isDanhGiaTask']) || '').trim().toLowerCase();
+        return val === 'x';
+      };
+      filteredData = filteredData.filter(item => isDanhGiaTask(item));
 
       // Lọc theo tháng nếu có bộ lọc
       if (F1_MONTH_FILTER) {
@@ -3485,7 +3480,7 @@
       });
     }
 
-    // ===== Form 1B: Tác vụ nghiên cứu (chỉ mã đuôi -NC) =====
+    // ===== Form 1B: Tác vụ nghiên cứu (Tác vụ đánh giá != x) =====
     let F1B_ALL_ROWS = [];
     let F1B_PAGE = 1;
     let F1B_SIZE = 10;
@@ -3670,8 +3665,11 @@
         if(!rows.length){ body.innerHTML = "<tr><td colspan='13' class='px-3 py-3 text-center text-gray-500'>Không có tác vụ</td></tr>"; return; }
         const getV = (obj, keys)=>{ const lower = Object.keys(obj||{}).reduce((acc,k)=>{ acc[k.toLowerCase()] = obj[k]; return acc; },{}); for(const k of keys){ const v = lower[k.toLowerCase()]; if(v!==undefined) return v; } return ''; };
         rows = rows.filter(item=> String(getV(item,['Tên tác vụ','taskname','ten_tac_vu','ten','name','title'])||'').trim() !== '');
-        rows = rows.filter(item => String(getV(item, ['Mã tác vụ', 'code', 'ma', 'taskcode', 'mã']) || '').trim().endsWith('-NC'));
-        if(!rows.length){ body.innerHTML = "<tr><td colspan='13' class='px-3 py-3 text-center text-gray-500'>Không có tác vụ nghiên cứu (-NC)</td></tr>"; return; }
+        rows = rows.filter(item => {
+          const danhGiaVal = String(getV(item, ['Tác vụ đánh giá', 'tac vu danh gia', 'tac_vu_danh_gia', 'isDanhGiaTask']) || '').trim().toLowerCase();
+          return danhGiaVal !== 'x';
+        });
+        if(!rows.length){ body.innerHTML = "<tr><td colspan='13' class='px-3 py-3 text-center text-gray-500'>Không có tác vụ Form 1B theo logic Tác vụ đánh giá</td></tr>"; return; }
         if (!unassigned && nameSelected) { rows = rows.filter(item => { const assignee = getV(item, ['Người thực hiện', 'assignee', 'nguoi_thuc_hien', 'người thực hiện', 'employee', 'nhanvien']); return String(assignee || '').trim().toLowerCase() === nameSelected.toLowerCase(); }); }
         else if (unassigned) { rows = rows.filter(item => { const assignee = getV(item, ['Người thực hiện', 'assignee', 'nguoi_thuc_hien', 'người thực hiện', 'employee', 'nhanvien']); return !assignee || String(assignee).trim() === ''; }); }
         if(!rows.length){ body.innerHTML = "<tr><td colspan='13' class='px-3 py-3 text-center text-gray-500'>Không có tác vụ</td></tr>"; return; }
@@ -4758,17 +4756,95 @@
       const recordCounter = document.getElementById('f2b-recordCounter');
       const chartWrapper = document.getElementById('f2b-chartWrapper');
       const taskList = document.getElementById('f2b-taskList');
+      const F2B_GANTT_SCALE = 0.67;
 
       let f2bRows = [];
-      const COLOR_DANH_GIA = '#10B981';
-      const COLOR_NGHIEN_CUU = '#F59E0B';
+      const COLOR_KOI = '#2563EB';
+      const COLOR_JIRA_KHAC = '#16A34A';
+      const COLOR_JIRA_DANH_GIA = '#F59E0B';
+      const COLOR_UNKNOWN = '#9CA3AF';
 
-      function isNghienCuuTask(taskCode) {
-        return taskCode && String(taskCode).trim().toUpperCase().endsWith('-NC');
+      function hasValue(v) {
+        return v !== undefined && v !== null && String(v).trim() !== '';
+      }
+
+      function classifyTaskType(task) {
+        const hasKoi = hasValue(task.link_koi);
+        const hasJira = hasValue(task.link_jira);
+        const hasDanhGiaFlag = hasValue(task.tac_vu_danh_gia);
+
+        // Không xác định: có cả 2 link hoặc không có link nào
+        if ((hasKoi && hasJira) || (!hasKoi && !hasJira)) {
+          return { key: 'unknown', label: 'Không xác định', color: COLOR_UNKNOWN };
+        }
+        // Chỉ có KOI
+        if (hasKoi && !hasJira) {
+          return { key: 'koi', label: 'Tác vụ thử nghiệm KOI', color: COLOR_KOI };
+        }
+        // Chỉ có Jira => xét cờ "Tác vụ đánh giá"
+        if (!hasKoi && hasJira) {
+          if (hasDanhGiaFlag) {
+            return { key: 'jira_danh_gia', label: 'Tác vụ Jira đánh giá', color: COLOR_JIRA_DANH_GIA };
+          }
+          return { key: 'jira_khac', label: 'Tác vụ Jira khác', color: COLOR_JIRA_KHAC };
+        }
+        return { key: 'unknown', label: 'Không xác định', color: COLOR_UNKNOWN };
       }
 
       function getColorForTask(task) {
-        return isNghienCuuTask(task.task_code) ? COLOR_NGHIEN_CUU : COLOR_DANH_GIA;
+        return classifyTaskType(task).color;
+      }
+
+      function escHtml(v) {
+        return String(v ?? '')
+          .replace(/&/g, '&amp;')
+          .replace(/</g, '&lt;')
+          .replace(/>/g, '&gt;')
+          .replace(/"/g, '&quot;')
+          .replace(/'/g, '&#39;');
+      }
+
+      function openF2BAssigneeModal(assigneeName) {
+        const modal = document.getElementById('f2b-assignee-modal');
+        const titleEl = document.getElementById('f2b-assignee-modal-title');
+        const subtitleEl = document.getElementById('f2b-assignee-modal-subtitle');
+        const bodyEl = document.getElementById('f2b-assignee-modal-body');
+        if (!modal || !titleEl || !subtitleEl || !bodyEl) return;
+
+        const currentFilter = (assigneeFilter && assigneeFilter.value) || 'all';
+        const visibleRows = currentFilter === 'all' ? f2bRows : f2bRows.filter(r => r.assignee === currentFilter);
+        const tasks = visibleRows.filter(r => (r.assignee || 'Chưa phân công') === assigneeName);
+
+        titleEl.textContent = `Công việc của ${assigneeName}`;
+        subtitleEl.textContent = `Đang hiển thị ${tasks.length} tác vụ`;
+
+        if (tasks.length === 0) {
+          bodyEl.innerHTML = '<div class="text-sm text-gray-500">Không có dữ liệu.</div>';
+        } else {
+          bodyEl.innerHTML = tasks.map((t, idx) => {
+            const taskType = classifyTaskType(t);
+            const code = escHtml(t.task_code || '-');
+            const name = escHtml(t.task_name || '-');
+            const start = t.start?.toFormat ? t.start.toFormat('dd/MM/yyyy') : '-';
+            const end = t.end?.toFormat ? t.end.toFormat('dd/MM/yyyy') : '-';
+            return `<div class="border border-gray-200 rounded-lg p-3 mb-3 bg-white">
+              <div class="flex items-start justify-between gap-3">
+                <div class="min-w-0">
+                  <div class="text-sm font-semibold text-gray-800">${idx + 1}. ${name}</div>
+                  <div class="text-xs text-gray-500 mt-1">Mã tác vụ: ${code}</div>
+                </div>
+                <span class="inline-flex items-center gap-1 px-2 py-1 rounded text-xs font-medium text-white whitespace-nowrap" style="background:${taskType.color}">${escHtml(taskType.label)}</span>
+              </div>
+              <div class="text-xs text-gray-600 mt-2">Thời gian: ${escHtml(start)} → ${escHtml(end)}</div>
+            </div>`;
+          }).join('');
+        }
+
+        modal.classList.add('open');
+      }
+
+      function closeF2BAssigneeModal() {
+        document.getElementById('f2b-assignee-modal')?.classList.remove('open');
       }
 
       function getV(obj, keys) {
@@ -4823,9 +4899,11 @@
       async function loadForm2BData() {
         if (statusText) statusText.textContent = 'Đang tải dữ liệu...';
         try {
-          const headerMapF1 = { header_btn: 'Nút nhập gửi báo cáo', header_requester: 'Người yêu cầu', header_requestDate: 'Ngày yêu cầu của các bên', header_wishDue: 'Hạn mong muốn của các bên', header_code: 'Mã tác vụ', header_taskName: 'Tên tác vụ', header_purpose: 'Mục đích đánh giá', header_note: 'Ghi chú của yêu cầu', header_status: 'Kết quả', header_completionDate: 'Ngày hoàn thành thực tế', header_attachmentFileName: 'File đính kèm', header_assignee: 'Người thực hiện', field_requester: 'Người yêu cầu', field_requestDate: 'Ngày yêu cầu của các bên', field_wishDue: 'Hạn mong muốn của các bên', field_code: 'Mã tác vụ', field_taskName: 'Tên tác vụ', field_purpose: 'Mục đích đánh giá', field_note: 'Ghi chú của yêu cầu', field_status: 'Kết quả', field_completionDate: 'Ngày hoàn thành thực tế', field_attachmentFileName: 'File đính kèm', field_assignee: 'Người thực hiện' };
-          const params = new URLSearchParams({ ...headerMapF1, action: 'form1_lookup', person_name: '', filter_by: 'Người thực hiện', timestamp: formatTimestampGMT7() });
-          const url = `${WEBHOOK_URL}?${params.toString()}`;
+          const params = new URLSearchParams({
+            month: '',
+            timestamp: formatTimestampGMT7()
+          });
+          const url = `${FORM2_WEBHOOK_URL}?${params.toString()}`;
           async function fetchJson(u) {
             const r = await fetchWithTimeout(u, { method: 'GET', timeout: 120000, mode: 'cors', headers: { 'Accept': 'application/json', 'Content-Type': 'application/json' } });
             const text = await r.text();
@@ -4858,6 +4936,10 @@
               assignee: getV(item, ['Người thực hiện', 'assignee', 'nguoi_thuc_hien', 'người thực hiện']) || 'Chưa phân công',
               task_code: getV(item, ['Mã tác vụ', 'code', 'ma', 'taskcode', 'mã']) || '',
               task_name: getV(item, ['Tên tác vụ', 'taskname', 'ten_tac_vu', 'ten', 'name', 'title']) || '',
+              status: getV(item, ['Kết quả', 'ketqua', 'ket_qua', 'status', 'result', 'kết quả']) || '',
+              link_koi: getV(item, ['LinkKOI', 'linkkoi', 'link_koi', 'Link KOI']) || '',
+              link_jira: getV(item, ['LinkJira', 'linkjira', 'link_jira', 'Link Jira']) || '',
+              tac_vu_danh_gia: getV(item, ['Tác vụ đánh giá', 'tac vu danh gia', 'tac_vu_danh_gia', 'task_assessment']) || '',
               start: startDt,
               end: endDate
             });
@@ -4896,33 +4978,7 @@
 
       function renderTaskList(rows, filterValue) {
         const filtered = filterValue === 'all' ? rows : rows.filter(r => r.assignee === filterValue);
-        const byAssignee = {};
-        filtered.forEach(r => {
-          const n = r.assignee || 'Chưa phân công';
-          if (!byAssignee[n]) byAssignee[n] = [];
-          byAssignee[n].push(r);
-        });
-        const assignees = Object.keys(byAssignee).sort((a, b) => {
-          if (a === 'Chưa phân công') return -1;
-          if (b === 'Chưa phân công') return 1;
-          return a.localeCompare(b);
-        });
         if (recordCounter) recordCounter.textContent = `${filtered.length} công việc`;
-        if (!taskList) return;
-        taskList.innerHTML = assignees.map(name => {
-          const tasks = byAssignee[name];
-          const isUnassigned = name === 'Chưa phân công';
-          const rowClass = isUnassigned ? 'border-b border-gray-100 py-2 bg-yellow-100' : 'border-b border-gray-100 py-2';
-          return `<div class="${rowClass}">
-            <div class="flex items-center gap-2 px-2 font-medium text-gray-800">
-              <span>${(name || '-').replace(/</g, '&lt;')}</span>
-              <span class="text-xs text-gray-500">(${tasks.length} tác vụ)</span>
-            </div>
-            <div class="mt-1 pl-5 space-y-0.5">
-              ${tasks.map(t => `<div class="text-xs text-gray-600 truncate" title="${(t.task_name || t.task_code || '').replace(/"/g, '&quot;')}">${(t.task_name || t.task_code || '-').replace(/</g, '&lt;')}</div>`).join('')}
-            </div>
-          </div>`;
-        }).join('');
       }
 
       function renderGantt(rows, filterValue) {
@@ -4934,8 +4990,11 @@
         }
         const startDate = dateRange[0].dateObj;
         const totalDays = dateRange.length;
-        const colWidth = 60;
-        const taskRowHeight = 36;
+        const colWidth = Math.max(32, Math.round(60 * F2B_GANTT_SCALE));
+        const taskRowHeight = Math.max(24, Math.round(36 * F2B_GANTT_SCALE));
+        const barHeight = Math.max(18, Math.round(28 * F2B_GANTT_SCALE));
+        const barTopOffset = Math.max(2, Math.round((taskRowHeight - barHeight) / 2));
+        const assigneeColWidth = 288;
         const timelineWidth = totalDays * colWidth;
 
         const byAssignee = {};
@@ -4953,13 +5012,19 @@
         const headerCells = dateRange.map(d => `<div class="flex-shrink-0 text-center text-xs font-medium text-gray-600 border-l border-gray-200 py-1" style="width:${colWidth}px">${d.weekday}<br>${d.date}</div>`).join('');
 
         const endDate = dateRange[dateRange.length - 1].dateObj;
-        const now = DateTime.now().setZone(ZONE).startOf('day');
+        const rangeStart = startDate.startOf('day');
+        const rangeEnd = endDate.endOf('day');
+        const now = DateTime.now().setZone(ZONE);
         let currentTimeLineHtml = '';
-        if (now >= startDate && now <= endDate) {
-          const dayIdx = Math.floor(now.diff(startDate, 'days').days);
-          const leftPx = dayIdx * colWidth;
-          const todayFmt = now.toFormat('dd/MM/yyyy');
-          currentTimeLineHtml = `<div class="absolute top-0 bottom-0 z-20 pointer-events-none" style="left:${leftPx}px;width:2px;background:#ef4444;box-shadow:0 0 4px rgba(239,68,68,0.6);" title="Hôm nay: ${todayFmt}"></div>`;
+        let currentLineLeftPx = null;
+        if (now >= rangeStart && now <= rangeEnd) {
+          // Phải dùng Duration.as('days') — .days là thành phần rời của duration, không phải tổng số ngày thực (số thập phân theo giờ/phút).
+          const dayOffset = now.diff(rangeStart).as('days');
+          const maxLeft = timelineWidth - 1;
+          const leftPx = Math.min(Math.max(0, dayOffset * colWidth), maxLeft);
+          currentLineLeftPx = leftPx;
+          const nowFmt = now.toFormat('dd/MM/yyyy HH:mm');
+          currentTimeLineHtml = `<div class="absolute top-0 bottom-0 z-20 pointer-events-none" data-f2b-now-line="1" style="left:${leftPx}px;width:2px;background:#ef4444;box-shadow:0 0 4px rgba(239,68,68,0.6);" title="Hiện tại (lúc tải/vẽ lại): ${nowFmt}"></div>`;
         }
 
         const assigneeBlocks = assignees.map(assignee => {
@@ -4967,8 +5032,14 @@
           const isUnassigned = assignee === 'Chưa phân công';
           const blockHeight = tasks.length * taskRowHeight;
           const blockBg = isUnassigned ? 'bg-yellow-100' : '';
+          const taskNamesHtml = tasks.map(t => {
+            const raw = (t.task_name || t.task_code || '-');
+            const safe = raw.replace(/</g, '&lt;').replace(/"/g, '&quot;');
+            return `<div class="text-xs text-gray-600 truncate pr-1" style="height:${taskRowHeight}px;line-height:${taskRowHeight}px" title="${safe}">${safe}</div>`;
+          }).join('');
           const barsHtml = tasks.map((seg, ti) => {
             const color = getColorForTask(seg);
+            const taskType = classifyTaskType(seg);
             const startDayIdx = Math.max(0, Math.floor(seg.start.diff(startDate, 'days').days));
             const endDayIdx = Math.min(totalDays - 1, Math.floor(seg.end.diff(startDate, 'days').days));
             const spanDays = Math.max(1, endDayIdx - startDayIdx + 1);
@@ -4977,12 +5048,13 @@
             const displayName = (seg.task_name || seg.task_code || '-').replace(/</g, '&lt;');
             const startFmt = seg.start.toFormat('dd/MM');
             const endFmt = seg.end.toFormat('dd/MM');
-            const topPx = ti * taskRowHeight + 4;
-            return `<div class="absolute rounded flex items-center px-2 text-white text-xs font-medium overflow-hidden shadow-sm" style="left:${leftPx}px;width:${widthPx}px;top:${topPx}px;height:28px;background:${color};" title="${displayName} (${startFmt} → ${endFmt})"><span class="truncate">${displayName}</span></div>`;
+            const topPx = ti * taskRowHeight + barTopOffset;
+            return `<div class="absolute rounded flex items-center px-2 text-white text-xs font-medium overflow-hidden shadow-sm" style="left:${leftPx}px;width:${widthPx}px;top:${topPx}px;height:${barHeight}px;background:${color};" title="${displayName} (${startFmt} → ${endFmt}) · ${taskType.label}"><span class="truncate">${displayName}</span></div>`;
           }).join('');
           return `<div class="flex border-b border-gray-200 ${blockBg}" style="min-width:${timelineWidth}px">
-            <div class="flex-shrink-0 w-48 py-2 px-2 border-r border-gray-200 ${isUnassigned ? 'bg-yellow-200' : 'bg-gray-50'} text-sm font-medium text-gray-800 sticky left-0 z-[5]" style="min-height:${blockHeight}px">
-              ${(assignee || 'Chưa phân công').replace(/</g, '&lt;')} <span class="text-gray-500 font-normal">(${tasks.length} tác vụ)</span>
+            <div class="flex-shrink-0 py-2 px-2 border-r border-gray-200 ${isUnassigned ? 'bg-yellow-200' : 'bg-gray-50'} text-sm font-medium text-gray-800 sticky left-0 z-[5] cursor-pointer hover:bg-red-50 transition-colors" data-f2b-assignee="${encodeURIComponent(assignee || 'Chưa phân công')}" style="width:${assigneeColWidth}px;min-width:${assigneeColWidth}px;min-height:${blockHeight}px">
+              <div class="truncate" title="${(assignee || 'Chưa phân công').replace(/"/g, '&quot;')}">${(assignee || 'Chưa phân công').replace(/</g, '&lt;')} <span class="text-gray-500 font-normal">(${tasks.length} tác vụ)</span></div>
+              <div class="mt-1 space-y-0.5">${taskNamesHtml}</div>
             </div>
             <div class="relative flex-1 ${blockBg}" style="min-width:${timelineWidth}px;min-height:${blockHeight}px">
               ${barsHtml}
@@ -4994,13 +5066,13 @@
         chartWrapper.innerHTML = `
           <div class="flex flex-col flex-1 min-h-0">
             <div id="f2b-gantt-header" class="flex-shrink-0 flex border-b-2 border-gray-300 bg-gray-100 shadow-sm">
-              <div class="flex-shrink-0 w-48 py-2 px-2 border-r border-gray-200 bg-gray-100 text-xs font-semibold uppercase text-gray-600">Người thực hiện</div>
+              <div class="flex-shrink-0 py-2 px-2 border-r border-gray-200 bg-gray-100 text-xs font-semibold uppercase text-gray-600" style="width:${assigneeColWidth}px;min-width:${assigneeColWidth}px">Người thực hiện</div>
               <div id="f2b-header-dates" class="flex-1 min-w-0 overflow-x-auto overflow-y-hidden border-l border-gray-200 bg-gray-100">
                 <div class="flex" style="min-width:${timelineWidth}px">${headerCells}</div>
               </div>
             </div>
             <div id="f2b-gantt-body" class="flex-1 min-h-0 overflow-auto">
-              <div class="flex flex-col" style="min-width:${timelineWidth + 192}px">
+              <div class="flex flex-col" style="min-width:${timelineWidth + assigneeColWidth}px">
                 ${assigneeBlocks}
               </div>
             </div>
@@ -5011,6 +5083,12 @@
           ganttBody.addEventListener('scroll', function() {
             headerDates.scrollLeft = ganttBody.scrollLeft;
           });
+          // Khi vừa render, tự động cuộn tới vùng thời điểm hiện tại để dễ theo dõi.
+          if (currentLineLeftPx !== null) {
+            const targetScrollLeft = Math.max(0, currentLineLeftPx - Math.floor(ganttBody.clientWidth * 0.4));
+            ganttBody.scrollLeft = targetScrollLeft;
+            headerDates.scrollLeft = targetScrollLeft;
+          }
         }
       }
 
@@ -5022,6 +5100,20 @@
 
       if (reloadButton) reloadButton.addEventListener('click', loadForm2BData);
       if (assigneeFilter) assigneeFilter.addEventListener('change', refreshForm2BView);
+      chartWrapper?.addEventListener('click', (e) => {
+        const cell = e.target?.closest?.('[data-f2b-assignee]');
+        if (!cell) return;
+        const encodedName = cell.getAttribute('data-f2b-assignee') || '';
+        const assigneeName = decodeURIComponent(encodedName) || 'Chưa phân công';
+        openF2BAssigneeModal(assigneeName);
+      });
+      document.getElementById('f2b-assignee-modal-close')?.addEventListener('click', closeF2BAssigneeModal);
+      document.getElementById('f2b-assignee-modal')?.addEventListener('click', (e) => {
+        if (e.target?.id === 'f2b-assignee-modal') closeF2BAssigneeModal();
+      });
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') closeF2BAssigneeModal();
+      });
 
       window.initForm2B = loadForm2BData;
     })();
@@ -6335,6 +6427,1024 @@
     } else {
       initF4EventListeners();
     }
+
+    // ===== Form 13: List trích xuất phê duyệt (KOI) =====
+    let FORM13_ALL_DATA = [];
+    let FORM13_FILTERED_DATA = [];
+    let FORM13_PAGE = 1;
+    let FORM13_PAGE_SIZE = 20;
+    let FORM13_LOADED_ONCE = false;
+    let FORM13_ITEM_PICKER_ROWS = [];
+
+    function form13Escape(v) {
+      return String(v ?? '')
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;');
+    }
+
+    function form13GetV(obj, keys) {
+      const lower = Object.keys(obj || {}).reduce((acc, k) => { acc[k.toLowerCase()] = obj[k]; return acc; }, {});
+      for (const k of keys) {
+        const v = lower[String(k).toLowerCase()];
+        if (v !== undefined && v !== null) return v;
+      }
+      return '';
+    }
+
+    function form13ToInt(v, fallback = 0) {
+      const n = parseInt(String(v ?? '').trim(), 10);
+      return Number.isFinite(n) ? n : fallback;
+    }
+
+    function form13NormKey(v) {
+      return String(v || '').trim().toLowerCase();
+    }
+
+    function form13GetApprovalKeys(row) {
+      const keys = [
+        form13GetV(row, ['ma_phe_duyet', 'approval_code', 'code']),
+        form13GetV(row, ['odoo_id', 'approval_id']),
+        form13GetV(row, ['linkKOI', 'link_koi', 'koi_link']),
+        form13GetV(row, ['ten_phe_duyet', 'approval_name'])
+      ]
+        .map(form13NormKey)
+        .filter(Boolean);
+      return Array.from(new Set(keys));
+    }
+
+    function form13GetRowItemIndex(row) {
+      const slot = form13GetV(row, ['slot_index', 'item_index', 'item_no']);
+      if (String(slot || '').trim() !== '') return form13ToInt(slot, 0);
+      const taskName = String(form13GetV(row, ['task_name']) || '');
+      const m = taskName.match(/-(\d{1,3})\s*-/);
+      if (m) return form13ToInt(m[1], 0);
+      return 0;
+    }
+
+    /** Parse item_list: chuỗi JSON hoặc mảng (API có thể trả Item_list / item_list). */
+    function form13ParseItemList(row) {
+      if (!row || typeof row !== 'object') return [];
+      const raw = row.item_list !== undefined && row.item_list !== null && row.item_list !== ''
+        ? row.item_list
+        : (row.Item_list !== undefined && row.Item_list !== null && row.Item_list !== '' ? row.Item_list : '');
+      if (raw === '' || raw === undefined || raw === null) return [];
+      if (Array.isArray(raw)) return raw.filter(Boolean);
+      if (typeof raw === 'string') {
+        try {
+          const parsed = JSON.parse(raw);
+          return Array.isArray(parsed) ? parsed.filter(Boolean) : [];
+        } catch (_) {
+          return [];
+        }
+      }
+      return [];
+    }
+
+    /** Gộp dòng phiếu (requester, link KOI, ngày…) với object một item trong item_list. */
+    function form13MergeBaseWithItem(baseRow, item) {
+      const merged = { ...(baseRow || {}) };
+      if (!item || typeof item !== 'object') return merged;
+      Object.keys(item).forEach((k) => { merged[k] = item[k]; });
+      return merged;
+    }
+
+    function form13BuildItemSignature(obj) {
+      return [
+        form13NormKey(form13GetV(obj, ['slot_index', 'item_index', 'item_no'])),
+        form13NormKey(form13GetV(obj, ['component_key'])),
+        form13NormKey(form13GetV(obj, ['task_name'])),
+        form13NormKey(form13GetV(obj, ['ma_san_pham_clean', 'ma_san_pham'])),
+        form13NormKey(form13GetV(obj, ['ten_san_pham']))
+      ].join('|');
+    }
+
+    /** Giá trị được coi là "đã tạo tác vụ" (Odoo/API có thể trả bool, số, chuỗi khác nhau). */
+    function form13TruthyCreateTask(val) {
+      if (val === true || val === 1) return true;
+      if (val === false || val === 0 || val === null || val === undefined) return false;
+      const s = String(val).trim().toLowerCase();
+      if (!s) return false;
+      if (['yes', 'y', 'true', '1', 'x', 'done', 'created', 'ok', 'có', 'co', 'đã tạo', 'da tao', 'tao', 'tạo'].includes(s)) return true;
+      return false;
+    }
+
+    function form13IsCreatedTaskItem(obj) {
+      if (!obj || typeof obj !== 'object') return false;
+      const keyAliases = [
+        'Createtask', 'createTask', 'create_task', 'createtask', 'Create_task',
+        'da_tao', 'Da_tao', 'tao_task', 'task_created'
+      ];
+      for (const k of keyAliases) {
+        const raw = form13GetV(obj, [k]);
+        if (raw !== '' && raw !== undefined && raw !== null && form13TruthyCreateTask(raw)) return true;
+      }
+      for (const [k, val] of Object.entries(obj)) {
+        if (k.startsWith('__')) continue;
+        const kn = k.toLowerCase().replace(/\s+/g, '_');
+        if (kn === 'createtask' || kn === 'create_task' || kn === 'da_tao' || kn === 'tao_tac_vu') {
+          if (form13TruthyCreateTask(val)) return true;
+        }
+      }
+      return false;
+    }
+
+    /** Ghi item_list đã cập nhật vào dòng gốc trong store (dòng merge từ modal là bản sao, không tự cập nhật bảng). */
+    function form13ApplyItemListToStore(selectedRow, updatedItemList) {
+      if (!Array.isArray(updatedItemList) || !updatedItemList.length) return;
+      const origin = (selectedRow && selectedRow.__form13_parent_row_ref) || selectedRow;
+      if (!origin || typeof origin !== 'object') return;
+      const keySet = form13GetApprovalKeys(origin);
+      const toUpdate = new Set([origin]);
+      if (keySet.length && Array.isArray(FORM13_ALL_DATA)) {
+        FORM13_ALL_DATA.forEach((r) => {
+          if (r === origin) return;
+          const rk = form13GetApprovalKeys(r);
+          if (rk.some((k) => keySet.includes(k))) toUpdate.add(r);
+        });
+      }
+      const useString = typeof origin.item_list === 'string'
+        || (origin.item_list === undefined && typeof origin.Item_list === 'string');
+      const payload = useString ? JSON.stringify(updatedItemList) : updatedItemList.map((it) => ({ ...(it || {}) }));
+      toUpdate.forEach((t) => {
+        if (useString) {
+          t.item_list = payload;
+          t.Item_list = payload;
+        } else {
+          t.item_list = Array.isArray(payload) ? payload.map((it) => ({ ...(it || {}) })) : payload;
+          t.Item_list = t.item_list;
+        }
+      });
+    }
+
+    function form13BuildUpdatedItemListForCreateTask(selectedRow) {
+      const currentList = form13ParseItemList(selectedRow);
+      if (!currentList.length) return [];
+
+      const selectedIndex = form13ToInt(form13GetV(selectedRow, ['__item_list_index']), -1);
+      if (selectedIndex >= 0 && selectedIndex < currentList.length) {
+        return currentList.map((it, idx) => idx === selectedIndex ? { ...(it || {}), Createtask: 'yes' } : it);
+      }
+
+      const selectedSig = form13BuildItemSignature(selectedRow);
+      const selectedSlot = form13NormKey(form13GetV(selectedRow, ['slot_index', 'item_index', 'item_no']));
+      let matched = false;
+
+      const updated = currentList.map((it) => {
+        if (matched) return it;
+        const itSig = form13BuildItemSignature(it);
+        const itSlot = form13NormKey(form13GetV(it, ['slot_index', 'item_index', 'item_no']));
+        const isMatch = (selectedSlot && itSlot && selectedSlot === itSlot) || (selectedSig && itSig && selectedSig === itSig);
+        if (isMatch) {
+          matched = true;
+          return { ...(it || {}), Createtask: 'yes' };
+        }
+        return it;
+      });
+
+      // Nếu không match được item cụ thể, fallback gắn vào phần tử đầu tiên để vẫn đảm bảo có flag.
+      if (!matched && updated.length) {
+        updated[0] = { ...(updated[0] || {}), Createtask: 'yes' };
+      }
+      return updated;
+    }
+
+    async function form13MarkCreateTaskOnWebhook(selectedRow) {
+      if (!selectedRow || typeof selectedRow !== 'object') return;
+      const updatedItemList = form13BuildUpdatedItemListForCreateTask(selectedRow);
+      if (!updatedItemList.length) return;
+
+      const maPheDuyet = form13GetV(selectedRow, ['ma_phe_duyet', 'approval_code', 'code']);
+      const odooId = form13GetV(selectedRow, ['odoo_id', 'approval_id', 'id']);
+      const rowId = form13GetV(selectedRow, ['id', 'Id', 'ID', '_id']);
+      const formData = new FormData();
+      if (String(maPheDuyet || '').trim() !== '') {
+        formData.append('ma_phe_duyet', String(maPheDuyet).trim());
+        formData.append('approval_code', String(maPheDuyet).trim());
+      }
+      if (String(rowId || '').trim() !== '') {
+        formData.append('id', String(rowId).trim());
+      }
+      if (String(odooId || '').trim() !== '') {
+        formData.append('odoo_id', String(odooId).trim());
+      }
+      const selectedSlotIndex = form13GetV(selectedRow, ['slot_index', 'item_index', 'item_no']);
+      const selectedComponentKey = form13GetV(selectedRow, ['component_key']);
+      if (String(selectedSlotIndex || '').trim() !== '') {
+        formData.append('created_item_slot_index', String(selectedSlotIndex).trim());
+      }
+      if (String(selectedComponentKey || '').trim() !== '') {
+        formData.append('created_item_component_key', String(selectedComponentKey).trim());
+      }
+      formData.append('item_list', JSON.stringify(updatedItemList));
+      formData.append('_ts', Date.now().toString());
+
+      const resp = await fetch(FORM13_UPDATE_ITEMLIST_WEBHOOK_URL, { method: 'POST', body: formData });
+      if (!resp.ok) {
+        const text = await resp.text();
+        throw new Error(text || `HTTP ${resp.status}`);
+      }
+    }
+
+    function form13GetRowsByApproval(row) {
+      const srcRows = Array.isArray(FORM13_ALL_DATA) && FORM13_ALL_DATA.length ? FORM13_ALL_DATA : FORM13_FILTERED_DATA;
+      const targetKeys = form13GetApprovalKeys(row);
+      if (!targetKeys.length) return [row];
+      const rows = srcRows.filter((r) => {
+        const rowKeys = form13GetApprovalKeys(r);
+        return rowKeys.some((k) => targetKeys.includes(k));
+      });
+      const unique = [];
+      const seen = new Set();
+      rows.forEach((r) => {
+        const sig = [
+          form13NormKey(form13GetV(r, ['component_key'])),
+          form13NormKey(form13GetV(r, ['task_name'])),
+          form13NormKey(form13GetV(r, ['slot_index'])),
+          form13NormKey(form13GetV(r, ['ma_san_pham_clean', 'ma_san_pham'])),
+          form13NormKey(form13GetV(r, ['ten_san_pham']))
+        ].join('|');
+        if (seen.has(sig)) return;
+        seen.add(sig);
+        unique.push(r);
+      });
+      return unique.length ? unique : [row];
+    }
+
+    function form13PickRows(json) {
+      if (!json) return [];
+      if (Array.isArray(json)) return json;
+      const candidates = ['data', 'rows', 'result', 'records', 'items', 'list'];
+      for (const k of candidates) {
+        if (Array.isArray(json?.[k])) return json[k];
+      }
+      return [];
+    }
+
+    function form13ToDateInput(raw) {
+      const s = String(raw || '').trim();
+      if (!s) return '';
+      const m = s.match(/^(\d{4})-(\d{2})-(\d{2})/);
+      if (m) return `${m[1]}-${m[2]}-${m[3]}`;
+      const dmy = s.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);
+      if (dmy) {
+        const dd = String(dmy[1]).padStart(2, '0');
+        const mm = String(dmy[2]).padStart(2, '0');
+        const yyyy = dmy[3];
+        return `${yyyy}-${mm}-${dd}`;
+      }
+      const d = new Date(s);
+      if (!isNaN(d.getTime())) {
+        return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+      }
+      return '';
+    }
+
+    function form13ToDateTimeLocalInput(raw) {
+      const s = String(raw || '').trim();
+      if (!s) return '';
+      const m = s.match(/^(\d{4})-(\d{2})-(\d{2})(?:[T\s](\d{2}):(\d{2}))?/);
+      if (m) {
+        const hh = m[4] || '08';
+        const mm = m[5] || '00';
+        return `${m[1]}-${m[2]}-${m[3]}T${hh}:${mm}`;
+      }
+      const d = new Date(s);
+      if (!isNaN(d.getTime())) {
+        return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}T${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`;
+      }
+      return '';
+    }
+
+    function fillTestRequestFromForm13Row(row) {
+      const form = document.getElementById('testRequestForm');
+      if (!form || !row) return;
+      const missingFields = [];
+      const clearMissingMark = (name) => {
+        const el = form.querySelector(`[name="${name}"]`);
+        if (!el) return;
+        el.classList.remove('ring-2', 'ring-red-400', 'bg-red-50');
+      };
+      const markMissing = (name) => {
+        const el = form.querySelector(`[name="${name}"]`);
+        if (!el) return;
+        el.classList.add('ring-2', 'ring-red-400', 'bg-red-50');
+      };
+      const setByName = (name, value) => {
+        const el = form.querySelector(`[name="${name}"]`);
+        if (!el) return;
+        clearMissingMark(name);
+        const safeValue = value ?? '';
+        if (el.type === 'checkbox') {
+          el.checked = Boolean(safeValue);
+        } else {
+          el.value = safeValue;
+        }
+        el.dispatchEvent(new Event('input', { bubbles: true }));
+        el.dispatchEvent(new Event('change', { bubbles: true }));
+        if (el.type !== 'checkbox' && String(safeValue).trim() === '') missingFields.push(name);
+      };
+
+      setByName('senderName', form13GetV(row, ['requester_name', 'Người yêu cầu', 'requester']));
+      setByName('senderEmail', form13GetV(row, ['requester_email', 'Email người yêu cầu', 'email_nguoi_yeu_cau', 'reporterEmail']));
+      setByName('requestDate', form13ToDateTimeLocalInput(form13GetV(row, ['request_date', 'Ngày yêu cầu'])));
+      setByName('productName', form13GetV(row, ['ten_san_pham', 'Tên sản phẩm', 'product_name']));
+      setByName('productCode', form13GetV(row, ['ma_san_pham_clean', 'Mã sản phẩm', 'product_code']));
+      setByName('desiredCompletionDate', form13ToDateInput(form13GetV(row, [
+        'han_mong_muon', 'hanmongmuon', 'Hạn mong muốn', 'Hạn mong muốn của các bên', 'Due date (Kế hoạch)', 'dueDate'
+      ])));
+      setByName('supplier', form13GetV(row, ['nha_cung_cap', 'Nhà cung cấp', 'supplier']));
+      setByName('numSamples', form13GetV(row, ['so_luong_mau', 'Số lượng mẫu giao', 'numSamples']));
+      setByName('requestPurpose', form13GetV(row, ['muc_dich_yeu_cau', 'Mục đích yêu cầu', 'task_name', 'ten_phe_duyet']));
+      // Mapping mở rộng cho Form 13 -> Phiếu nhập tác vụ (tab Đánh giá):
+      // luôn set giá trị, nếu không có thì ghi đè rỗng theo yêu cầu.
+      setByName('koiLink', form13GetV(row, [
+        'LinkKOI', 'linkKOI', 'link_koi', 'Link KOI', 'koi_link', 'koiLink'
+      ]));
+      setByName('jiraLink', form13GetV(row, [
+        'LinkJira', 'linkJira', 'link_jira', 'Link Jira', 'jira_link', 'jiraUrl', 'jira_url'
+      ]));
+      setByName('congChuan', form13GetV(row, [
+        'Công chuẩn', 'cong_chuan', 'congchuan', 'Công Chuẩn', 'congChuan'
+      ]));
+      setByName('notes', form13GetV(row, ['ghi_chu', 'Ghi chú', 'ten_phe_duyet', 'task_name']));
+      setByName('isDanhGiaTask', true);
+
+      Array.from(new Set(missingFields)).forEach(markMissing);
+    }
+
+    async function openCreateTaskFromForm13Row(row) {
+      if (!row) return;
+      try {
+        await form13MarkCreateTaskOnWebhook(row);
+        const updatedList = form13BuildUpdatedItemListForCreateTask(row);
+        form13ApplyItemListToStore(row, updatedList);
+        if (typeof renderForm13Table === 'function') renderForm13Table();
+      } catch (err) {
+        if (typeof showToast === 'function') {
+          showToast(`Không thể cập nhật Createtask trên webhook: ${String(err?.message || err)}`, 'error');
+        }
+      }
+      const navBtn = document.querySelector('.nav-btn[data-target="testRequest"]');
+      if (navBtn) navBtn.click();
+      setTimeout(() => {
+        fillTestRequestFromForm13Row(row);
+        if (typeof switchTrvTab === 'function') switchTrvTab('danh-gia');
+        if (typeof showToast === 'function') showToast('Đã tự điền dữ liệu từ Form 13 vào Nhập tác vụ mới.', 'success');
+      }, 30);
+    }
+
+    function closeForm13ItemModal() {
+      const modal = document.getElementById('form13-item-modal');
+      if (!modal) return;
+      modal.classList.remove('open');
+      modal.setAttribute('aria-hidden', 'true');
+    }
+
+    function openForm13ItemModal(baseRow, rows) {
+      const modal = document.getElementById('form13-item-modal');
+      const body = document.getElementById('form13-item-body');
+      const subtitle = document.getElementById('form13-item-subtitle');
+      if (!modal || !body) return;
+
+      const maPheDuyet = form13GetV(baseRow, ['ma_phe_duyet']) || '-';
+      const createdCount = rows.filter((r) => form13IsCreatedTaskItem(r)).length;
+      if (subtitle) subtitle.textContent = `Phiếu ${maPheDuyet} có ${rows.length} item (đã tạo: ${createdCount}), vui lòng chọn item cần tạo tác vụ.`;
+
+      FORM13_ITEM_PICKER_ROWS = rows;
+      body.innerHTML = rows.map((row, idx) => {
+        const slotIndex = form13GetRowItemIndex(row);
+        const itemLabel = slotIndex > 0 ? `Item ${slotIndex}` : `Item ${idx + 1}`;
+        const taskName = form13GetV(row, ['task_name']) || '-';
+        const tenSanPham = form13GetV(row, ['ten_san_pham']) || '-';
+        const maSanPham = form13GetV(row, ['ma_san_pham_clean', 'ma_san_pham']) || '-';
+        const loaiLinhKien = form13GetV(row, ['loai_linh_kien']) || '-';
+        const isCreated = form13IsCreatedTaskItem(row);
+        const rowClass = isCreated ? 'bg-yellow-100 hover:bg-yellow-200' : 'hover:bg-gray-50';
+        const btnClass = isCreated
+          ? 'px-3 py-1 rounded bg-yellow-200 text-amber-800 hover:bg-yellow-300 text-xs font-medium form13-item-pick-btn'
+          : 'px-3 py-1 rounded bg-blue-50 text-blue-700 hover:bg-blue-100 text-xs font-medium form13-item-pick-btn';
+        const btnLabel = isCreated ? 'Đã tạo' : 'Chọn item';
+        return `<tr class="${rowClass}">
+          <td class="px-3 py-2 font-medium">${form13Escape(itemLabel)}</td>
+          <td class="px-3 py-2">${form13Escape(taskName)}</td>
+          <td class="px-3 py-2">${form13Escape(tenSanPham)}</td>
+          <td class="px-3 py-2">${form13Escape(maSanPham)}</td>
+          <td class="px-3 py-2">${form13Escape(loaiLinhKien)}</td>
+          <td class="px-3 py-2">
+            <button type="button" class="${btnClass}" data-pick-idx="${idx}">${btnLabel}</button>
+          </td>
+        </tr>`;
+      }).join('');
+
+      body.querySelectorAll('.form13-item-pick-btn').forEach((btn) => {
+        btn.addEventListener('click', async () => {
+          const idx = form13ToInt(btn.getAttribute('data-pick-idx'), -1);
+          const picked = FORM13_ITEM_PICKER_ROWS[idx];
+          if (!picked) return;
+          closeForm13ItemModal();
+          await openCreateTaskFromForm13Row(picked);
+        });
+      });
+
+      modal.classList.add('open');
+      modal.setAttribute('aria-hidden', 'false');
+    }
+
+    async function openCreateTaskFromForm13(filteredIndex) {
+      const row = FORM13_FILTERED_DATA[filteredIndex];
+      if (!row) return;
+      const itemsFromList = form13ParseItemList(row);
+      if (itemsFromList.length > 1) {
+        const mergedRows = itemsFromList
+          .map((it, idx) => {
+            const merged = form13MergeBaseWithItem(row, it);
+            merged.__item_list_index = idx;
+            merged.__form13_parent_row_ref = row;
+            return merged;
+          })
+          .sort((a, b) => form13GetRowItemIndex(a) - form13GetRowItemIndex(b));
+        openForm13ItemModal(row, mergedRows);
+        return;
+      }
+      if (itemsFromList.length === 1) {
+        const merged = form13MergeBaseWithItem(row, itemsFromList[0]);
+        merged.__item_list_index = 0;
+        merged.__form13_parent_row_ref = row;
+        await openCreateTaskFromForm13Row(merged);
+        return;
+      }
+      const itemCount = form13ToInt(form13GetV(row, ['item_count']), 1);
+      const rowsByApproval = form13GetRowsByApproval(row)
+        .slice()
+        .sort((a, b) => form13GetRowItemIndex(a) - form13GetRowItemIndex(b));
+      if (itemCount > 1) {
+        openForm13ItemModal(row, rowsByApproval);
+        return;
+      }
+      await openCreateTaskFromForm13Row(row);
+    }
+
+    function renderForm13Table() {
+      const tbody = document.getElementById('form13-table-body');
+      const pageInfo = document.getElementById('form13-page-info');
+      const prevBtn = document.getElementById('form13-prev');
+      const nextBtn = document.getElementById('form13-next');
+      if (!tbody) return;
+
+      const total = FORM13_FILTERED_DATA.length;
+      const totalPages = Math.max(1, Math.ceil(total / FORM13_PAGE_SIZE));
+      if (FORM13_PAGE > totalPages) FORM13_PAGE = totalPages;
+
+      const start = (FORM13_PAGE - 1) * FORM13_PAGE_SIZE;
+      const end = Math.min(total, start + FORM13_PAGE_SIZE);
+      const pageRows = FORM13_FILTERED_DATA.slice(start, end);
+
+      if (!pageRows.length) {
+        tbody.innerHTML = '<tr><td colspan="14" class="px-4 py-8 text-center text-gray-500">Không có dữ liệu</td></tr>';
+      } else {
+        tbody.innerHTML = pageRows.map((row, idx) => {
+          const stt = start + idx + 1;
+          const maPheDuyet = form13GetV(row, ['ma_phe_duyet']);
+          const tenPheDuyet = form13GetV(row, ['ten_phe_duyet']);
+          const taskName = form13GetV(row, ['task_name']);
+          const trangThai = form13GetV(row, ['trang_thai']);
+          const nguoiYeuCau = form13GetV(row, ['requester_name']);
+          const ngayYeuCau = form13GetV(row, ['request_date']);
+          const tenSanPham = form13GetV(row, ['ten_san_pham']);
+          const maSanPham = form13GetV(row, ['ma_san_pham_clean']);
+          const loaiLinhKien = form13GetV(row, ['loai_linh_kien']);
+          const hanMongMuon = form13GetV(row, ['han_mong_muon']);
+          const linkKoi = form13GetV(row, ['linkKOI']);
+          const item = form13GetV(row, ['item_count']);
+          const linkCell = linkKoi
+            ? `<a href="${form13Escape(linkKoi)}" target="_blank" rel="noopener" class="text-primary-blue hover:underline">Mở link</a>`
+            : '-';
+          const listItems = form13ParseItemList(row);
+          const itemCountNum = listItems.length > 0 ? listItems.length : form13ToInt(item, 1);
+          const createdCountNum = listItems.filter((it) => form13IsCreatedTaskItem(it)).length;
+          const actionLabel = itemCountNum > 1 ? 'Chọn item' : 'Tạo mới';
+          const actionIcon = itemCountNum > 1 ? 'list_alt' : 'add_task';
+          const actionCell = `<button type="button" class="inline-flex items-center gap-1 px-2 py-1 rounded bg-blue-50 text-blue-700 hover:bg-blue-100 text-xs font-medium form13-create-task-btn" data-idx="${stt - 1}"><span class="material-icons" style="font-size:14px">${actionIcon}</span><span>${actionLabel}</span></button>`;
+          const itemCell = createdCountNum > 0
+            ? `<span class="inline-flex items-center px-2 py-1 rounded bg-yellow-100 text-amber-800 font-medium">${form13Escape(item) || itemCountNum} <span class="ml-1 text-xs">(đã tạo ${createdCountNum})</span></span>`
+            : (form13Escape(item) || '-');
+          const trRowClass = createdCountNum > 0 ? 'border-b border-yellow-200 bg-yellow-50 hover:bg-yellow-100' : 'border-b border-gray-100 hover:bg-gray-50';
+          return `<tr class="${trRowClass}">
+            <td class="px-4 py-3 text-sm">${stt}</td>
+            <td class="px-4 py-3 text-sm">${form13Escape(maPheDuyet) || '-'}</td>
+            <td class="px-4 py-3 text-sm">${form13Escape(tenPheDuyet) || '-'}</td>
+            <td class="px-4 py-3 text-sm">${form13Escape(taskName) || '-'}</td>
+            <td class="px-4 py-3 text-sm">${form13Escape(trangThai) || '-'}</td>
+            <td class="px-4 py-3 text-sm">${form13Escape(nguoiYeuCau) || '-'}</td>
+            <td class="px-4 py-3 text-sm">${form13Escape(ngayYeuCau) || '-'}</td>
+            <td class="px-4 py-3 text-sm">${form13Escape(tenSanPham) || '-'}</td>
+            <td class="px-4 py-3 text-sm">${form13Escape(maSanPham) || '-'}</td>
+            <td class="px-4 py-3 text-sm">${form13Escape(loaiLinhKien) || '-'}</td>
+            <td class="px-4 py-3 text-sm">${form13Escape(hanMongMuon) || '-'}</td>
+            <td class="px-4 py-3 text-sm">${linkCell}</td>
+            <td class="px-4 py-3 text-sm">${itemCell}</td>
+            <td class="px-4 py-3 text-sm">${actionCell}</td>
+          </tr>`;
+        }).join('');
+        tbody.querySelectorAll('.form13-create-task-btn').forEach((btn) => {
+          btn.addEventListener('click', async () => {
+            const idx = parseInt(btn.getAttribute('data-idx') || '-1', 10);
+            if (idx >= 0) await openCreateTaskFromForm13(idx);
+          });
+        });
+      }
+
+      if (pageInfo) pageInfo.textContent = `Trang ${FORM13_PAGE} / ${totalPages}`;
+      if (prevBtn) prevBtn.disabled = FORM13_PAGE <= 1;
+      if (nextBtn) nextBtn.disabled = FORM13_PAGE >= totalPages;
+    }
+
+    function applyForm13Filter() {
+      const statusFilter = (document.getElementById('form13-filter-status')?.value || '').trim().toLowerCase();
+      const searchText = (document.getElementById('form13-search')?.value || '').trim().toLowerCase();
+
+      FORM13_FILTERED_DATA = FORM13_ALL_DATA.filter((row) => {
+        const status = String(form13GetV(row, ['Trạng thái', 'trang_thai', 'status']) || '').toLowerCase();
+        if (statusFilter && status !== statusFilter) return false;
+
+        if (!searchText) return true;
+        const text = [
+          form13GetV(row, ['Mã phê duyệt', 'ma_phe_duyet', 'approval_code', 'code', 'id']),
+          form13GetV(row, ['Tên phê duyệt', 'ten_phe_duyet', 'approval_name', 'name', 'ten']),
+          form13GetV(row, ['Người yêu cầu', 'nguoi_yeu_cau', 'requester']),
+          form13GetV(row, ['Tên sản phẩm', 'ten_san_pham', 'product_name']),
+          form13GetV(row, ['Mã sản phẩm', 'ma_san_pham', 'product_code']),
+          form13GetV(row, ['Link KOI', 'link_koi', 'koi_link', 'link'])
+        ].join(' ').toLowerCase();
+        return text.includes(searchText);
+      });
+
+      FORM13_PAGE = 1;
+      renderForm13Table();
+    }
+
+    async function loadForm13Data(forceReload = false) {
+      if (FORM13_LOADED_ONCE && !forceReload) return;
+      const tbody = document.getElementById('form13-table-body');
+      if (tbody) {
+        tbody.innerHTML = '<tr><td colspan="13" class="px-4 py-8 text-center text-gray-500"><span class="spinner"></span><span class="ml-2">Đang tải dữ liệu...</span></td></tr>';
+      }
+      try {
+        const resp = await fetch(FORM13_WEBHOOK_URL, { method: 'GET', headers: { 'Accept': 'application/json' } });
+        if (!resp.ok) throw new Error('HTTP ' + resp.status);
+        const text = await resp.text();
+        let parsed = null;
+        try { parsed = JSON.parse(text); } catch (_) { parsed = []; }
+        FORM13_ALL_DATA = form13PickRows(parsed);
+        FORM13_FILTERED_DATA = [...FORM13_ALL_DATA];
+        FORM13_LOADED_ONCE = true;
+        FORM13_PAGE = 1;
+        renderForm13Table();
+        if (typeof showToast === 'function') showToast(`Đã tải ${FORM13_ALL_DATA.length} dòng Form 13.`, 'success');
+      } catch (err) {
+        if (tbody) {
+          tbody.innerHTML = `<tr><td colspan="13" class="px-4 py-8 text-center text-red-600">Lỗi tải dữ liệu: ${form13Escape(err.message || err)}</td></tr>`;
+        }
+        if (typeof showToast === 'function') showToast('Lỗi tải Form 13.', 'error');
+      }
+    }
+
+    function exportForm13ToExcel() {
+      if (!window.XLSX) {
+        if (typeof showToast === 'function') showToast('Thiếu thư viện XLSX để xuất file.', 'error');
+        return;
+      }
+      const dataToExport = FORM13_FILTERED_DATA.map((row, idx) => ({
+        STT: idx + 1,
+        'Mã phê duyệt': form13GetV(row, ['ma_phe_duyet']),
+        'Tên phê duyệt': form13GetV(row, ['ten_phe_duyet']),
+        'Task name': form13GetV(row, ['task_name']),
+        'Trạng thái': form13GetV(row, ['trang_thai']),
+        'Người yêu cầu': form13GetV(row, ['requester_name']),
+        'Ngày yêu cầu': form13GetV(row, ['request_date']),
+        'Tên sản phẩm': form13GetV(row, ['ten_san_pham']),
+        'Mã sản phẩm': form13GetV(row, ['ma_san_pham_clean']),
+        'Loại linh kiện': form13GetV(row, ['loai_linh_kien']),
+        'Hạn mong muốn': form13GetV(row, ['han_mong_muon']),
+        'Link KOI': form13GetV(row, ['linkKOI']),
+        'Item': form13GetV(row, ['item_count'])
+      }));
+      const wb = XLSX.utils.book_new();
+      const ws = XLSX.utils.json_to_sheet(dataToExport);
+      XLSX.utils.book_append_sheet(wb, ws, 'Form13');
+      XLSX.writeFile(wb, `form13_${new Date().toISOString().slice(0, 10)}.xlsx`);
+    }
+
+    function initForm13Events() {
+      document.getElementById('form13-refresh')?.addEventListener('click', () => loadForm13Data(true));
+      document.getElementById('form13-export')?.addEventListener('click', exportForm13ToExcel);
+      document.getElementById('form13-filter-status')?.addEventListener('change', applyForm13Filter);
+      document.getElementById('form13-search')?.addEventListener('input', applyForm13Filter);
+      document.getElementById('form13-page-size')?.addEventListener('change', (e) => {
+        FORM13_PAGE_SIZE = parseInt(e.target.value || '20', 10) || 20;
+        FORM13_PAGE = 1;
+        renderForm13Table();
+      });
+      document.getElementById('form13-prev')?.addEventListener('click', () => {
+        if (FORM13_PAGE > 1) {
+          FORM13_PAGE--;
+          renderForm13Table();
+        }
+      });
+      document.getElementById('form13-next')?.addEventListener('click', () => {
+        FORM13_PAGE++;
+        renderForm13Table();
+      });
+
+      const form13ItemClose = document.getElementById('form13-item-close');
+      if (form13ItemClose) form13ItemClose.addEventListener('click', closeForm13ItemModal);
+      const form13ItemModal = document.getElementById('form13-item-modal');
+      if (form13ItemModal) {
+        form13ItemModal.addEventListener('click', (e) => {
+          if (e.target === form13ItemModal) closeForm13ItemModal();
+        });
+      }
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && form13ItemModal && form13ItemModal.classList.contains('open')) {
+          closeForm13ItemModal();
+        }
+      });
+    }
+
+    window.loadForm13Data = loadForm13Data;
+    initForm13Events();
+
+    // ===== Form 14: Dữ liệu Jira =====
+    let FORM14_ALL_DATA = [];
+    let FORM14_FILTERED_DATA = [];
+    const FORM14_COLUMNS = [
+      { key: 'issueKey', label: 'Mã Jira' },
+      { key: 'summary', label: 'Tên tác vụ' },
+      { key: 'status', label: 'Trạng thái' },
+      { key: 'priority', label: 'Ưu tiên' },
+      { key: 'assigneeName', label: 'Người thực hiện' },
+      { key: 'reporterName', label: 'Người yêu cầu' },
+      { key: 'dueDate', label: 'Deadline Jira' },
+      { key: 'Due date (Kế hoạch)', label: 'Deadline kế hoạch' },
+      { key: 'projectKey', label: 'Mã dự án' },
+      { key: 'projectName', label: 'Tên dự án' },
+      { key: 'created', label: 'Ngày tạo Jira' },
+      { key: 'updated', label: 'Ngày cập nhật Jira' },
+      { key: 'url', label: 'Link Jira' }
+    ];
+    let FORM14_PAGE = 1;
+    let FORM14_PAGE_SIZE = 20;
+    let FORM14_LOADED_ONCE = false;
+
+    function form14Escape(v) {
+      return String(v ?? '')
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;');
+    }
+
+    function form14PickRows(json) {
+      if (!json) return [];
+      if (Array.isArray(json)) return json;
+      const candidates = ['data', 'rows', 'result', 'records', 'items', 'list'];
+      for (const k of candidates) {
+        if (Array.isArray(json?.[k])) return json[k];
+      }
+      return [];
+    }
+
+    function form14GetStatus(row) {
+      return String(row?.status ?? '').trim();
+    }
+
+    function form14IsCreateTaskYes(row) {
+      const v = String(
+        row?.createtask ??
+        row?.createTask ??
+        row?.create_task ??
+        row?.Createtask ??
+        ''
+      ).trim().toLowerCase();
+      return v === 'yes' || v === 'y' || v === 'true' || v === '1' || v === 'x';
+    }
+
+    function form14GetDueMonth(row) {
+      const raw = String(row?.dueDate ?? '').trim();
+      if (!raw) return '';
+      const m = raw.match(/^(\d{4})-(\d{2})/);
+      if (m) return `${m[1]}-${m[2]}`;
+      const d = new Date(raw);
+      if (!isNaN(d.getTime())) {
+        return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
+      }
+      return '';
+    }
+
+    function form14ToDateInput(raw) {
+      const s = String(raw || '').trim();
+      if (!s) return '';
+      const m = s.match(/^(\d{4})-(\d{2})-(\d{2})/);
+      if (m) return `${m[1]}-${m[2]}-${m[3]}`;
+      const dmy = s.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);
+      if (dmy) {
+        const dd = String(dmy[1]).padStart(2, '0');
+        const mm = String(dmy[2]).padStart(2, '0');
+        return `${dmy[3]}-${mm}-${dd}`;
+      }
+      const d = new Date(s);
+      if (!isNaN(d.getTime())) {
+        return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+      }
+      return '';
+    }
+
+    function fillTestRequestFromForm14Row(row) {
+      const form = document.getElementById('testRequestForm');
+      if (!form || !row) return;
+
+      const setByName = (name, value) => {
+        const el = form.querySelector(`[name="${name}"]`);
+        if (!el) return;
+        const safeValue = value ?? '';
+        el.value = safeValue;
+        el.dispatchEvent(new Event('input', { bubbles: true }));
+        el.dispatchEvent(new Event('change', { bubbles: true }));
+      };
+
+      // Mapping theo trắc nghiệm người dùng đã chọn
+      const issueKey = String(row?.issueKey || '').trim();
+      const builtJira = issueKey ? `https://jira.karofi.com/browse/${encodeURIComponent(issueKey)}` : '';
+      const projectName = String(row?.projectName || '').trim();
+      const summary = String(row?.summary || '').trim();
+      const productName = [projectName, summary].filter(Boolean).join(' - ');
+      const desiredDate = form14ToDateInput(row?.dueDate);
+      const description = String(row?.description ?? row?.Description ?? '').trim();
+
+      setByName('senderName', String(row?.reporterName || '').trim());
+      setByName('senderEmail', String(row?.reporterEmail || '').trim());
+      setByName('productName', productName);
+      setByName('productCode', '');
+      setByName('desiredCompletionDate', desiredDate);
+      setByName('assignee', String(row?.assigneeName || '').trim());
+      setByName('requestPurpose', '');
+      setByName('jiraLink', builtJira);
+      setByName('koiLink', '');
+      setByName('congChuan', '');
+      setByName('notes', description);
+      setByName('supplier', '');
+      setByName('numSamples', '');
+    }
+
+    async function form14MarkCreateTaskOnWebhook(row) {
+      if (!row || typeof row !== 'object') return;
+      const formData = new FormData();
+
+      const rowId = row?.id ?? row?.Id ?? row?.ID ?? row?._id ?? '';
+      const issueKey = row?.issueKey ?? '';
+      const url = row?.url ?? '';
+      const projectKey = row?.projectKey ?? '';
+      const summary = row?.summary ?? '';
+
+      if (String(rowId).trim() !== '') formData.append('id', String(rowId).trim());
+      if (String(issueKey).trim() !== '') formData.append('issueKey', String(issueKey).trim());
+      if (String(url).trim() !== '') formData.append('url', String(url).trim());
+      if (String(projectKey).trim() !== '') formData.append('projectKey', String(projectKey).trim());
+      if (String(summary).trim() !== '') formData.append('summary', String(summary).trim());
+
+      // Tách createtask thành field độc lập theo yêu cầu.
+      formData.append('createtask', 'yes');
+      formData.append('_ts', Date.now().toString());
+
+      const resp = await fetch(FORM14_UPDATE_CREATETASK_WEBHOOK_URL, { method: 'POST', body: formData });
+      if (!resp.ok) {
+        const text = await resp.text();
+        throw new Error(text || `HTTP ${resp.status}`);
+      }
+    }
+
+    async function openCreateTaskFromForm14Row(filteredIndex) {
+      const row = FORM14_FILTERED_DATA[filteredIndex];
+      if (!row) return;
+      try {
+        await form14MarkCreateTaskOnWebhook(row);
+      } catch (err) {
+        if (typeof showToast === 'function') {
+          showToast(`Không thể cập nhật createtask cho Form 14: ${String(err?.message || err)}`, 'error');
+        }
+      }
+      const navBtn = document.querySelector('.nav-btn[data-target="testRequest"]');
+      if (navBtn) navBtn.click();
+      setTimeout(() => {
+        fillTestRequestFromForm14Row(row);
+        if (typeof switchTrvTab === 'function') switchTrvTab('danh-gia');
+        if (typeof showToast === 'function') showToast('Đã tự điền dữ liệu từ Form 14 vào Nhập tác vụ mới.', 'success');
+      }, 30);
+    }
+
+    function renderForm14StatusOptions() {
+      const select = document.getElementById('form14-filter-status');
+      if (!select) return;
+      const current = String(select.value || '');
+      const statuses = Array.from(new Set(FORM14_ALL_DATA.map((r) => form14GetStatus(r)).filter(Boolean)))
+        .sort((a, b) => a.localeCompare(b));
+      select.innerHTML = '<option value="">Tất cả trạng thái</option>' +
+        statuses.map((s) => `<option value="${form14Escape(s)}">${form14Escape(s)}</option>`).join('');
+      if (statuses.includes(current)) select.value = current;
+    }
+
+    function renderForm14MonthOptions() {
+      const select = document.getElementById('form14-filter-month');
+      if (!select) return;
+      const current = String(select.value || '');
+      const months = Array.from(new Set(FORM14_ALL_DATA.map((r) => form14GetDueMonth(r)).filter(Boolean)))
+        .sort((a, b) => b.localeCompare(a));
+      select.innerHTML = '<option value="">Tất cả tháng (dueDate)</option>' +
+        months.map((m) => `<option value="${form14Escape(m)}">${form14Escape(m)}</option>`).join('');
+      if (months.includes(current)) select.value = current;
+    }
+
+    function renderForm14AssigneeOptions() {
+      const select = document.getElementById('form14-filter-assignee');
+      if (!select) return;
+      const current = String(select.value || '');
+      const assignees = Array.from(new Set(
+        FORM14_ALL_DATA.map((r) => String(r?.assigneeName ?? '').trim()).filter(Boolean)
+      )).sort((a, b) => a.localeCompare(b));
+      select.innerHTML = '<option value="">Tất cả người thực hiện</option>' +
+        assignees.map((a) => `<option value="${form14Escape(a)}">${form14Escape(a)}</option>`).join('');
+      if (assignees.includes(current)) select.value = current;
+    }
+
+    function renderForm14Header() {
+      const thead = document.getElementById('form14-table-head');
+      if (!thead) return;
+      thead.innerHTML = `<tr class="bg-gray-50 border-b border-gray-200">
+        <th class="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase sticky left-0 bg-gray-50">STT</th>
+        ${FORM14_COLUMNS.map((c) => `<th class="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase whitespace-nowrap">${form14Escape(c.label)}</th>`).join('')}
+        <th class="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase whitespace-nowrap">Tạo tác vụ</th>
+      </tr>`;
+    }
+
+    function renderForm14Table() {
+      const tbody = document.getElementById('form14-table-body');
+      const pageInfo = document.getElementById('form14-page-info');
+      const prevBtn = document.getElementById('form14-prev');
+      const nextBtn = document.getElementById('form14-next');
+      if (!tbody) return;
+
+      const total = FORM14_FILTERED_DATA.length;
+      const totalPages = Math.max(1, Math.ceil(total / FORM14_PAGE_SIZE));
+      if (FORM14_PAGE > totalPages) FORM14_PAGE = totalPages;
+
+      const start = (FORM14_PAGE - 1) * FORM14_PAGE_SIZE;
+      const end = Math.min(total, start + FORM14_PAGE_SIZE);
+      const pageRows = FORM14_FILTERED_DATA.slice(start, end);
+      const colspan = 2 + FORM14_COLUMNS.length;
+
+      if (!pageRows.length) {
+        tbody.innerHTML = `<tr><td colspan="${colspan}" class="px-4 py-8 text-center text-gray-500">Không có dữ liệu</td></tr>`;
+      } else {
+        tbody.innerHTML = pageRows.map((row, idx) => {
+          const stt = start + idx + 1;
+          const isCreatedTask = form14IsCreateTaskYes(row);
+          const cells = FORM14_COLUMNS.map((col) => {
+            if (col.key === 'url') {
+              const issueKey = String(row?.issueKey ?? '').trim();
+              const link = issueKey ? `https://jira.karofi.com/browse/${encodeURIComponent(issueKey)}` : '';
+              const linkCell = link
+                ? `<a href="${form14Escape(link)}" target="_blank" rel="noopener" class="inline-flex items-center px-2 py-1 rounded bg-blue-50 text-blue-700 hover:bg-blue-100">Mở Jira</a>`
+                : '-';
+              return `<td class="px-4 py-3 text-sm align-top">${linkCell}</td>`;
+            }
+            const val = row?.[col.key];
+            const text = val === undefined || val === null || val === '' ? '-' : String(val);
+            return `<td class="px-4 py-3 text-sm align-top">${form14Escape(text)}</td>`;
+          }).join('');
+          const actionBtnClass = isCreatedTask
+            ? 'inline-flex items-center gap-1 px-2 py-1 rounded bg-yellow-200 text-amber-800 hover:bg-yellow-300 text-xs font-medium form14-create-task-btn'
+            : 'inline-flex items-center gap-1 px-2 py-1 rounded bg-blue-50 text-blue-700 hover:bg-blue-100 text-xs font-medium form14-create-task-btn';
+          const actionBtnLabel = isCreatedTask ? 'Đã tạo' : 'Tạo mới';
+          const actionCell = `<button type="button" class="${actionBtnClass}" data-idx="${stt - 1}"><span class="material-icons" style="font-size:14px">add_task</span><span>${actionBtnLabel}</span></button>`;
+          const rowClass = isCreatedTask ? 'border-b border-yellow-200 bg-yellow-100 hover:bg-yellow-200' : 'border-b border-gray-100 hover:bg-gray-50';
+          const stickyBgClass = isCreatedTask ? 'bg-yellow-100' : 'bg-white';
+          return `<tr class="${rowClass}">
+            <td class="px-4 py-3 text-sm align-top sticky left-0 ${stickyBgClass}">${stt}</td>
+            ${cells}
+            <td class="px-4 py-3 text-sm align-top">${actionCell}</td>
+          </tr>`;
+        }).join('');
+        tbody.querySelectorAll('.form14-create-task-btn').forEach((btn) => {
+          btn.addEventListener('click', async () => {
+            const idx = parseInt(btn.getAttribute('data-idx') || '-1', 10);
+            if (idx >= 0) await openCreateTaskFromForm14Row(idx);
+          });
+        });
+      }
+
+      if (pageInfo) pageInfo.textContent = `Trang ${FORM14_PAGE} / ${totalPages}`;
+      if (prevBtn) prevBtn.disabled = FORM14_PAGE <= 1;
+      if (nextBtn) nextBtn.disabled = FORM14_PAGE >= totalPages;
+    }
+
+    function applyForm14Filter() {
+      const statusFilter = (document.getElementById('form14-filter-status')?.value || '').trim().toLowerCase();
+      const monthFilter = (document.getElementById('form14-filter-month')?.value || '').trim();
+      const assigneeFilter = (document.getElementById('form14-filter-assignee')?.value || '').trim().toLowerCase();
+      const searchText = (document.getElementById('form14-search')?.value || '').trim().toLowerCase();
+
+      FORM14_FILTERED_DATA = FORM14_ALL_DATA.filter((row) => {
+        const status = form14GetStatus(row).toLowerCase();
+        if (statusFilter && status !== statusFilter) return false;
+        const dueMonth = form14GetDueMonth(row);
+        if (monthFilter && dueMonth !== monthFilter) return false;
+        const assignee = String(row?.assigneeName ?? '').trim().toLowerCase();
+        if (assigneeFilter && assignee !== assigneeFilter) return false;
+
+        if (!searchText) return true;
+        return FORM14_COLUMNS.some((c) => String(row?.[c.key] ?? '').toLowerCase().includes(searchText));
+      });
+      FORM14_PAGE = 1;
+      renderForm14Table();
+    }
+
+    async function loadForm14Data(forceReload = false) {
+      if (FORM14_LOADED_ONCE && !forceReload) return;
+      const tbody = document.getElementById('form14-table-body');
+      const colspan = 2 + FORM14_COLUMNS.length;
+      if (tbody) {
+        tbody.innerHTML = `<tr><td colspan="${colspan}" class="px-4 py-8 text-center text-gray-500"><span class="spinner"></span><span class="ml-2">Đang tải dữ liệu...</span></td></tr>`;
+      }
+      try {
+        const resp = await fetch(FORM14_WEBHOOK_URL, { method: 'GET', headers: { 'Accept': 'application/json' } });
+        if (!resp.ok) throw new Error('HTTP ' + resp.status);
+        const text = await resp.text();
+        let parsed = null;
+        try { parsed = JSON.parse(text); } catch (_) { parsed = []; }
+
+        FORM14_ALL_DATA = form14PickRows(parsed);
+        FORM14_FILTERED_DATA = [...FORM14_ALL_DATA];
+        FORM14_LOADED_ONCE = true;
+        FORM14_PAGE = 1;
+
+        renderForm14StatusOptions();
+        renderForm14MonthOptions();
+        renderForm14AssigneeOptions();
+        renderForm14Header();
+        renderForm14Table();
+        if (typeof showToast === 'function') showToast(`Đã tải ${FORM14_ALL_DATA.length} dòng Form 14.`, 'success');
+      } catch (err) {
+        if (tbody) {
+          tbody.innerHTML = `<tr><td colspan="${colspan}" class="px-4 py-8 text-center text-red-600">Lỗi tải dữ liệu: ${form14Escape(err.message || err)}</td></tr>`;
+        }
+        if (typeof showToast === 'function') showToast('Lỗi tải Form 14.', 'error');
+      }
+    }
+
+    function exportForm14ToExcel() {
+      if (!window.XLSX) {
+        if (typeof showToast === 'function') showToast('Thiếu thư viện XLSX để xuất file.', 'error');
+        return;
+      }
+      const dataToExport = FORM14_FILTERED_DATA.map((row, idx) => {
+        const out = { STT: idx + 1 };
+        FORM14_COLUMNS.forEach((col) => { out[col.label] = row?.[col.key] ?? ''; });
+        return out;
+      });
+      const wb = XLSX.utils.book_new();
+      const ws = XLSX.utils.json_to_sheet(dataToExport);
+      XLSX.utils.book_append_sheet(wb, ws, 'Form14_Jira');
+      XLSX.writeFile(wb, `form14_jira_${new Date().toISOString().slice(0, 10)}.xlsx`);
+    }
+
+    function initForm14Events() {
+      document.getElementById('form14-refresh')?.addEventListener('click', () => loadForm14Data(true));
+      document.getElementById('form14-export')?.addEventListener('click', exportForm14ToExcel);
+      document.getElementById('form14-filter-status')?.addEventListener('change', applyForm14Filter);
+      document.getElementById('form14-filter-month')?.addEventListener('change', applyForm14Filter);
+      document.getElementById('form14-filter-assignee')?.addEventListener('change', applyForm14Filter);
+      document.getElementById('form14-search')?.addEventListener('input', applyForm14Filter);
+      document.getElementById('form14-page-size')?.addEventListener('change', (e) => {
+        FORM14_PAGE_SIZE = parseInt(e.target.value || '20', 10) || 20;
+        FORM14_PAGE = 1;
+        renderForm14Table();
+      });
+      document.getElementById('form14-prev')?.addEventListener('click', () => {
+        if (FORM14_PAGE > 1) {
+          FORM14_PAGE--;
+          renderForm14Table();
+        }
+      });
+      document.getElementById('form14-next')?.addEventListener('click', () => {
+        FORM14_PAGE++;
+        renderForm14Table();
+      });
+    }
+
+    window.loadForm14Data = loadForm14Data;
+    initForm14Events();
 
   </script>
 
