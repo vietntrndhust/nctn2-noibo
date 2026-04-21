@@ -171,6 +171,16 @@
     #sidebar-nav .nav-btn .material-icons { font-size: 1.125rem; color: #64748b; }
     #sidebar-nav .nav-btn:hover .material-icons, #sidebar-nav .nav-btn.bg-primary-blue .material-icons,
     #sidebar-nav .nav-btn.active .material-icons { color: #b91c1c; }
+    #sidebar-nav .nav-btn.is-disabled {
+      opacity: 0.45;
+      cursor: not-allowed;
+      pointer-events: auto;
+    }
+    #sidebar-nav .nav-btn.is-disabled:hover {
+      background: transparent;
+      color: #475569;
+    }
+    #sidebar-nav .nav-btn.is-disabled:hover .material-icons { color: #64748b; }
     /* Form 3: Resizable table panel */
     #form3 { display: flex; flex-direction: column; min-height: calc(100vh - 120px); }
     #form3.hidden { display: none !important; }
@@ -222,7 +232,7 @@
             <span class="material-icons">science</span>
             <span>Form 1B · Tác vụ nghiên cứu</span>
           </button>
-          <button class="nav-btn text-left text-sm" data-target="testRequest">
+          <button class="nav-btn text-left text-sm is-disabled" data-target="testRequest" aria-disabled="true" title="Phiếu nhập tác vụ đang tạm khóa">
             <span class="material-icons">note_add</span>
             <span>Nhập tác vụ mới</span>
           </button>
@@ -1422,6 +1432,7 @@
     const formSections = document.querySelectorAll('.form-section');
     const sections = ['testRequest', 'form1', 'form1b', 'form2', 'form2b', 'form3', 'form4', 'form5', 'form13', 'form14', 'form0'].map(id=>document.getElementById(id));
     function showSection(id){ 
+      if (id === 'testRequest') id = 'form1';
       formSections.forEach(sec => sec.classList.add('hidden'));
       sections.forEach(s=>s.classList.toggle('hidden', s.id!==id));
       if (id === 'form3') setF3ThoiGianGui();
@@ -1439,9 +1450,15 @@
     }
     navBtns.forEach((btn)=>{
       btn.onclick=()=>{
+        const target = btn.getAttribute('data-target');
+        if (target === 'testRequest') {
+          if (typeof showToast === 'function') {
+            showToast('Phiếu nhập tác vụ đang tạm thời bị vô hiệu hóa.', 'warning');
+          }
+          return;
+        }
         navBtns.forEach(b=>b.classList.remove('bg-primary-blue','font-bold'));
         btn.classList.add('bg-primary-blue','font-bold');
-        const target = btn.getAttribute('data-target');
         showSection(target);
         
       }
@@ -6787,23 +6804,9 @@
 
     async function openCreateTaskFromForm13Row(row) {
       if (!row) return;
-      try {
-        await form13MarkCreateTaskOnWebhook(row);
-        const updatedList = form13BuildUpdatedItemListForCreateTask(row);
-        form13ApplyItemListToStore(row, updatedList);
-        if (typeof renderForm13Table === 'function') renderForm13Table();
-      } catch (err) {
-        if (typeof showToast === 'function') {
-          showToast(`Không thể cập nhật Createtask trên webhook: ${String(err?.message || err)}`, 'error');
-        }
+      if (typeof showToast === 'function') {
+        showToast('Liên kết sang Phiếu nhập tác vụ đã tạm thời vô hiệu hóa.', 'warning');
       }
-      const navBtn = document.querySelector('.nav-btn[data-target="testRequest"]');
-      if (navBtn) navBtn.click();
-      setTimeout(() => {
-        fillTestRequestFromForm13Row(row);
-        if (typeof switchTrvTab === 'function') switchTrvTab('danh-gia');
-        if (typeof showToast === 'function') showToast('Đã tự điền dữ liệu từ Form 13 vào Nhập tác vụ mới.', 'success');
-      }, 30);
     }
 
     function closeForm13ItemModal() {
@@ -7239,20 +7242,9 @@
     async function openCreateTaskFromForm14Row(filteredIndex) {
       const row = FORM14_FILTERED_DATA[filteredIndex];
       if (!row) return;
-      try {
-        await form14MarkCreateTaskOnWebhook(row);
-      } catch (err) {
-        if (typeof showToast === 'function') {
-          showToast(`Không thể cập nhật createtask cho Form 14: ${String(err?.message || err)}`, 'error');
-        }
+      if (typeof showToast === 'function') {
+        showToast('Liên kết sang Phiếu nhập tác vụ đã tạm thời vô hiệu hóa.', 'warning');
       }
-      const navBtn = document.querySelector('.nav-btn[data-target="testRequest"]');
-      if (navBtn) navBtn.click();
-      setTimeout(() => {
-        fillTestRequestFromForm14Row(row);
-        if (typeof switchTrvTab === 'function') switchTrvTab('danh-gia');
-        if (typeof showToast === 'function') showToast('Đã tự điền dữ liệu từ Form 14 vào Nhập tác vụ mới.', 'success');
-      }, 30);
     }
 
     function renderForm14StatusOptions() {
