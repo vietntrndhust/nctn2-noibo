@@ -4937,7 +4937,8 @@
           const filtered = rows.filter(item => {
             const taskName = String(getV(item, ['Tên tác vụ', 'taskname', 'ten_tac_vu', 'ten', 'name', 'title']) || '').trim();
             const status = String(getV(item, ['Kết quả', 'ketqua', 'ket_qua', 'status', 'result', 'kết quả']) || '').trim();
-            return taskName !== '' && status.toLowerCase() === 'doing';
+            const normalizedStatus = status.toLowerCase();
+            return taskName !== '' && (normalizedStatus === 'doing' || normalizedStatus === 'pending');
           });
           const tasks = [];
           filtered.forEach((item, idx) => {
